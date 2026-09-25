@@ -31,7 +31,7 @@ export const sourceDeliveries = dataset.source;
 const sourceById = new Map(sourceDeliveries.map(row => [row.delivery_id, row]));
 const itemById = new Map(items.map(item => [item.id, item]));
 const mediaById = new Map(mediaIndex.map(asset => [asset.asset_id, asset]));
-export const defectNames: Record<string, string> = { DENT: 'Вмятина', SCRATCH: 'Царапина', BURR: 'Заусенец', UNASSESSABLE: 'Нужна доппроверка' };
+export const defectNames: Record<string, string> = { DENT: 'Вмятина', SCRATCH: 'Царапина', BURR: 'Заусенец', CHIP: 'Скол', UNASSESSABLE: 'Нужна доппроверка' };
 export const stationNames: Record<string, string> = Object.fromEntries(catalogs.stations.map(s => [s.id, s.name]));
 export const eventNames: Record<string, string> = { item_received: 'Поступление изделия', inspection_result: 'Наблюдение контроля', operation_started: 'Начало операции', operation_finished: 'Завершение операции', operation_paused: 'Пауза операции', quality_decision: 'Решение контролёра', cause_review: 'Заключение технолога', technical_disposition: 'Допустимость доработки', master_action: 'Работа мастера', manual_measurement: 'Ручной замер', machine_state: 'Состояние оборудования', operator_action: 'Наблюдение действия' };
 export const decisionNames: Record<string, string> = { confirmed: 'Подтверждено', rejected: 'Признак отклонён', release_after_rework: 'Выпуск после контроля', additional_check: 'Доппроверка', scrap_approved: 'Списание', recheck: 'Повторная проверка' };
@@ -206,12 +206,16 @@ export function projectCases(input: QualityEvent[]): Case[] {
     const findings = event.data.defects?.length ? event.data.defects : event.data.inspection_result === 'unable_to_assess' ? [{ finding_id: 'UNABLE', defect_type_id: 'UNASSESSABLE', component_id: '', region: event.data.inspection_point_id ?? '', severity: 'medium' }] : [];
     for (const finding of findings) {
       const key = [event.item_id, finding.component_id, finding.region, finding.defect_type_id].join('|');
-      const current = map.get(key) ?? { id: `NC-${event.item_id}-${finding.defect_type_id}-${finding.region}`.toUpperCase().replace(/[^A-Z0-9-]/g, ''), item: event.item_id, type: finding.defect_type_id, region: finding.region, component: finding.component_id, observations: [], refs: [], decisions: [], confirmed: false, status: 'На рассмотрении', tone: 'amber', severity: finding.severity, priority: 0, why: '' };
+      const primaryBody = itemById.get(event.item_id)?.components.find(component => component.component_type_id === 'BODY')?.id;
+      const componentSuffix = finding.component_id && finding.component_id !== primaryBody ? `-${finding.component_id}` : '';
+      const current = map.get(key) ?? { id: `NC-${event.item_id}-${finding.defect_type_id}-${finding.region}${componentSuffix}`.toUpperCase().replace(/[^A-Z0-9-]/g, ''), item: event.item_id, type: finding.defect_type_id, region: finding.region, component: finding.component_id, observations: [], refs: [], decisions: [], confirmed: false, status: 'На рассмотрении', tone: 'amber', severity: finding.severity, priority: 0, why: '' };
       current.observations.push(event); current.refs.push(`${event.event_id}#${finding.finding_id}`); map.set(key, current);
     }
   }
   return [...map.values()].map(current => {
-    const linked = input.filter(e => e.item_id === current.item && (e.data.finding_refs?.some(ref => current.refs.includes(ref)) || (current.type === 'UNASSESSABLE' && e.event_type === 'quality_decision')));
+    const firstUnassessable = input.find(e => e.item_id === current.item && e.event_type === 'inspection_result' && e.data.inspection_result === 'unable_to_assess');
+    const legacyUnassessable = current.type === 'UNASSESSABLE' && current.observations[0].event_id === firstUnassessable?.event_id;
+    const linked = input.filter(e => e.item_id === current.item && (e.data.finding_refs?.some(ref => current.refs.includes(ref)) || (legacyUnassessable && e.event_type === 'quality_decision' && !e.data.finding_refs?.length)));
     const decisions = linked.filter(e => e.event_type === 'quality_decision');
     const review = linked.filter(e => e.event_type === 'cause_review').at(-1);
     const last = decisions.at(-1)?.data.decision;
@@ -223,7 +227,8 @@ export function projectCases(input: QualityEvent[]): Case[] {
     const repeat = current.observations.length > 1 && current.observations.at(-1)?.data.inspection_result === 'signs_detected';
     const waiting = Math.max(0, Date.parse(input.at(-1)?.occurred_at ?? '') - Date.parse(current.observations[0].occurred_at)) / 3600000;
     const priority = (severity === 'critical' ? 130 : severity === 'high' ? 70 : severity === 'medium' ? 40 : 20) + (held ? 100 : 0) + (poor ? 20 : 0) + (lowConfidence ? 15 : 0) + (current.type === 'UNASSESSABLE' ? 25 : 0) + (repeat ? 70 : 0) + (machineWarning ? 10 : 0) + Math.min(20, Math.floor(waiting / 2));
-    const why = [severity === 'critical' ? 'Критический признак' : 'Предварительная тяжесть: ' + severity, held ? 'изделие удержано' : '', current.type === 'UNASSESSABLE' ? 'оценка невозможна' : '', poor ? 'качество кадра ограничено' : '', lowConfidence ? 'низкая уверенность CV: нужна проверка' : '', machineWarning ? 'есть предупреждение станка, причина не доказана' : '', repeat ? 'признак остался после доработки' : '', waiting >= 4 ? 'длительное ожидание' : ''].filter(Boolean).join(' · ');
+    const severityLabel = { critical: 'критическая', high: 'высокая', medium: 'средняя', low: 'низкая', requires_review: 'требует ручной оценки' }[severity] ?? severity;
+    const why = [severity === 'critical' ? 'Критический признак' : 'Предварительная тяжесть: ' + severityLabel, held ? 'изделие удержано' : '', current.type === 'UNASSESSABLE' ? 'оценка невозможна' : '', poor ? 'качество кадра ограничено' : '', lowConfidence ? 'низкая уверенность CV: нужна проверка' : '', machineWarning ? 'есть предупреждение станка, причина не доказана' : '', repeat ? 'признак остался после доработки' : '', waiting >= 4 ? 'длительное ожидание' : ''].filter(Boolean).join(' · ');
     const assessed = current.type === 'UNASSESSABLE' && input.some(e => e.item_id === current.item && e.event_type === 'inspection_result' && e.data.method === 'manual_verification');
     return { ...current, decisions, review, confirmed: current.type !== 'UNASSESSABLE' && decisions.some(e => e.data.decision === 'confirmed'), status: assessed ? 'Доппроверка выполнена' : last ? decisionNames[last] ?? last : current.status, tone: assessed ? 'blue' : last === 'confirmed' || last === 'scrap_approved' ? 'red' : last === 'rejected' || last === 'release_after_rework' ? 'green' : 'amber', priority, why };
   });
@@ -283,7 +288,7 @@ export function describeEvent(event: QualityEvent): string {
 
 export type WorkflowAction = 'confirm' | 'additional' | 'reject' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
 /** Record a role action as a new auditable event, then unlock only its next source stage. */
-export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true): string {
+export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string): string {
   const own = eventsFor(item); const latest = own.at(-1); if (!latest) throw new Error('Изделие ещё не поступило');
   if (!reason.trim()) throw new Error('Укажите основание');
   const allowedRole = action.startsWith('tech') || action === 'hypothesis' || action === 'cause_confirm' ? 'technologist' : action === 'master_complete' ? 'master' : 'controller';
@@ -302,6 +307,12 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
   if (action === 'reject' && item === 'ITEM-016' && !afterDecision) throw new Error('Сначала нужна доппроверка при другом освещении');
   const first = own.find(e => e.event_type === 'inspection_result' && e.data.inspection_result === 'signs_detected');
   let refs = first?.data.defects?.map(f => `${first.event_id}#${f.finding_id}`) ?? [];
+  if (!refs.length) refs = cases.find(entry => entry.item === item && entry.type === 'UNASSESSABLE')?.refs ?? [];
+  if (caseId) {
+    const selected = cases.find(entry => entry.id === caseId && entry.item === item);
+    if (!selected) throw new Error('Случай не найден для этого изделия');
+    refs = selected.refs;
+  }
   const make = (event_type: string, data: EventData, extra: Partial<QualityEvent> = {}) => {
     const lastTime = Math.max(...eventsFor(item).map(e => Date.parse(e.occurred_at)));
     const event: QualityEvent = { event_id: `UI-${crypto.randomUUID()}`, event_type, schema_version: '2.0', occurred_at: new Date(lastTime + 60000).toISOString(), source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id, station_id: latest.station_id, shift_id: latest.shift_id, actor_id: executor.trim() || role.toUpperCase(), data, ...extra };

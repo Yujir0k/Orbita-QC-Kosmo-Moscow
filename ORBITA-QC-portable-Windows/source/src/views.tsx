@@ -3,10 +3,11 @@ import { Badge, Button, Empty, Icon, Metric, Note, Panel, ProductDrawing } from 
 import { canAccess, moduleById, roles, roleById, sectionsFor, type ModuleId, type RoleId, type Route, type Section } from './navigation';
 import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, productStatus, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
+import { ControllerWorkspace } from './controller-ui';
 import planet from './assets/planet-orbita.webp';
 
 export type Navigate = (module: ModuleId, section?: string, item?: string) => void;
-export interface ViewProps { route: Route; scope: Scope; navigate: Navigate; openItem: (id: string) => void; changeRole: (role: RoleId, module?: ModuleId) => void }
+export interface ViewProps { route: Route; scope: Scope; navigate: Navigate; openItem: (id: string) => void; openCase: (item: string, caseId: string) => void; changeRole: (role: RoleId, module?: ModuleId) => void }
 
 function CaseTable({ data, openItem }: { data: Case[]; openItem: (id: string) => void }) {
   return data.length ? <div className="table-wrap"><table><thead><tr><th>Случай / изделие</th><th>Наблюдение</th><th>Рассмотрение</th><th>Причина</th><th><span className="sr-only">Открыть</span></th></tr></thead><tbody>{data.map(c => <tr key={c.id}><td><button className="cell-link mono" onClick={() => openItem(c.item)}>{c.id}</button><small>{c.item}</small></td><td><strong>{defectNames[c.type]}</strong><small>{stationNames[c.observations[0].station_id]} · {c.observations.length} набл.</small></td><td><Badge tone={c.tone}>{c.status}</Badge></td><td><span className={c.review?.data.status === 'confirmed' ? 'text-green' : 'text-sub'}>{c.review?.data.status === 'confirmed' ? 'Установлена' : c.review ? 'Гипотеза' : 'Не установлена'}</span></td><td><button className="icon-button" aria-label={`Открыть ${c.id}`} onClick={() => openItem(c.item)}><Icon name="arrow" size={17} /></button></td></tr>)}</tbody></table></div> : <Empty title="В этом срезе случаев нет" text="Измените смену или условия отбора." />;
@@ -86,7 +87,8 @@ function TaskList({ data, openItem }: { data: typeof tasks; openItem: (id: strin
   return data.length ? <div className="task-list">{data.map(task => <button key={task.id} onClick={() => openItem(task.item)}><span className={`task-symbol ${task.done ? 'green' : 'amber'}`}><Icon name={task.done ? 'check' : 'clock'} /></span><div><strong>{task.title}</strong><small><span className="mono">{task.item}</span> · {roleById[task.role].name}</small><p>{task.description}</p></div><Badge tone={task.done ? 'green' : 'amber'}>{task.done ? 'Завершено' : 'Требует действия'}</Badge><Icon name="chevron" /></button>)}</div> : <Empty title="Открытых задач в этом срезе нет" text="Новые действия будут появляться здесь вместе с основанием и карточкой изделия." />;
 }
 
-function QualityView({ route, scope, openItem }: ViewProps) {
+function QualityView({ route, scope, openItem, openCase }: ViewProps) {
+  if (route.role === 'controller') return <ControllerWorkspace scope={scope} openCase={openCase}/>;
   const [filter, setFilter] = useState('all');
   const source = cases.filter(c => c.observations.some(e => inScope(e, scope)));
   const data = source.filter(c => filter === 'all' || (filter === 'confirmed' && c.confirmed) || (filter === 'pending' && !c.decisions.length) || (filter === 'closed' && ['Отклонено', 'Выпуск после доработки'].includes(c.status)));

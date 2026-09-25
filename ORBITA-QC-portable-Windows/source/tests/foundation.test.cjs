@@ -21,11 +21,45 @@ function load(entry) {
 }
 const domain = load('domain.ts');
 const nav = load('navigation.ts');
+const controllerCase = load('controller-case.ts');
 
 test('Routes remain role-specific and all modules belong to a role', () => {
   for (const workspace of nav.workspaces) assert.ok(nav.roles.some(role => nav.canAccess(role.id, workspace.id)), workspace.id);
   assert.equal(nav.parseRoute('#/controller/security/crypto').module, 'home');
   assert.equal(nav.parseRoute('#/controller/products/registry?item=ITEM-013').item, 'ITEM-013');
+  assert.equal(nav.parseRoute('#/controller/quality/signals?item=ITEM-013&case=NC-123').caseId, 'NC-123');
+  assert.equal(nav.sectionsFor('controller', 'quality').length, 1);
+});
+
+test('Controller dossier uses each CV finding and flags absent original frames', () => {
+  domain.resetDemo();
+  const case49 = domain.cases.find(row => row.item === 'ITEM-049' && row.type === 'DENT');
+  const case13 = domain.cases.find(row => row.item === 'ITEM-013' && row.type === 'SCRATCH');
+  assert.ok(case49 && case13);
+  const item49 = domain.items.find(row => row.id === 'ITEM-049');
+  const item13 = domain.items.find(row => row.id === 'ITEM-013');
+  const dossier49 = controllerCase.controllerCaseData(case49, item49, domain.mediaIndex);
+  const dossier13 = controllerCase.controllerCaseData(case13, item13, domain.mediaIndex);
+  assert.equal(dossier49.regionName, 'Кромка B');
+  assert.equal(dossier49.confidence, '93%');
+  assert.equal(dossier49.image, undefined);
+  assert.ok(dossier49.missing.includes('Исходный кадр CV не передан'));
+  assert.equal(dossier13.image.asset_id, 'M013-CV-DEFECT');
+  domain.performAction('ITEM-049', 'controller', 'additional', 'Нужен исходный кадр для проверки кромки', 'QC-01', true, case49.id);
+  const recorded = domain.eventsFor('ITEM-049').filter(row => row.event_type === 'quality_decision').at(-1);
+  assert.deepEqual(recorded.data.finding_refs, case49.refs);
+  domain.resetDemo();
+  const first15 = domain.cases.find(row => row.item === 'ITEM-015' && row.region === 'CP-IN');
+  domain.performAction('ITEM-015', 'controller', 'additional', 'Нет исходного кадра; требуется очная проверка', 'QC-01', true, first15.id);
+  const cases15 = domain.cases.filter(row => row.item === 'ITEM-015');
+  assert.equal(cases15.find(row => row.region === 'CP-IN').decisions.length, 1);
+  assert.equal(cases15.find(row => row.region === 'CP-POST-MILL').decisions.length, 0);
+  const bodyObservation = domain.eventsFor('ITEM-049').find(row => row.event_type === 'inspection_result' && row.data.inspection_result === 'signs_detected');
+  const insertObservation = structuredClone(bodyObservation);
+  insertObservation.event_id = 'E-INSERT-049';
+  insertObservation.data.defects[0].component_id = 'COMP-049-INSERT';
+  const distinct = domain.projectCases([bodyObservation, insertObservation]);
+  assert.equal(new Set(distinct.map(row => row.id)).size, 2);
 });
 
 test('The expanded demo starts before human decisions and future work', () => {

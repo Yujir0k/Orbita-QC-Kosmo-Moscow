@@ -115,11 +115,12 @@ export function canAccess(role: RoleId, module: ModuleId): boolean {
 /** Return role-relevant sections without duplicating the underlying workspace. */
 export function sectionsFor(role: RoleId, module: ModuleId): Section[] {
   const sections = moduleById[module].sections;
+  if (module === 'quality' && role === 'controller') return sections.filter(s => s.id === 'signals');
   if (module === 'analytics' && role === 'controller') return sections.filter(s => ['quality', 'reports'].includes(s.id));
   if (module === 'tasks' && role === 'controller') return sections.filter(s => s.id !== 'team');
   return sections;
 }
-export interface Route { role: RoleId; module: ModuleId; section: string; item?: string }
+export interface Route { role: RoleId; module: ModuleId; section: string; item?: string; caseId?: string }
 /** Normalize untrusted URL fragments to a visible route. */
 export function parseRoute(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
@@ -129,9 +130,13 @@ export function parseRoute(hash: string): Route {
   const sections = sectionsFor(role, module);
   const section = sections.some(s => s.id === rawSection) ? rawSection : sections[0]?.id ?? '';
   const item = new URLSearchParams(query).get('item') ?? undefined;
-  return { role, module, section, item };
+  const caseId = new URLSearchParams(query).get('case') ?? undefined;
+  return { role, module, section, item, caseId };
 }
 /** Keep role, workspace, tab and product context shareable and back-button friendly. */
 export function routeHash(route: Route): string {
-  return `#/${route.role}/${route.module}${route.section ? `/${route.section}` : ''}${route.item ? `?item=${encodeURIComponent(route.item)}` : ''}`;
+  const query = new URLSearchParams();
+  if (route.item) query.set('item', route.item);
+  if (route.item && route.caseId) query.set('case', route.caseId);
+  return `#/${route.role}/${route.module}${route.section ? `/${route.section}` : ''}${query.size ? `?${query}` : ''}`;
 }
