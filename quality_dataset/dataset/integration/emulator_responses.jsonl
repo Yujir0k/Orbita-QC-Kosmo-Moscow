@@ -1,0 +1,12 @@
+{"message_id":"ERP-ACK-QC-RESULT-001-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-001","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-002-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-002","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-003-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-003","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-004-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-004","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-005-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-005","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-006-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-006","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-007-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-007","attempt":1,"status":"temporary_unavailable","error_code":"TEMPORARY_UNAVAILABLE"}
+{"message_id":"ERP-ACK-QC-RESULT-007-2","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-007","attempt":2,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-008-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-008","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-009-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-009","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-010-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-010","attempt":1,"status":"accepted","error_code":null}
+{"message_id":"ERP-ACK-QC-RESULT-011-1","message_type":"quality_result_ack","schema_version":"1.0","source_system":"ERP-EMU","correlation_key":"QC-RESULT-011","attempt":1,"status":"accepted","error_code":null}

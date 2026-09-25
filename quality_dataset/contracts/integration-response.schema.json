@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/cosmo-quality/integration-response/1.0",
+  "title": "ERP emulator response to quality result v1.0",
+  "type": "object",
+  "required": ["message_id", "message_type", "schema_version", "source_system", "correlation_key", "attempt", "status", "error_code"],
+  "additionalProperties": false,
+  "properties": {
+    "message_id": {"type": "string"},
+    "message_type": {"const": "quality_result_ack"},
+    "schema_version": {"const": "1.0"},
+    "source_system": {"const": "ERP-EMU"},
+    "correlation_key": {"type": "string"},
+    "attempt": {"type": "integer", "minimum": 1},
+    "status": {"enum": ["accepted", "temporary_unavailable"]},
+    "error_code": {"type": ["string", "null"]}
+  }
+}

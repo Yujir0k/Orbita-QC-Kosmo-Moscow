@@ -1,0 +1,290 @@
+[
+  {
+    "id": "ITEM-001",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-A",
+    "components": [
+      {
+        "id": "COMP-001-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-001-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-001-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-001-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-002",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-A",
+    "components": [
+      {
+        "id": "COMP-002-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-002-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-002-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-002-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-003",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-A",
+    "components": [
+      {
+        "id": "COMP-003-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-003-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-003-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-003-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-004",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-A",
+    "components": [
+      {
+        "id": "COMP-004-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-004-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-004-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-004-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-005",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-A",
+    "components": [
+      {
+        "id": "COMP-005-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-005-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-005-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-005-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-006",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-A",
+    "components": [
+      {
+        "id": "COMP-006-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-006-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-006-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-006-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-007",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-B",
+    "components": [
+      {
+        "id": "COMP-007-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-007-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-007-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-007-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-008",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-B",
+    "components": [
+      {
+        "id": "COMP-008-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-008-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-008-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-008-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-009",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-B",
+    "components": [
+      {
+        "id": "COMP-009-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-009-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-009-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-009-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-010",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-B",
+    "components": [
+      {
+        "id": "COMP-010-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-010-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-010-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-010-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-011",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-B",
+    "components": [
+      {
+        "id": "COMP-011-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-011-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-011-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-011-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  },
+  {
+    "id": "ITEM-012",
+    "item_type_id": "TYPE-BRACKET-01",
+    "assembly_revision": "A",
+    "work_order_id": "WO-B",
+    "components": [
+      {
+        "id": "COMP-012-BODY",
+        "component_type_id": "BODY"
+      },
+      {
+        "id": "COMP-012-INSERT",
+        "component_type_id": "INSERT"
+      },
+      {
+        "id": "COMP-012-FASTENER-1",
+        "component_type_id": "FASTENER"
+      },
+      {
+        "id": "COMP-012-FASTENER-2",
+        "component_type_id": "FASTENER"
+      }
+    ]
+  }
+]

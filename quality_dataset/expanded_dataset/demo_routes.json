@@ -1,0 +1,81 @@
+{
+  "primary": [
+    {
+      "item_id": "ITEM-013",
+      "scenario": "Устранимая риска: кадр CV → ОТК → разрешение технолога → мастер → замер → повторный контроль → выпуск."
+    },
+    {
+      "item_id": "ITEM-014",
+      "scenario": "Заусенец остался после первой доработки: повторный круг и выпуск только после второго контроля."
+    },
+    {
+      "item_id": "ITEM-015",
+      "scenario": "Кадра нет: доппроверка с фото мастера выявляет критический дефект, доработка отклонена."
+    },
+    {
+      "item_id": "ITEM-016",
+      "scenario": "Блик и слабый сигнал: проверка мастера опровергает признак, контролёр выпускает изделие."
+    }
+  ],
+  "technical": [
+    {
+      "item_id": "ITEM-017",
+      "scenario": "Предупреждение станка — гипотеза, не установленная причина."
+    },
+    {
+      "item_id": "ITEM-018",
+      "scenario": "Поздний входной контроль и повторная доставка одного CV-сигнала."
+    },
+    {
+      "item_id": "ITEM-007",
+      "scenario": "Два дефекта в одном сигнале, один бракованный экземпляр."
+    }
+  ],
+  "event_refs": {
+    "ITEM-013": {
+      "detected": "E2-000006",
+      "confirmed": "E2-000007",
+      "master_photo": "E2-000011",
+      "recheck": "E2-000013",
+      "released": "E2-000014",
+      "measurement": "E2-000012"
+    },
+    "ITEM-014": {
+      "detected": "E2-000023",
+      "confirmed": "E2-000024",
+      "first_master": "E2-000028",
+      "failed_recheck": "E2-000029",
+      "second_master": "E2-000033",
+      "successful_recheck": "E2-000034",
+      "released": "E2-000035"
+    },
+    "ITEM-015": {
+      "unassessable": "E2-000044",
+      "requested": "E2-000045",
+      "master_photo": "E2-000046",
+      "manual_defect": "E2-000047",
+      "confirmed": "E2-000048",
+      "technical_refusal": "E2-000049",
+      "scrap": "E2-000050"
+    },
+    "ITEM-016": {
+      "suspected": "E2-000056",
+      "requested": "E2-000057",
+      "master_photo": "E2-000058",
+      "manual_clear": "E2-000059",
+      "rejected": "E2-000060"
+    },
+    "ITEM-017": {
+      "detected": "E2-000069",
+      "machine_warning": "E2-000068",
+      "confirmed": "E2-000070",
+      "recheck": "E2-000074"
+    },
+    "ITEM-018": {
+      "incoming_late": "E2-000080",
+      "detected": "E2-000083",
+      "confirmed": "E2-000084"
+    }
+  },
+  "truth_source": "expected/demo_timeline.json; not fed into core ingestion"
+}

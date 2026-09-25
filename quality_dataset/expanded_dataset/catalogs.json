@@ -1,0 +1,228 @@
+{
+  "synthetic": true,
+  "dataset_version": "2.0",
+  "item_types": [
+    {
+      "id": "TYPE-BRACKET-01",
+      "name": "Условный кронштейн приборного блока"
+    }
+  ],
+  "component_types": [
+    {
+      "id": "BODY",
+      "name": "Заготовка корпуса"
+    },
+    {
+      "id": "INSERT",
+      "name": "Вставка"
+    },
+    {
+      "id": "FASTENER",
+      "name": "Крепёжный элемент"
+    }
+  ],
+  "lines": [
+    {
+      "id": "LINE-01",
+      "name": "Демонстрационная линия"
+    },
+    {
+      "id": "LINE-02",
+      "name": "Вторая учебная линия"
+    }
+  ],
+  "stations": [
+    {
+      "id": "ST-IN",
+      "name": "Входной контроль"
+    },
+    {
+      "id": "ST-MILL",
+      "name": "Механическая обработка"
+    },
+    {
+      "id": "ST-ASSEMBLY",
+      "name": "Сборка"
+    },
+    {
+      "id": "ST-QC",
+      "name": "Рассмотрение качества"
+    },
+    {
+      "id": "ST-IN-02",
+      "name": "Входной контроль, линия 2"
+    },
+    {
+      "id": "ST-MILL-02",
+      "name": "Механическая обработка, линия 2"
+    },
+    {
+      "id": "ST-ASSEMBLY-02",
+      "name": "Сборка, линия 2"
+    },
+    {
+      "id": "ST-QC-02",
+      "name": "Рассмотрение качества, линия 2"
+    }
+  ],
+  "operations": [
+    {
+      "id": "OP-MILL",
+      "name": "Обработка корпуса",
+      "station_id": "ST-MILL"
+    },
+    {
+      "id": "OP-ASSEMBLY",
+      "name": "Сборка кронштейна",
+      "station_id": "ST-ASSEMBLY"
+    },
+    {
+      "id": "OP-REWORK",
+      "name": "Контролируемая доработка",
+      "station_id": "ST-MILL"
+    }
+  ],
+  "operators": [
+    {
+      "id": "OP-01",
+      "shift_id": "SHIFT-A"
+    },
+    {
+      "id": "OP-02",
+      "shift_id": "SHIFT-B"
+    },
+    {
+      "id": "OP-03",
+      "shift_id": "SHIFT-A"
+    },
+    {
+      "id": "OP-04",
+      "shift_id": "SHIFT-A"
+    },
+    {
+      "id": "OP-05",
+      "shift_id": "SHIFT-B"
+    },
+    {
+      "id": "OP-06",
+      "shift_id": "SHIFT-B"
+    }
+  ],
+  "reviewers": [
+    {
+      "id": "QC-01",
+      "role": "quality_controller"
+    },
+    {
+      "id": "TECH-01",
+      "role": "technologist"
+    },
+    {
+      "id": "QC-02",
+      "role": "quality_controller"
+    },
+    {
+      "id": "MASTER-01",
+      "role": "line_master"
+    }
+  ],
+  "shifts": [
+    {
+      "id": "SHIFT-A",
+      "local_start": "08:00",
+      "local_end": "16:00"
+    },
+    {
+      "id": "SHIFT-B",
+      "local_start": "16:00",
+      "local_end": "00:00"
+    }
+  ],
+  "equipment": [
+    {
+      "id": "EQ-CNC-01",
+      "station_id": "ST-MILL"
+    },
+    {
+      "id": "EQ-ASSEMBLY-01",
+      "station_id": "ST-ASSEMBLY"
+    },
+    {
+      "id": "GAGE-01",
+      "station_id": "ST-QC",
+      "purpose": "Ручное измерение учебного размера"
+    },
+    {
+      "id": "EQ-CNC-02",
+      "station_id": "ST-MILL-02"
+    },
+    {
+      "id": "EQ-ASSEMBLY-02",
+      "station_id": "ST-ASSEMBLY-02"
+    }
+  ],
+  "inspection_points": [
+    {
+      "id": "CP-IN",
+      "station_id": "ST-IN"
+    },
+    {
+      "id": "CP-POST-MILL",
+      "station_id": "ST-MILL"
+    },
+    {
+      "id": "CP-FINAL",
+      "station_id": "ST-ASSEMBLY"
+    }
+  ],
+  "defect_types": [
+    {
+      "id": "DENT",
+      "name": "Вмятина"
+    },
+    {
+      "id": "SCRATCH",
+      "name": "Царапина"
+    },
+    {
+      "id": "BURR",
+      "name": "Заусенец"
+    },
+    {
+      "id": "CHIP",
+      "name": "Скол критической кромки"
+    }
+  ],
+  "sources": [
+    {
+      "id": "ERP-EMU"
+    },
+    {
+      "id": "MES-EMU"
+    },
+    {
+      "id": "VISION-IN"
+    },
+    {
+      "id": "VISION-MILL"
+    },
+    {
+      "id": "VISION-ASM"
+    },
+    {
+      "id": "MACHINE-CNC"
+    },
+    {
+      "id": "OPVISION-EMU"
+    },
+    {
+      "id": "QC-UI"
+    },
+    {
+      "id": "TECH-UI"
+    },
+    {
+      "id": "MASTER-UI"
+    }
+  ]
+}

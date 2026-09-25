@@ -1,0 +1,159 @@
+{
+  "synthetic": true,
+  "dataset_version": "1.0",
+  "item_types": [
+    {
+      "id": "TYPE-BRACKET-01",
+      "name": "Условный кронштейн приборного блока"
+    }
+  ],
+  "component_types": [
+    {
+      "id": "BODY",
+      "name": "Заготовка корпуса"
+    },
+    {
+      "id": "INSERT",
+      "name": "Вставка"
+    },
+    {
+      "id": "FASTENER",
+      "name": "Крепёжный элемент"
+    }
+  ],
+  "lines": [
+    {
+      "id": "LINE-01",
+      "name": "Демонстрационная линия"
+    }
+  ],
+  "stations": [
+    {
+      "id": "ST-IN",
+      "name": "Входной контроль"
+    },
+    {
+      "id": "ST-MILL",
+      "name": "Механическая обработка"
+    },
+    {
+      "id": "ST-ASSEMBLY",
+      "name": "Сборка"
+    },
+    {
+      "id": "ST-QC",
+      "name": "Рассмотрение качества"
+    }
+  ],
+  "operations": [
+    {
+      "id": "OP-MILL",
+      "name": "Обработка корпуса",
+      "station_id": "ST-MILL"
+    },
+    {
+      "id": "OP-ASSEMBLY",
+      "name": "Сборка кронштейна",
+      "station_id": "ST-ASSEMBLY"
+    }
+  ],
+  "operators": [
+    {
+      "id": "OP-01",
+      "shift_id": "SHIFT-A"
+    },
+    {
+      "id": "OP-02",
+      "shift_id": "SHIFT-B"
+    }
+  ],
+  "reviewers": [
+    {
+      "id": "QC-01",
+      "role": "quality_controller"
+    },
+    {
+      "id": "TECH-01",
+      "role": "technologist"
+    }
+  ],
+  "shifts": [
+    {
+      "id": "SHIFT-A",
+      "local_start": "08:00",
+      "local_end": "16:00"
+    },
+    {
+      "id": "SHIFT-B",
+      "local_start": "16:00",
+      "local_end": "00:00"
+    }
+  ],
+  "equipment": [
+    {
+      "id": "EQ-CNC-01",
+      "station_id": "ST-MILL"
+    },
+    {
+      "id": "EQ-ASSEMBLY-01",
+      "station_id": "ST-ASSEMBLY"
+    }
+  ],
+  "inspection_points": [
+    {
+      "id": "CP-IN",
+      "station_id": "ST-IN"
+    },
+    {
+      "id": "CP-POST-MILL",
+      "station_id": "ST-MILL"
+    },
+    {
+      "id": "CP-FINAL",
+      "station_id": "ST-ASSEMBLY"
+    }
+  ],
+  "defect_types": [
+    {
+      "id": "DENT",
+      "name": "Вмятина"
+    },
+    {
+      "id": "SCRATCH",
+      "name": "Царапина"
+    },
+    {
+      "id": "BURR",
+      "name": "Заусенец"
+    }
+  ],
+  "sources": [
+    {
+      "id": "ERP-EMU"
+    },
+    {
+      "id": "MES-EMU"
+    },
+    {
+      "id": "VISION-IN"
+    },
+    {
+      "id": "VISION-MILL"
+    },
+    {
+      "id": "VISION-ASM"
+    },
+    {
+      "id": "MACHINE-CNC"
+    },
+    {
+      "id": "OPVISION-EMU"
+    },
+    {
+      "id": "QC-UI"
+    },
+    {
+      "id": "TECH-UI"
+    }
+  ]
+}

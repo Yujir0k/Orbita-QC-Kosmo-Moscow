@@ -1,0 +1,77 @@
+[
+  {
+    "item_id": "ITEM-003",
+    "as_of_delivery_time": "2026-02-17T10:19:00+03:00",
+    "expect": {
+      "assessable_final_inspections": 0,
+      "quality_state": "not_finally_assessed"
+    },
+    "meaning": "Плохой финальный обзор не означает годность."
+  },
+  {
+    "item_id": "ITEM-003",
+    "as_of_delivery_time": "2026-02-17T10:23:00+03:00",
+    "expect": {
+      "assessable_final_inspections": 1,
+      "quality_state": "final_control_clear"
+    },
+    "meaning": "После ручной проверки появляется оцениваемый результат."
+  },
+  {
+    "item_id": "ITEM-008",
+    "as_of_delivery_time": "2026-02-17T17:17:00+03:00",
+    "expect": {
+      "confirmed_decisions": 1,
+      "release_decisions": 0,
+      "current_disposition": "rework"
+    },
+    "meaning": "Подтверждение дефекта направляет изделие на доработку."
+  },
+  {
+    "item_id": "ITEM-008",
+    "as_of_delivery_time": "2026-02-17T17:36:00+03:00",
+    "expect": {
+      "confirmed_decisions": 1,
+      "release_decisions": 1,
+      "current_disposition": "release"
+    },
+    "meaning": "Допуск после доработки не удаляет прошлое подтверждение."
+  },
+  {
+    "item_id": "ITEM-010",
+    "as_of_delivery_time": "2026-02-17T18:55:00+03:00",
+    "expect": {
+      "incoming_inspections": 0,
+      "post_mill_unique_inspections": 1,
+      "origin": "unknown"
+    },
+    "meaning": "До запоздавшего сообщения входное состояние неизвестно; дубль не удваивает контроль."
+  },
+  {
+    "item_id": "ITEM-010",
+    "as_of_delivery_time": "2026-02-17T19:21:00+03:00",
+    "expect": {
+      "incoming_inspections": 1,
+      "post_mill_unique_inspections": 1,
+      "origin": "between_incoming_and_post_milling"
+    },
+    "meaning": "Позднее событие меняет хронологию и основания вывода."
+  },
+  {
+    "item_id": "ITEM-007",
+    "as_of_delivery_time": "2026-02-17T16:30:00+03:00",
+    "expect": {
+      "hypotheses": 1,
+      "confirmed_causes": 0
+    },
+    "meaning": "Предупреждение станка остаётся гипотезой о причине."
+  },
+  {
+    "item_id": "ITEM-012",
+    "as_of_delivery_time": "2026-02-17T21:00:00+03:00",
+    "expect": {
+      "unfinished_operations": 1
+    },
+    "meaning": "Для незавершённой операции длительность не придумывается."
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "default": [
+    "accepted"
+  ],
+  "overrides": {
+    "QC-RESULT-007": [
+      "temporary_unavailable",
+      "accepted"
+    ]
+  },
+  "idempotency_key_field": "correlation_key",
+  "note": "Повторная отправка результата ITEM-007 после восстановления не создаёт вторую запись в ERP-эмуляторе."
+}

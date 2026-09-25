@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/cosmo-quality/event-delivery/1.0",
+  "title": "Synthetic production event delivery v1.0",
+  "type": "object",
+  "required": ["delivery_id", "deliver_at", "message"],
+  "additionalProperties": false,
+  "properties": {
+    "delivery_id": {"type": "string", "minLength": 1},
+    "deliver_at": {"type": "string", "format": "date-time"},
+    "message": {
+      "type": "object",
+      "required": ["event_id", "event_type", "schema_version", "occurred_at", "source_id", "item_id", "item_type_id", "line_id", "station_id", "shift_id", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "event_type": {
+          "enum": ["item_received", "inspection_result", "operation_started", "operation_finished", "operation_paused", "machine_state", "operator_action", "quality_decision", "cause_review"]
+        },
+        "schema_version": {"const": "1.0"},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "source_id": {"type": "string", "minLength": 1},
+        "item_id": {"type": "string", "minLength": 1},
+        "item_type_id": {"type": "string", "minLength": 1},
+        "line_id": {"type": "string", "minLength": 1},
+        "station_id": {"type": "string", "minLength": 1},
+        "shift_id": {"type": "string", "minLength": 1},
+        "operation_run_id": {"type": "string", "minLength": 1},
+        "equipment_id": {"type": "string", "minLength": 1},
+        "actor_id": {"type": "string", "minLength": 1},
+        "analyzer_version": {"type": "string", "minLength": 1},
+        "data": {"type": "object"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"event_type": {"const": "inspection_result"}}},
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["inspection_point_id", "inspection_result", "observation_quality", "confidence", "defects", "method", "evidence_refs"],
+                "properties": {
+                  "inspection_point_id": {"type": "string"},
+                  "inspection_result": {"enum": ["signs_detected", "no_signs_detected", "unable_to_assess"]},
+                  "observation_quality": {"enum": ["good", "poor"]},
+                  "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+                  "defects": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["finding_id", "defect_type_id", "component_id", "region", "severity"],
+                      "properties": {
+                        "finding_id": {"type": "string"},
+                        "defect_type_id": {"type": "string"},
+                        "component_id": {"type": "string"},
+                        "region": {"type": "string"},
+                        "severity": {"type": "string"}
+                      }
+                    }
+                  },
+                  "method": {"enum": ["manual", "external_analyzer"]},
+                  "evidence_refs": {"type": "array", "items": {"type": "string"}}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"event_type": {"enum": ["operation_started", "operation_finished", "operation_paused"]}}},
+          "then": {"required": ["operation_run_id"]}
+        },
+        {
+          "if": {"properties": {"event_type": {"const": "quality_decision"}}},
+          "then": {
+            "required": ["actor_id"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["finding_refs", "decision", "disposition", "reason", "evidence_event_ids"],
+                "properties": {
+                  "finding_refs": {"type": "array", "items": {"type": "string"}},
+                  "decision": {"enum": ["confirmed", "rejected", "release_after_rework"]},
+                  "disposition": {"enum": ["quarantine", "rework", "release"]},
+                  "reason": {"type": "string", "minLength": 1},
+                  "evidence_event_ids": {"type": "array", "items": {"type": "string"}}
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

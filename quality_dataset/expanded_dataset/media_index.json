@@ -1,0 +1,90 @@
+[
+  {
+    "asset_id": "M013-CV-DEFECT",
+    "item_id": "ITEM-013",
+    "path_from_quality_dataset": "media/item-013-cv-scratch.png",
+    "sha256": "466522eac9586af3f31c7bc0b93d186b504a99fd4b8b7f29059a2adbbdf2feaa",
+    "capture_source": "fixed_camera",
+    "stage": "before_rework",
+    "description": "Поверхностная риска у правого отверстия; первичный кадр камеры.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M013-MASTER-CLEAR",
+    "item_id": "ITEM-013",
+    "path_from_quality_dataset": "media/item-013-master-clear.png",
+    "sha256": "54cb612fa72d9d82ef1908678564a6a1a5287794bd63dfaec577d97409b1d6cc",
+    "capture_source": "master_phone",
+    "stage": "after_rework",
+    "description": "Та же деталь после разрешённой доработки; поверхность очищена.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M014-CV-BURR",
+    "item_id": "ITEM-014",
+    "path_from_quality_dataset": "media/item-014-cv-burr.png",
+    "sha256": "abb960901e4d9777c1ea4957d778df87a46f262dff1912136108363029c41364",
+    "capture_source": "fixed_camera",
+    "stage": "before_rework",
+    "description": "Заусенец на внешней правой кромке.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M014-MASTER-STILL",
+    "item_id": "ITEM-014",
+    "path_from_quality_dataset": "media/item-014-master-burr-remains.png",
+    "sha256": "81c3380c2547a814465440db96f15bb632179e873d4074db7924233d8f7291b5",
+    "capture_source": "master_phone",
+    "stage": "after_first_rework",
+    "description": "Первый проход не убрал заусенец; повторный контроль не допускает изделие.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M014-MASTER-CLEAR",
+    "item_id": "ITEM-014",
+    "path_from_quality_dataset": "media/item-014-master-clear.png",
+    "sha256": "6645713cd6bc4ecc08c42378ae10c3dccc0c18b78a2e29fe19387c896faef498",
+    "capture_source": "master_phone",
+    "stage": "after_second_rework",
+    "description": "После второго прохода кромка очищена.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M015-MASTER-DENT",
+    "item_id": "ITEM-015",
+    "path_from_quality_dataset": "media/item-015-master-dent.png",
+    "sha256": "b4e63ac47420e2f9847128d9847b8cd4750ce25bd44d80a1c089ac36ef2b2c78",
+    "capture_source": "master_phone",
+    "stage": "additional_check",
+    "description": "Первое пригодное фото: повреждена критическая наружная кромка.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M016-CV-GLARE",
+    "item_id": "ITEM-016",
+    "path_from_quality_dataset": "media/item-016-cv-glare.png",
+    "sha256": "d9ae8f5b2fe994099f76fa42cbfdcea261d7e0507eac549199c9bee27dd01b31",
+    "capture_source": "fixed_camera",
+    "stage": "ambiguous_observation",
+    "description": "Блик похож на царапину; вывод модели требует проверки.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M016-MASTER-CLEAR",
+    "item_id": "ITEM-016",
+    "path_from_quality_dataset": "media/item-016-master-clear.png",
+    "sha256": "7dd85b8fa4a724f2202dbe4beda0caf7793b483ae4b7c1b216dd646fc0d2c505",
+    "capture_source": "master_phone",
+    "stage": "additional_check",
+    "description": "После изменения освещения видно, что повреждения нет.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  }
+]

@@ -1,0 +1,93 @@
+[
+  {
+    "item_id": "ITEM-001",
+    "scenario": "normal_a",
+    "final_status": "accepted",
+    "confirmed_defect_cases": 0
+  },
+  {
+    "item_id": "ITEM-002",
+    "scenario": "normal_b",
+    "final_status": "accepted",
+    "confirmed_defect_cases": 0
+  },
+  {
+    "item_id": "ITEM-003",
+    "scenario": "poor_final_view_then_manual_clear",
+    "final_status": "accepted",
+    "confirmed_defect_cases": 0,
+    "must_not_pass_before_manual_recheck": true
+  },
+  {
+    "item_id": "ITEM-004",
+    "scenario": "incoming_defect",
+    "final_status": "quarantined",
+    "confirmed_defect_cases": 1,
+    "origin": "incoming",
+    "confirmed_cause": "incoming_defect"
+  },
+  {
+    "item_id": "ITEM-005",
+    "scenario": "new_post_milling_defect",
+    "final_status": "quarantined",
+    "confirmed_defect_cases": 1,
+    "origin": "between_incoming_and_post_milling",
+    "confirmed_cause": null
+  },
+  {
+    "item_id": "ITEM-006",
+    "scenario": "insufficient_pre_operation_observation",
+    "final_status": "quarantined",
+    "confirmed_defect_cases": 1,
+    "origin": "unknown",
+    "confirmed_cause": null
+  },
+  {
+    "item_id": "ITEM-007",
+    "scenario": "machine_warning_two_defects",
+    "final_status": "quarantined",
+    "confirmed_defect_cases": 2,
+    "origin": "between_incoming_and_post_milling",
+    "cause_hypothesis": "equipment_deviation",
+    "confirmed_cause": null
+  },
+  {
+    "item_id": "ITEM-008",
+    "scenario": "same_burr_twice_and_rework",
+    "final_status": "released_after_rework",
+    "confirmed_defect_cases": 1,
+    "rework_runs": 1,
+    "confirmed_cause": null
+  },
+  {
+    "item_id": "ITEM-009",
+    "scenario": "false_positive",
+    "final_status": "accepted",
+    "confirmed_defect_cases": 0,
+    "rejected_findings": 1
+  },
+  {
+    "item_id": "ITEM-010",
+    "scenario": "late_incoming_and_duplicate_post",
+    "final_status": "quarantined",
+    "confirmed_defect_cases": 1,
+    "origin": "between_incoming_and_post_milling",
+    "unique_post_inspections": 1,
+    "confirmed_cause": null
+  },
+  {
+    "item_id": "ITEM-011",
+    "scenario": "confirmed_procedural_error_no_defect",
+    "final_status": "accepted",
+    "confirmed_defect_cases": 0,
+    "confirmed_procedural_errors": 1
+  },
+  {
+    "item_id": "ITEM-012",
+    "scenario": "unfinished_operation",
+    "final_status": "in_progress",
+    "confirmed_defect_cases": 0,
+    "unfinished_operations": 1,
+    "expected_outbound": false
+  }
+]

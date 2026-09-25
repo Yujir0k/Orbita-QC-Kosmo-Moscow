@@ -1,0 +1,20 @@
+{
+  "dataset_id": "cosmo-quality-synthetic-v1",
+  "dataset_version": "1.0",
+  "synthetic": true,
+  "time_zone": "UTC+03:00",
+  "item_count": 12,
+  "unique_event_count": 94,
+  "delivery_count": 95,
+  "source_delivery_count": 81,
+  "scripted_human_action_count": 14,
+  "work_order_count": 2,
+  "source_of_truth": {
+    "orders": "ERP-EMU",
+    "assembly_structure": "assemblies.json",
+    "operation_facts": "MES-EMU",
+    "inspection_observations": "VISION-* and QC-UI",
+    "quality_decisions": "QC-UI"
+  },
+  "no_real_personal_or_production_data": true
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "action_id": "ACTION-003-RECHECK",
+    "item_id": "ITEM-003",
+    "action_type": "repeat_inspection",
+    "assignee_role": "quality_controller",
+    "trigger_event_id": "EVT-0024",
+    "closed_by_event_id": "EVT-0025"
+  },
+  {
+    "action_id": "ACTION-004-QUARANTINE",
+    "item_id": "ITEM-004",
+    "action_type": "quarantine_item",
+    "assignee_role": "line_master",
+    "trigger_event_id": "EVT-0028",
+    "closed_by_event_id": null
+  },
+  {
+    "action_id": "ACTION-006-INVESTIGATE",
+    "item_id": "ITEM-006",
+    "action_type": "investigate_unknown_origin",
+    "assignee_role": "technologist",
+    "trigger_event_id": "EVT-0041",
+    "closed_by_event_id": null
+  },
+  {
+    "action_id": "ACTION-007-EQUIPMENT",
+    "item_id": "ITEM-007",
+    "action_type": "inspect_equipment",
+    "assignee_role": "technologist",
+    "trigger_event_id": "EVT-0046",
+    "closed_by_event_id": null
+  },
+  {
+    "action_id": "ACTION-008-REWORK",
+    "item_id": "ITEM-008",
+    "action_type": "rework_item",
+    "assignee_role": "line_master",
+    "trigger_event_id": "EVT-0056",
+    "closed_by_event_id": "EVT-0060"
+  },
+  {
+    "action_id": "ACTION-009-MANUAL",
+    "item_id": "ITEM-009",
+    "action_type": "manual_recheck",
+    "assignee_role": "quality_controller",
+    "trigger_event_id": "EVT-0068",
+    "closed_by_event_id": "EVT-0069"
+  },
+  {
+    "action_id": "ACTION-012-PAUSE",
+    "item_id": "ITEM-012",
+    "action_type": "resolve_operation_pause",
+    "assignee_role": "line_master",
+    "trigger_event_id": "EVT-0094",
+    "closed_by_event_id": null
+  }
+]

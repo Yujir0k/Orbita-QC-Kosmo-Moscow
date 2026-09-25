@@ -1,0 +1,194 @@
+[
+  {
+    "item_id": "ITEM-013",
+    "step": "detected",
+    "event_id": "E2-000006",
+    "occurred_at": "2026-02-18T08:22:00+03:00"
+  },
+  {
+    "item_id": "ITEM-013",
+    "step": "confirmed",
+    "event_id": "E2-000007",
+    "occurred_at": "2026-02-18T08:25:00+03:00"
+  },
+  {
+    "item_id": "ITEM-013",
+    "step": "master_photo",
+    "event_id": "E2-000011",
+    "occurred_at": "2026-02-18T08:44:00+03:00"
+  },
+  {
+    "item_id": "ITEM-013",
+    "step": "recheck",
+    "event_id": "E2-000013",
+    "occurred_at": "2026-02-18T08:48:00+03:00"
+  },
+  {
+    "item_id": "ITEM-013",
+    "step": "released",
+    "event_id": "E2-000014",
+    "occurred_at": "2026-02-18T08:50:00+03:00"
+  },
+  {
+    "item_id": "ITEM-013",
+    "step": "measurement",
+    "event_id": "E2-000012",
+    "occurred_at": "2026-02-18T08:46:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "detected",
+    "event_id": "E2-000023",
+    "occurred_at": "2026-02-18T09:02:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "confirmed",
+    "event_id": "E2-000024",
+    "occurred_at": "2026-02-18T09:05:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "first_master",
+    "event_id": "E2-000028",
+    "occurred_at": "2026-02-18T09:20:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "failed_recheck",
+    "event_id": "E2-000029",
+    "occurred_at": "2026-02-18T09:22:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "second_master",
+    "event_id": "E2-000033",
+    "occurred_at": "2026-02-18T09:37:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "successful_recheck",
+    "event_id": "E2-000034",
+    "occurred_at": "2026-02-18T09:39:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "released",
+    "event_id": "E2-000035",
+    "occurred_at": "2026-02-18T09:41:00+03:00"
+  },
+  {
+    "item_id": "ITEM-015",
+    "step": "unassessable",
+    "event_id": "E2-000044",
+    "occurred_at": "2026-02-18T09:42:00+03:00"
+  },
+  {
+    "item_id": "ITEM-015",
+    "step": "requested",
+    "event_id": "E2-000045",
+    "occurred_at": "2026-02-18T09:45:00+03:00"
+  },
+  {
+    "item_id": "ITEM-015",
+    "step": "master_photo",
+    "event_id": "E2-000046",
+    "occurred_at": "2026-02-18T09:50:00+03:00"
+  },
+  {
+    "item_id": "ITEM-015",
+    "step": "manual_defect",
+    "event_id": "E2-000047",
+    "occurred_at": "2026-02-18T09:53:00+03:00"
+  },
+  {
+    "item_id": "ITEM-015",
+    "step": "confirmed",
+    "event_id": "E2-000048",
+    "occurred_at": "2026-02-18T09:56:00+03:00"
+  },
+  {
+    "item_id": "ITEM-015",
+    "step": "technical_refusal",
+    "event_id": "E2-000049",
+    "occurred_at": "2026-02-18T10:00:00+03:00"
+  },
+  {
+    "item_id": "ITEM-015",
+    "step": "scrap",
+    "event_id": "E2-000050",
+    "occurred_at": "2026-02-18T10:04:00+03:00"
+  },
+  {
+    "item_id": "ITEM-016",
+    "step": "suspected",
+    "event_id": "E2-000056",
+    "occurred_at": "2026-02-18T10:22:00+03:00"
+  },
+  {
+    "item_id": "ITEM-016",
+    "step": "requested",
+    "event_id": "E2-000057",
+    "occurred_at": "2026-02-18T10:24:00+03:00"
+  },
+  {
+    "item_id": "ITEM-016",
+    "step": "master_photo",
+    "event_id": "E2-000058",
+    "occurred_at": "2026-02-18T10:28:00+03:00"
+  },
+  {
+    "item_id": "ITEM-016",
+    "step": "manual_clear",
+    "event_id": "E2-000059",
+    "occurred_at": "2026-02-18T10:31:00+03:00"
+  },
+  {
+    "item_id": "ITEM-016",
+    "step": "rejected",
+    "event_id": "E2-000060",
+    "occurred_at": "2026-02-18T10:34:00+03:00"
+  },
+  {
+    "item_id": "ITEM-017",
+    "step": "detected",
+    "event_id": "E2-000069",
+    "occurred_at": "2026-02-18T11:02:00+03:00"
+  },
+  {
+    "item_id": "ITEM-017",
+    "step": "machine_warning",
+    "event_id": "E2-000068",
+    "occurred_at": "2026-02-18T10:52:00+03:00"
+  },
+  {
+    "item_id": "ITEM-017",
+    "step": "confirmed",
+    "event_id": "E2-000070",
+    "occurred_at": "2026-02-18T11:05:00+03:00"
+  },
+  {
+    "item_id": "ITEM-017",
+    "step": "recheck",
+    "event_id": "E2-000074",
+    "occurred_at": "2026-02-18T11:22:00+03:00"
+  },
+  {
+    "item_id": "ITEM-018",
+    "step": "incoming_late",
+    "event_id": "E2-000080",
+    "occurred_at": "2026-02-18T11:22:00+03:00"
+  },
+  {
+    "item_id": "ITEM-018",
+    "step": "detected",
+    "event_id": "E2-000083",
+    "occurred_at": "2026-02-18T11:42:00+03:00"
+  },
+  {
+    "item_id": "ITEM-018",
+    "step": "confirmed",
+    "event_id": "E2-000084",
+    "occurred_at": "2026-02-18T12:28:00+03:00"
+  }
+]

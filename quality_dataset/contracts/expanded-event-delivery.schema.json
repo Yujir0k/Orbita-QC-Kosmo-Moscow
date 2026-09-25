@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/cosmo-quality/event-delivery/2.0",
+  "title": "Expanded synthetic production delivery v2.0",
+  "type": "object",
+  "required": ["delivery_id", "deliver_at", "message"],
+  "additionalProperties": false,
+  "properties": {
+    "delivery_id": {"type": "string", "minLength": 1},
+    "deliver_at": {"type": "string", "format": "date-time"},
+    "message": {
+      "type": "object",
+      "required": ["event_id", "event_type", "schema_version", "occurred_at", "source_id", "item_id", "item_type_id", "line_id", "station_id", "shift_id", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "event_type": {"enum": ["item_received", "inspection_result", "operation_started", "operation_finished", "operation_paused", "machine_state", "operator_action", "quality_decision", "cause_review", "master_action", "technical_disposition", "manual_measurement"]},
+        "schema_version": {"const": "2.0"},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "source_id": {"type": "string", "minLength": 1},
+        "item_id": {"type": "string", "minLength": 1},
+        "item_type_id": {"type": "string", "minLength": 1},
+        "line_id": {"enum": ["LINE-01", "LINE-02"]},
+        "station_id": {"type": "string", "minLength": 1},
+        "shift_id": {"enum": ["SHIFT-A", "SHIFT-B"]},
+        "operation_run_id": {"type": "string", "minLength": 1},
+        "actor_id": {"type": "string", "minLength": 1},
+        "equipment_id": {"type": "string", "minLength": 1},
+        "analyzer_version": {"type": "string", "minLength": 1},
+        "data": {"type": "object"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"event_type": {"const": "inspection_result"}}},
+          "then": {"properties": {"data": {
+            "required": ["inspection_point_id", "inspection_result", "observation_quality", "confidence", "defects", "method", "evidence_refs", "triage_priority", "capture_context"],
+            "properties": {
+              "inspection_result": {"enum": ["signs_detected", "no_signs_detected", "unable_to_assess"]},
+              "observation_quality": {"enum": ["good", "poor"]},
+              "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+              "defects": {"type": "array"},
+              "method": {"enum": ["external_analyzer", "manual_verification"]},
+              "evidence_refs": {"type": "array", "items": {"type": "string"}},
+              "triage_priority": {"enum": ["routine", "medium", "high", "critical"]},
+              "capture_context": {"type": "object"}
+            }
+          }}}
+        },
+        {
+          "if": {"properties": {"event_type": {"enum": ["operation_started", "operation_finished", "operation_paused", "manual_measurement"]}}},
+          "then": {"required": ["operation_run_id"]}
+        },
+        {
+          "if": {"properties": {"event_type": {"enum": ["quality_decision", "master_action", "technical_disposition", "manual_measurement"]}}},
+          "then": {"required": ["actor_id"]}
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "target_event_id": "EVT-0028",
+  "mutation_path": "data.decision",
+  "replace_with": "rejected",
+  "expected_integrity_result": "mismatch_detected",
+  "note": "Меняется только копия исходного сообщения; исходный набор остаётся неизменным."
+}

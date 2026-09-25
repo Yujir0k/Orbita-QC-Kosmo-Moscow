@@ -1,0 +1,478 @@
+{
+  "algorithm": "SHA-256 over canonical JSON; chain = SHA-256(previous_chain || message_hash)",
+  "record_order": "first delivery order",
+  "entries": [
+    {
+      "event_id": "EVT-0001",
+      "message_sha256": "66d0d1e1d3eeec0dfc5a70f546047f698e4a8fb3ecb75483f94cc7d632c70354",
+      "chain_checkpoint": "ce818f86e43f4c0c9a660c8b0528adcceaf2eb6c9177efcc97498ab6a4b87807"
+    },
+    {
+      "event_id": "EVT-0002",
+      "message_sha256": "01bdf3264d4918a65e0087f666043b4a52f97f50f191ba5c52a2d99c3a075f5f",
+      "chain_checkpoint": "469f4c67d16df124ee0985255fba4d4caa20ab404c5fc55847340518439c3e2e"
+    },
+    {
+      "event_id": "EVT-0003",
+      "message_sha256": "54c51c2cb58da4705a37b37e5c7f42d49eadc4c960253703da9a73c76b629e19",
+      "chain_checkpoint": "40183dced8687513f71404d77c33a41f0da5334d63694f1a60adbf15bb0c677b"
+    },
+    {
+      "event_id": "EVT-0004",
+      "message_sha256": "637ecf1dd7ece6ecb09087bf9310b2d4a53f7f8770978c764abc0e1311403cae",
+      "chain_checkpoint": "e9100ba0f5b21b484e88317f3e6e1eef1cedfb20888693de8804aca3761118f1"
+    },
+    {
+      "event_id": "EVT-0005",
+      "message_sha256": "3807ffa8ed58aecbfab0544212858a13d982f470d2bada661ad1fbe64721b1b3",
+      "chain_checkpoint": "3273741234f06f32317e7a64d09cf869161548313a536206776a5d0240c30884"
+    },
+    {
+      "event_id": "EVT-0006",
+      "message_sha256": "867cdcb9a9655dc5f2966494431cf88f44860bd7d425537cfec13d52b9b727ac",
+      "chain_checkpoint": "cecba20f2774c81b63b95516aa635ee440cf7a2e2b84afe19c6f779cfac50b00"
+    },
+    {
+      "event_id": "EVT-0007",
+      "message_sha256": "e4e8a01f83a70f42f2d60b78582496c73e6f0ea91eed844446bc9911ba9f4f2a",
+      "chain_checkpoint": "16a2c610c9d927f991a567982d82edb1c0debbafb0474540c5efa18f7e320b48"
+    },
+    {
+      "event_id": "EVT-0008",
+      "message_sha256": "440c6cac2fc40d5104fff23726de17ffa5e503d5b952a0372a9ae3a17e98e38f",
+      "chain_checkpoint": "216e51882646d7f11f63aa5562e42b29937e6592fdd772ae642da14289bf9bae"
+    },
+    {
+      "event_id": "EVT-0009",
+      "message_sha256": "e2aa28279ba35997736f126c997dd665000433d75f1ad7ebd890563bf670a8e2",
+      "chain_checkpoint": "3f717e6bf887daa802137d14f6034555d36b9b6be65455abf6c8b1e453122346"
+    },
+    {
+      "event_id": "EVT-0010",
+      "message_sha256": "9f1cbb174efd833c2b955c6b678056c9f0718d6cfa16bf7aed3d242413a9f869",
+      "chain_checkpoint": "315fdd44b83bb2dfb1449a7839e4475d48cbef72c9bb8fc138e9cc491e93368f"
+    },
+    {
+      "event_id": "EVT-0011",
+      "message_sha256": "13ab9bdd945b82486c17f61fa8a305404b33475378e206d55b680b39be13f91c",
+      "chain_checkpoint": "5a812397712abfbe95de8b10be88f24fcf302af9d36e0dfcec44418e57f047fe"
+    },
+    {
+      "event_id": "EVT-0012",
+      "message_sha256": "bc9db0e83c53ee72f639cc6b17ae346c4fbc9dd265ab3c2a3da05c843dda81b7",
+      "chain_checkpoint": "2383ebf28e4b66b1b4784f4ce121412af700ab061bea84fc5da6cbac331fca96"
+    },
+    {
+      "event_id": "EVT-0013",
+      "message_sha256": "4f3023dfb49a83f932c64cf0650cece4a7846ea76db77c3f41ebce028cdcacce",
+      "chain_checkpoint": "d3559b9a8b882791bf15eee7e6995f1f128233f560512167667d7e5a0f08a9da"
+    },
+    {
+      "event_id": "EVT-0014",
+      "message_sha256": "397a6b11e811f97a8d9838cfeb1e8ad86ff79a2dcc138b82a4f97bb66c16784a",
+      "chain_checkpoint": "d0bbd8ff4582df20bb7ce359d344bcb87808cb8203e70a1256b58be2971ae80c"
+    },
+    {
+      "event_id": "EVT-0015",
+      "message_sha256": "777a4f5ac1507099446d6c7d4759792d4ff98702e4119718637d7f62e423b4d0",
+      "chain_checkpoint": "f09cb1fbfbdce9c1633cebd7a9e794332b2b52af77dda468bd13527f212473e3"
+    },
+    {
+      "event_id": "EVT-0016",
+      "message_sha256": "89004975785bb7ab67f51ccdcf1a649efb46b16d95772fe475a79388cebdc1b6",
+      "chain_checkpoint": "64eba5584009e80e2c90de442fa8dc519bd5ef096125bddd8741127b8262643b"
+    },
+    {
+      "event_id": "EVT-0017",
+      "message_sha256": "8ea74dd4b5a0aabaffd78cec6b1ab3287d4afeeb10497975b1ef7f51412217e7",
+      "chain_checkpoint": "62ad19d4d920688e855a23f57dd1f237d0c4141b11212384d2cd9dc18a913b9d"
+    },
+    {
+      "event_id": "EVT-0018",
+      "message_sha256": "cfc323514d099ffa93e704ecce44c87db995e29b4eb4b634134a202e303d0fdc",
+      "chain_checkpoint": "1b775433005179420ddd03cfa426a3e5ecf5d77d40fec0c327c2264b95b488e8"
+    },
+    {
+      "event_id": "EVT-0019",
+      "message_sha256": "b2b0fa9c78203299085b8999ca6211391d02413d97ebcc583e14437bca9026d6",
+      "chain_checkpoint": "c1cfeae7c211e1eb34ed0c5cda70d971ab18ea8d211387f59e4f9bfd0c3951eb"
+    },
+    {
+      "event_id": "EVT-0020",
+      "message_sha256": "057125380642a5d5268966b55e413b253fd6cf256e36893b43dcfbfe2ccfb76a",
+      "chain_checkpoint": "9f387e13507d0b063aee7539550070eec261fa630bb5ac977c861b82ae310c3f"
+    },
+    {
+      "event_id": "EVT-0021",
+      "message_sha256": "c14c47f26d37f28457323e41ad9fb84328bf184d912a4bc3ca5d14c89803dcf3",
+      "chain_checkpoint": "787302bd8edc6160918d2f1037789e72db93ce0e5b8789c49a25b05458d9da2a"
+    },
+    {
+      "event_id": "EVT-0022",
+      "message_sha256": "2baed37659e3ce8ec8ab5fb298218aeb42cf10a8bea2cb0c7f49656285cc52c5",
+      "chain_checkpoint": "33bbad988a557148cf1d17284026c71f187cb007616eef7ec8c0ef2d4fe8f192"
+    },
+    {
+      "event_id": "EVT-0023",
+      "message_sha256": "11677792c8dc8388eaf124e01bb267c33dc5f668e4e3641314a64a285349a010",
+      "chain_checkpoint": "8919ab543594340d8811b011bd19d32e59df798fe9fa8db0808dc155a73768d7"
+    },
+    {
+      "event_id": "EVT-0024",
+      "message_sha256": "36f9bb6947574e76028fcaf6fcff652e93109163fcac66de75fbe5e4f272d07e",
+      "chain_checkpoint": "c5e5b1b5c082d74a2b987227142fa837eb8853c2564e124ae02c8372f51dbc2d"
+    },
+    {
+      "event_id": "EVT-0025",
+      "message_sha256": "e958dfee4c0589ab1ad3bdb7317cc5dba7c97cadd68b4aa7f6f708ba3f25228a",
+      "chain_checkpoint": "8c1bdc305abb767050cd212c7728e9ed1294171e65d95738fbaf5a20dc594a10"
+    },
+    {
+      "event_id": "EVT-0026",
+      "message_sha256": "d241d524b7ba0d5ea221bf2076549a07a921371b98fa257a873a551b85df263d",
+      "chain_checkpoint": "4991ab9d21e5de4808a8e1d30c1b0cb841404da91b0661d9575e74a907e83c56"
+    },
+    {
+      "event_id": "EVT-0027",
+      "message_sha256": "d66ab0ac15d97dbfaddb409d370a59440ac60b0853883e113657a869c6a0f9c0",
+      "chain_checkpoint": "e032baed1091685eafda3b5ff4d7a07f7747c71134592b58d72dca2b9d1bf9f1"
+    },
+    {
+      "event_id": "EVT-0028",
+      "message_sha256": "00c263551cf4821cfbb59078e61e284f019b3262ffb6878933558b56eef55750",
+      "chain_checkpoint": "b76f7518c201454e7a84f8d029e5900d5babe3d3cc1e046e45b4c795c29bc939"
+    },
+    {
+      "event_id": "EVT-0029",
+      "message_sha256": "2cacf4ba579ffde646f73e2706f02c4f6828bad707aa346036dd3feeee14bf84",
+      "chain_checkpoint": "0e19972b8f0c5f670e994f5619efc3a6d360ae6f40b0ff67b64261fdb02d9d51"
+    },
+    {
+      "event_id": "EVT-0030",
+      "message_sha256": "fc4c212fb18df4a89d36482eff03c224832ed0ae4a735676c52b456e46044b8e",
+      "chain_checkpoint": "01c62a72287a571d3b6f5189ae0409947eba08259b5142a645283de80a497ffb"
+    },
+    {
+      "event_id": "EVT-0031",
+      "message_sha256": "64a738f2620758eb768512a145faec1b721e2d2f6a2b3512eb909996c0d3a144",
+      "chain_checkpoint": "05dd56a1d6dd89a1f16dbef3ad0b69ae0bbb2de2dd1ba6568fa1350e2f72f3c8"
+    },
+    {
+      "event_id": "EVT-0032",
+      "message_sha256": "b01904c7ab1ef678bbb41cbc564282a63b38eb0003f2723064f03180a83365b9",
+      "chain_checkpoint": "04d91c3987816e2e71875e01616f04837ae26fdca90d219f73cdc4be8c341f60"
+    },
+    {
+      "event_id": "EVT-0033",
+      "message_sha256": "e1c553028ced849e7f7b5978239bca60dd6012ae8681fe606e811c38b9e7c000",
+      "chain_checkpoint": "e651273c9e8d43a76d89d4a07ca939ff554652398829c6e8144099285f531d46"
+    },
+    {
+      "event_id": "EVT-0034",
+      "message_sha256": "9f8abfce7138e2834a54a604e8751c96c84b52ce5423b57c94b0954f6c8d957f",
+      "chain_checkpoint": "abd7b23339d37b1f478a5782cf67222ba67980b556994fa77d4a8c236840cd6c"
+    },
+    {
+      "event_id": "EVT-0035",
+      "message_sha256": "b9fdd6df74cd0c6e43b4416bd3947720da53619dc1583746e5b6dd512ea4b112",
+      "chain_checkpoint": "fea7568c5a64da05f563c9249fcba39affe529609946972b4778656f9c522549"
+    },
+    {
+      "event_id": "EVT-0036",
+      "message_sha256": "bde9d2e56cd5cae2b6d193e123abd34a047419c029e0acbd0b2ee465547704f5",
+      "chain_checkpoint": "7295cbc5ab95dd29f2571deb68e58d782136351a8a5e7cd8c49a2b73c190e880"
+    },
+    {
+      "event_id": "EVT-0037",
+      "message_sha256": "81e8978eaf98bd1e2bf2ac7dd329e1743c288c94570e36514251a7075111a858",
+      "chain_checkpoint": "fdbee9f8986febb485d74ed366e4ec34679ff9e4f194c136c29341626c2f6cfe"
+    },
+    {
+      "event_id": "EVT-0038",
+      "message_sha256": "da18411963f5be77b9f4eb268db31e5c262c82263a557560325898a57d0f4c49",
+      "chain_checkpoint": "b72f9e46f0b1939c8c1b94fe7d5b9ddc3d3ea96702fa35a38f6ec0ba83e1ed98"
+    },
+    {
+      "event_id": "EVT-0039",
+      "message_sha256": "d6ee2edf8667d52a79e42907c4c25f5f578ada825c697b0a0811e08694c27d51",
+      "chain_checkpoint": "def6aaa1a8cc4d202ea3f1f8beaf13d15beefae65146e97c8c12cd496192b40e"
+    },
+    {
+      "event_id": "EVT-0040",
+      "message_sha256": "89d052c99074c3c95c58c539026476153e39b222fdf867e163354240d7f18442",
+      "chain_checkpoint": "09767a90a445f09bebe3cae079d386553c7a9d5b4d52f94a67176f4280f116ff"
+    },
+    {
+      "event_id": "EVT-0041",
+      "message_sha256": "42eff0c7781833618a97348d28d0a2f96d4b7e898bd0a6b3629aa2a9fd6fc4b6",
+      "chain_checkpoint": "61e356c5ba6229a1d6d52f5e034f80d4641217d216d4d649259bf67ae6ed982e"
+    },
+    {
+      "event_id": "EVT-0042",
+      "message_sha256": "9527eedc2bce2b988e79a57f08684aa777da87dcc582aa28388089be94e07512",
+      "chain_checkpoint": "acb5ec5e584de22e4799d2615983f7d410c43d1ae04fa6138124a8f646949fa0"
+    },
+    {
+      "event_id": "EVT-0043",
+      "message_sha256": "47051b2ae3c608f95fd49a292cdb43fbf2c932fbe3198c8a92d1b9bdf819efeb",
+      "chain_checkpoint": "1feccbfb108f07e5b687505e3f89b290c3651b98ea99266af5ad689297143120"
+    },
+    {
+      "event_id": "EVT-0044",
+      "message_sha256": "ccdbda07ad064260c64d84dd95531e0a2f893d603e3b1241db19ae68e48b0d4d",
+      "chain_checkpoint": "a54d0d97e346e969a48ad6add3aa8ffdbec90ea84fa702e1415c79c8cbaf7300"
+    },
+    {
+      "event_id": "EVT-0046",
+      "message_sha256": "a5dcb20eed121644d1fbcc16eacd029b4b29e25526937c775908c362188e2edc",
+      "chain_checkpoint": "a434c9c1d42e15e1dcc20fd30d93a10b5a3106ad618bfbd303fffa7aa014cd82"
+    },
+    {
+      "event_id": "EVT-0045",
+      "message_sha256": "0fb5a6417fccbe9c6ec98b52d7c25ef95b5f3975ab2a917809fe054d9d437883",
+      "chain_checkpoint": "1908dfc0aa4d95478f07a4da5b9bfd344684004a1602430bf47ae6944cd04bb5"
+    },
+    {
+      "event_id": "EVT-0047",
+      "message_sha256": "ff140b99b1883c7ec8b379c205b2d0d1edd0dde55a372839bb3ffc0d58145df9",
+      "chain_checkpoint": "0de4fa050ff1f30e92d5269ca78b3f817457176df3fcd335ac3664ef908bbffa"
+    },
+    {
+      "event_id": "EVT-0048",
+      "message_sha256": "c705cb614f54c43f10d2a00b545848e2886df4bccc9683f5169c5bf2e421e67a",
+      "chain_checkpoint": "f981a2b00917bd2fdd642bc9a540207c384ff8beff61cd84efc4093b9388ab26"
+    },
+    {
+      "event_id": "EVT-0049",
+      "message_sha256": "c8a8567a6e5ef9b2b7cdf838249caab23d8f75743fe25e276d888212e58590d6",
+      "chain_checkpoint": "4d353ba97d0771d03a9ff8964747e4e305b262643bf32ddd0210a04f9ccb699f"
+    },
+    {
+      "event_id": "EVT-0050",
+      "message_sha256": "e69abee5f8feb19745aedf047ea9ffd5fc8030c6c3e7b1537c3f250f5f97cbe5",
+      "chain_checkpoint": "f155896e99cd2d5bca760d7a3ee15fb0169c09587302d6db24ab9bbfa8983f62"
+    },
+    {
+      "event_id": "EVT-0051",
+      "message_sha256": "bcd05746ba7ce947e6cb5c4ab83d99597ca8cf4d19e94dd87c4356ab04b32278",
+      "chain_checkpoint": "10c7cc996ce6bcda13cd53c1eb3d5303c4c494c1471e59ce1a89d6bb40dedadd"
+    },
+    {
+      "event_id": "EVT-0052",
+      "message_sha256": "a790a164e04252995da4350791bc649918a40a8f365e910609255b7d53257424",
+      "chain_checkpoint": "a06072fc594e07f7fadff75af99f2807143fdfd03fa32979795c8d24689b097e"
+    },
+    {
+      "event_id": "EVT-0053",
+      "message_sha256": "011f761ad24604601dc4f617524712077fb9cd768023d556f19a879d66516690",
+      "chain_checkpoint": "964c18a293727af1422c67f549f123e20bbad1d69e6add0b0b4a9172d8af3bbc"
+    },
+    {
+      "event_id": "EVT-0054",
+      "message_sha256": "95473c7f4493b9e34c6b4c2cc202efd33307a945ad954f3084a7a876c46ebfec",
+      "chain_checkpoint": "c436748eb05290a29453a442eaf10840b5880008fbfb452a9ef3574e2110304c"
+    },
+    {
+      "event_id": "EVT-0055",
+      "message_sha256": "fd81419483da5a5dc5ae0fc0c261eae41ac41ffa84a5e3f1651d3de19eee6cea",
+      "chain_checkpoint": "a799bf924927035a1a832c50851cffef6de60eb63c9fa5b732a0e5ff8de8793f"
+    },
+    {
+      "event_id": "EVT-0056",
+      "message_sha256": "f27cc7d90beab2065b728e31ec3e8a25a8f9111a241ad57c8529b48e3424d1c3",
+      "chain_checkpoint": "76df47df09730a18b20188bbd5ac1692b36fb550412709dad62a1b94f35b13f3"
+    },
+    {
+      "event_id": "EVT-0057",
+      "message_sha256": "fe5c2821a5a63c50894a99267d98f493bc2a34fe5c801dc525c50cf87bc9db78",
+      "chain_checkpoint": "c3c874ffd28c7396f6074194141775dfb8c42ae5a720e1ad01106b195792ee1d"
+    },
+    {
+      "event_id": "EVT-0058",
+      "message_sha256": "11d3302c77e74fcdf96f80e6f794ba68bf79810277c5a1b3da76f6c881e9dd89",
+      "chain_checkpoint": "84107cf65432b34b81c911ee773132bedc614da85616509db5d9d6b075107924"
+    },
+    {
+      "event_id": "EVT-0059",
+      "message_sha256": "72fa681c2d7fcdee4af8872c167d64510b49233c5a61cdc65f58219cdbcb62a6",
+      "chain_checkpoint": "6b16a0b0e4eca40586e55d52e50c39f34ff37459817f761ecacbf70ca4688ec0"
+    },
+    {
+      "event_id": "EVT-0060",
+      "message_sha256": "ed6052e3980425d034b33a483400da3cc2af85d36ba4f72d9de42d46c1e1b2bf",
+      "chain_checkpoint": "61d8153c7dc5a8964d80c67d81dd7c184d9f1b9d72d0bd5aa76b212d5ddcc348"
+    },
+    {
+      "event_id": "EVT-0061",
+      "message_sha256": "26ad189f1a1d45f42f2bfde717999dd0b73031f122e5ea3b61984db44fb67cfa",
+      "chain_checkpoint": "d5ce4aec4bb58406734df6109dd7db395a1e89f9d5ca120c97381178bca6e929"
+    },
+    {
+      "event_id": "EVT-0064",
+      "message_sha256": "800b85b140f9c9df985e0ad03fa3f4df5be34f13f37d481437af0796e627c7fe",
+      "chain_checkpoint": "6b00b0336a340c5a60e7c68cf012cb55b68fa7b8992edd56161a589c80724920"
+    },
+    {
+      "event_id": "EVT-0065",
+      "message_sha256": "1b2e993740a0e026727222f77324081cf11a6f2ed4ea878581cfa2cfec424b3e",
+      "chain_checkpoint": "f90a0eb1b64956e8a4586e8a1ababe30b44a8aa7781b2688fe26ed500f2fdc81"
+    },
+    {
+      "event_id": "EVT-0066",
+      "message_sha256": "b29ac799500254059c17d5963246797997094150af548effcaeaab7099b527b2",
+      "chain_checkpoint": "d6171a6b1307104574b36006256042c72486c6544ff475b37181c0063980b3ff"
+    },
+    {
+      "event_id": "EVT-0062",
+      "message_sha256": "be7b60bc6799dc24559a24c14e4682bfabc95ce1ff04914be4e9643d008f0fbe",
+      "chain_checkpoint": "df0eed485ddaad95081e5b9479916ebf00bfd576af1a980a514d9558ff227959"
+    },
+    {
+      "event_id": "EVT-0063",
+      "message_sha256": "5a4009735b989ac361ac2700155ca234eb9fbb82aa40af1af191f7823a31db10",
+      "chain_checkpoint": "77696f683cca02f618abd4b4611b4c8bd017bde772f981356c5bafeeecbe4c36"
+    },
+    {
+      "event_id": "EVT-0067",
+      "message_sha256": "436a6496ed217e953eac26aa16aad45e6686765f85f65a0612b4f80decfb5ac4",
+      "chain_checkpoint": "e93d51bcd0135114775464f2279324f0cf7befaf863b158673fcc13c9cc47560"
+    },
+    {
+      "event_id": "EVT-0068",
+      "message_sha256": "18fe9272f19fc9044fd851a25600f2b45ef81ae1e5866fc7f3e537e55cc71aa5",
+      "chain_checkpoint": "5a924466ca065ebb7dfa245b46a826eacf1c02bd5e9625003dea552b164a09e7"
+    },
+    {
+      "event_id": "EVT-0069",
+      "message_sha256": "80838fbcafc071b75c2817ef376936c44b3c79e077945ff6cb9f42e078482381",
+      "chain_checkpoint": "6fb914d0520cfea3bd7465d9b9dde7fdf317ea5e5c6e11038b1d3c768b4c92e1"
+    },
+    {
+      "event_id": "EVT-0070",
+      "message_sha256": "98dd6a0bfbe85b692c0d3a5876d50084ce9657a6eba38963c3c31554fce7c1b9",
+      "chain_checkpoint": "73b0bf71aeddbbc6502200633d5087d0da857e8d386ad76ba9b55db083736d83"
+    },
+    {
+      "event_id": "EVT-0071",
+      "message_sha256": "e0ae73ea980ea624535dde50764b7ec99d3db2f1b4a27f4e0510bf4b1207c830",
+      "chain_checkpoint": "8a6741f4289631baec5591dc0714c53e963642bcb3143755a00fb3c3bc82965f"
+    },
+    {
+      "event_id": "EVT-0072",
+      "message_sha256": "3e67624c3654b5886e9b1ba79f7a4a2ddc856e2ba139f701180b70a96255fd14",
+      "chain_checkpoint": "5efc75aa94652a7e7c9ce0959c0ec597247e399d070af4616dc8df7fcb58a802"
+    },
+    {
+      "event_id": "EVT-0073",
+      "message_sha256": "7bf689c26e07ed8345358d27918aa0272f8d943331822de1f5c6a15c3e0e7bc5",
+      "chain_checkpoint": "10b199e6a170964e458d730f545307117d45895b076f76e080f9e3cf1f51d835"
+    },
+    {
+      "event_id": "EVT-0074",
+      "message_sha256": "6a5233d17b969ea796846cee3a08fd282a5418f3ffcae3566590c177dfb1e817",
+      "chain_checkpoint": "2eac3798a464a94d9bc7337c43e18d4b276793079befecaefa1138406e8fc667"
+    },
+    {
+      "event_id": "EVT-0076",
+      "message_sha256": "5146bb03722b00e24f029b4db4ebe5c7551f0514282c09a6cfba1caadab265d1",
+      "chain_checkpoint": "3f68632aeba8b6bf4eb8756f53d9f63981a5228ad9881d5a3226a481acce4716"
+    },
+    {
+      "event_id": "EVT-0077",
+      "message_sha256": "8b85fdc26ff3ce9f12e6614cccbdcb4c29df2513a585eb852a864311ca73558f",
+      "chain_checkpoint": "7604e85472a6a49dc3b77dd7f99fa2bfdcf57e85385e0832990cf74d4c8b0f61"
+    },
+    {
+      "event_id": "EVT-0078",
+      "message_sha256": "b9daec26e75d6d2f09133b2b82b36790726e9d1426ef20b781f22eb2ed182302",
+      "chain_checkpoint": "9d1de03e5b7b7b6bcacdb85b68d0d28639387b95d7010de01788793e8fba2f8e"
+    },
+    {
+      "event_id": "EVT-0075",
+      "message_sha256": "4c8646e2b9842f5ffb5a091597cd663c405c4084a057191145a017d025b5fbab",
+      "chain_checkpoint": "3990f515c630b4267ad458963d70091ca6adf68b4f484784a931d251ec0eb615"
+    },
+    {
+      "event_id": "EVT-0080",
+      "message_sha256": "6639aa329f8edf30b28b4c319cc8f83b0e273c716f7378072cd76b9f81f479fc",
+      "chain_checkpoint": "87076ed030df239efb027472c242bbbe4bbc49297b7566afb063d5e4cf816187"
+    },
+    {
+      "event_id": "EVT-0081",
+      "message_sha256": "c559d9f5253fe347480bf3f22c07103639009e7bf2d0b49bf71e21c6c2a8ec2b",
+      "chain_checkpoint": "79061cbbbd5b3397244c3920a33dd5cdaa8a4c0f464f214fbc1e10321baca808"
+    },
+    {
+      "event_id": "EVT-0079",
+      "message_sha256": "a26bf3a66a6734e784107b9fb73e5beabc6cbe029f788aaba95531448f07ea8a",
+      "chain_checkpoint": "f919552b84e1bdeb966ad12ffd202a83bcb0496333a95ddd1e79ba36d2a01622"
+    },
+    {
+      "event_id": "EVT-0082",
+      "message_sha256": "5f8251f9975a15ece208e829f35fca307e872f16dd19e51ae087fca07ebabaab",
+      "chain_checkpoint": "0c60fcbbba1b7ccbcb7dfd8427a4658a38644664fb4bee551a3ee173a4e5245c"
+    },
+    {
+      "event_id": "EVT-0084",
+      "message_sha256": "fce7a297b736a1c0c9737929640378ed1b7117c542b135a6254cd47335c843aa",
+      "chain_checkpoint": "03bb9fadc03ec513a96e96ba477dd772f42c32731ebe18688370848b50beb641"
+    },
+    {
+      "event_id": "EVT-0085",
+      "message_sha256": "ddad82b9aaa4960fa7e21a2278ec40b9a31258a25d38533af83e833c63b4869a",
+      "chain_checkpoint": "1fe593197df75fb030c1a703f3524409e601b2522f9d7ce92cf687ab2964a416"
+    },
+    {
+      "event_id": "EVT-0083",
+      "message_sha256": "625487e8b1ce19f8f6417a2736204a4c9e337f0e5ff6e19f3bf488753cd9dda1",
+      "chain_checkpoint": "46716904d1048e14f56f2c4b3fc699a61f745ac3b8e2f8d6d2528a2698f1ff25"
+    },
+    {
+      "event_id": "EVT-0086",
+      "message_sha256": "34f5003addf8f7fcfceebb15d3cfdea78bc34842ac744f1edab4716a5e095dfd",
+      "chain_checkpoint": "95da4ed647585ce1c92c469f44e8ad155da87d67cec86224316d57f1a5bbd890"
+    },
+    {
+      "event_id": "EVT-0087",
+      "message_sha256": "a25b20743c9d37dda6cf55c43d88dfe767c8a5c4414c71306e11741e66513a62",
+      "chain_checkpoint": "7a082edfab4701b551c87b90f6adf488fb16004e435dd2e130d0a19cd20b3c15"
+    },
+    {
+      "event_id": "EVT-0088",
+      "message_sha256": "2d42e1df63735e13087714667298573323e9284fbf54f4b3ef40d01e1c5f3294",
+      "chain_checkpoint": "9ce653a91eac9ebe064f9cbf811baaf67d8e6a46a9f667fface316454c94224c"
+    },
+    {
+      "event_id": "EVT-0089",
+      "message_sha256": "b3bec5de621ef8dc82e78cbcd1a9a17049b018c61637d4053205e759231e9205",
+      "chain_checkpoint": "e6c07c68c20d09dbac0cffab412487de75aedd0f3c8c13f5d5da7c8c1b36d6e0"
+    },
+    {
+      "event_id": "EVT-0090",
+      "message_sha256": "b5d79336fe7610459b96af5bf4ed4611ac2699b92f82a2186e59bb2dacff8738",
+      "chain_checkpoint": "7275e16d6cebf9d40864bb7f686cb4434cb473137a386bfb314fd1e7d9f656be"
+    },
+    {
+      "event_id": "EVT-0091",
+      "message_sha256": "6d1b32ec0b5ed8e06f3f689db8e91218fb446e6312b5870fbb8137e5ace5c040",
+      "chain_checkpoint": "0a8f60696bc9e3a4d3d50da95ecda04df0d6399810c53e1206564919eb6839ab"
+    },
+    {
+      "event_id": "EVT-0092",
+      "message_sha256": "819c4e929e317637c26f8256675d2f8407a90d3c411e17291096e4a6517f97d0",
+      "chain_checkpoint": "fdd35f282ce2bce1635475725412b39ab7d099489667eea37c6371a1b3f55cd5"
+    },
+    {
+      "event_id": "EVT-0093",
+      "message_sha256": "d1d3d5651a88e37af32d9df11113149aa5ccef977997cc4b8b446d602f3a9450",
+      "chain_checkpoint": "8b039b6dbc6586a3849eb36cccf997e051b2d832d82f71929cdff846e5a07296"
+    },
+    {
+      "event_id": "EVT-0094",
+      "message_sha256": "a07aee7285fabdc958acfc11b73107ea30b2dee2e5469f7c2296359b77de7136",
+      "chain_checkpoint": "30988dfba3570d5093a320fdbbf7bd8ec283119232fbf63a213dd888fcc55370"
+    }
+  ],
+  "final_checkpoint": "30988dfba3570d5093a320fdbbf7bd8ec283119232fbf63a213dd888fcc55370",
+  "security_note": "Это проверочный эталон датасета, а не производственная цифровая подпись. В целевой системе контрольная точка должна подписываться и храниться отдельно."
+}

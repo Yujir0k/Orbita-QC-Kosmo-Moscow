@@ -1,0 +1,32 @@
+{
+  "counts": {
+    "items": 180,
+    "deliveries_received": 2027,
+    "unique_events": 1919,
+    "duplicate_deliveries": 108,
+    "invalid_deliveries_quarantined": 30,
+    "late_deliveries_over_10_minutes": 73,
+    "cv_signs_detected": 62,
+    "cv_no_signs_detected": 452,
+    "cv_unable_to_assess": 14,
+    "confirmed_defect_cases_ever": 53,
+    "items_with_confirmed_defect_ever": 52,
+    "quality_decisions_confirmed": 53,
+    "quality_decisions_rejected": 10,
+    "additional_check_decisions": 15,
+    "release_after_rework_decisions": 42,
+    "scrap_approved_decisions": 4,
+    "rework_operation_runs": 43,
+    "manual_measurements": 10,
+    "inspections_with_attached_image": 8,
+    "events_with_explicit_missing_optional_fields": 92
+  },
+  "definitions": {
+    "cv_signs_detected": "Автоматический сигнал о признаке, а не доказанный брак.",
+    "confirmed_defect_cases_ever": "Уникальная связка изделие + компонент + вид дефекта + область; история сохраняется после доработки.",
+    "items_with_confirmed_defect_ever": "Уникальные изделия с подтверждённым несоответствием в истории.",
+    "late_deliveries_over_10_minutes": "Доставки, а не уникальные события; задержка от occurred_at до deliver_at.",
+    "rework_operation_runs": "Новое выполнение операции со ссылкой на прежний запуск.",
+    "scrap_approved_decisions": "Отдельное решение контролёра после заключения технолога, не вывод CV."
+  }
+}

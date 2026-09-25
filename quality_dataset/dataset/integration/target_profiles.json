@@ -1,0 +1,96 @@
+{
+  "synthetic": true,
+  "profiles_are_examples_not_verified_connectors": true,
+  "erp_selection_rule": "На конкретном предприятии выбирается авторитетный ERP-источник задания; профили 1С и Галактики здесь альтернативны.",
+  "profiles": [
+    {
+      "system": "1C",
+      "implementation_status": "contract_only",
+      "technical_interface": "Опубликованный OData-интерфейс 1С или настроенный HTTP-сервис; выбор зависит от конфигурации заказчика.",
+      "inbound": [
+        "work_order",
+        "item_catalog"
+      ],
+      "outbound": [
+        "quality_result"
+      ],
+      "id_mapping": {
+        "erp_order_key": "work_order_id",
+        "erp_item_key": "item_id",
+        "erp_item_type_key": "item_type_id"
+      },
+      "authoritative_for": [
+        "work_order",
+        "item_catalog"
+      ],
+      "error_policy": "retry_transient; quarantine_unknown_identifier; retain_original_message"
+    },
+    {
+      "system": "Galaktika:ERP",
+      "implementation_status": "contract_only",
+      "technical_interface": "Прикладной веб-сервис или адаптер интеграционной шины при наличии этих компонентов у заказчика.",
+      "inbound": [
+        "work_order",
+        "item_catalog"
+      ],
+      "outbound": [
+        "quality_result"
+      ],
+      "id_mapping": {
+        "erp_order_key": "work_order_id",
+        "erp_item_key": "item_id",
+        "erp_item_type_key": "item_type_id"
+      },
+      "authoritative_for": [
+        "work_order",
+        "item_catalog"
+      ],
+      "error_policy": "retry_transient; quarantine_unknown_identifier; retain_original_message"
+    },
+    {
+      "system": "MES",
+      "implementation_status": "contract_only",
+      "technical_interface": "Версионированный HTTP/JSON-контракт как проектное предположение; конкретный транспорт согласуется с установленной MES.",
+      "inbound": [
+        "operation_started",
+        "operation_finished",
+        "operation_paused",
+        "operator_action",
+        "machine_state"
+      ],
+      "outbound": [
+        "nonconformity_status"
+      ],
+      "id_mapping": {
+        "mes_run_key": "operation_run_id",
+        "mes_station_key": "station_id",
+        "mes_equipment_key": "equipment_id"
+      },
+      "authoritative_for": [
+        "operation_facts",
+        "equipment_assignment"
+      ],
+      "error_policy": "deduplicate_by_event_id; replay_late_events; quarantine_unknown_run"
+    },
+    {
+      "system": "KOMPAS-3D",
+      "implementation_status": "file_fixture; direct_API_target",
+      "technical_interface": "Локальный адаптер через SDK/API КОМПАС-3D; в MVP импорт файла условной сборки.",
+      "inbound": [
+        "assembly_structure"
+      ],
+      "outbound": [],
+      "id_mapping": {
+        "cad_assembly_key": "assembly_id",
+        "cad_revision_key": "revision",
+        "cad_component_key": "component_type_id"
+      },
+      "authoritative_for": [
+        "assembly_structure",
+        "assembly_revision"
+      ],
+      "error_policy": "quarantine_unknown_revision; retain_import_source"
+    }
+  ],
+  "note": "Внешние имена полей условные и требуют сопоставления с конфигурацией заказчика. Указанные технические интерфейсы являются целевым проектом, а не испытанным подключением."
+}
