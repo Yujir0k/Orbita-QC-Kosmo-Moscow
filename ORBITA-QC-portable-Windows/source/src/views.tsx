@@ -95,11 +95,24 @@ function QualityView({ route, scope, openItem }: ViewProps) {
   return <>{route.section === 'signals' && <SmartQueue role={route.role} scope={scope} openItem={openItem}/>}<div className="workspace-toolbar"><div className="filter-chips" aria-label="Фильтр случаев">{[['all', 'Все'], ['pending', 'На рассмотрении'], ['confirmed', 'Подтверждённые'], ['closed', 'Закрытые']].map(([key, label]) => <button key={key} aria-pressed={filter === key} className={filter === key ? 'active' : ''} onClick={() => setFilter(key)}>{label}{key === 'all' && <span>{source.length}</span>}</button>)}</div><span className="toolbar-note">Поступившие наблюдения</span></div><Panel title={route.section === 'signals' ? 'Наблюдения и их рассмотрение' : 'Реестр несоответствий'} eyebrow="ОБЪЕДИНЕНИЕ ПО ИЗДЕЛИЮ И ОБЛАСТИ"><CaseTable data={data} openItem={openItem} /></Panel><Note>Сигнал анализатора и подтверждённый дефект имеют разные статусы. Повторные наблюдения одной области в одной операции объединены; исходные события доступны в истории.</Note></>;
 }
 
-function ProductsView({ route, scope, openItem }: ViewProps) {
+function ProductsView({ scope, openItem }: ViewProps) {
   const [query, setQuery] = useState('');
-  const filtered = items.filter(item => events.some(e => e.item_id === item.id && inScope(e, scope))).filter(item => `${item.id} ${item.work_order_id}`.toLowerCase().includes(query.toLowerCase()));
-  if (route.section === 'structure') return <div className="two-columns"><Panel title="Кронштейн приборного блока" eyebrow="СБОРОЧНАЯ ЕДИНИЦА · РЕВИЗИЯ A"><ProductDrawing /><div className="assembly-tree"><div><Icon name="box" /><strong>Условная сборка кронштейна</strong><Badge>A</Badge></div>{catalogs.component_types.map(c => <div key={c.id} className="tree-child"><Icon name="products" /><span>{c.name}</span><small className="mono">{c.id === 'FASTENER' ? '2 шт.' : '1 шт.'}</small></div>)}</div><Note>В наборе есть состав и идентификаторы компонентов. Геометрия отсутствует; схема условная. Для CAD-модели подготовлен импорт через КОМПАС-3D.</Note></Panel><Panel title="Связь с экземплярами" eyebrow="ПРОИСХОЖДЕНИЕ И РЕВИЗИИ"><p className="panel-description">Каждый компонент получает собственный идентификатор. Изменение состава должно создавать новую ревизию.</p><div className="simple-list">{filtered.slice(0, 6).map(item => <button key={item.id} onClick={() => openItem(item.id)}><Icon name="products"/><strong className="mono">{item.id}</strong><span>{item.components.length} компонента</span><Icon name="arrow" /></button>)}</div></Panel></div>;
-  return <><div className="workspace-toolbar"><label className="local-search"><Icon name="search" /><input aria-label="Поиск по реестру" placeholder="Номер изделия или заказа…" value={query} onChange={e => setQuery(e.target.value)} /></label><span className="toolbar-note">{filtered.length} изделий · ревизия A</span></div>{route.section === 'trace' && <Note>Откройте изделие, чтобы увидеть хронологию, состав, операции, наблюдения до и после, а также решения с авторством.</Note>}<Panel title={route.section === 'trace' ? 'Выберите историю изделия' : 'Реестр изделий'} eyebrow="СВЯЗЬ С ПРОИЗВОДСТВЕННЫМИ ЗАКАЗАМИ"><div className="table-wrap"><table><thead><tr><th>Изделие</th><th>Заказ</th><th>Состав</th><th>Состояние по событиям</th><th>История</th></tr></thead><tbody>{filtered.map(item => { const status = productStatus(item.id); return <tr key={item.id}><td><button className="cell-link mono" onClick={() => openItem(item.id)}>{item.id}</button><small>Кронштейн приборного блока</small></td><td className="mono">{item.work_order_id}</td><td>{item.components.length} компонента<small>Ревизия {item.assembly_revision}</small></td><td><Badge tone={status.tone}>{status.label}</Badge></td><td><button className="icon-button" aria-label={`История ${item.id}`} onClick={() => openItem(item.id)}><Icon name="arrow" /></button></td></tr>; })}</tbody></table></div>{!filtered.length && <Empty title="Изделия не найдены" text="Проверьте номер или выберите другую смену." />}</Panel></>;
+  const filtered = items
+    .filter(item => events.some(event => event.item_id === item.id && inScope(event, scope)))
+    .filter(item => `${item.id} ${item.work_order_id}`.toLowerCase().includes(query.toLowerCase()));
+
+  return <>
+    <div className="workspace-toolbar">
+      <label className="local-search"><Icon name="search" /><input aria-label="Поиск по реестру" placeholder="Номер изделия или заказа…" value={query} onChange={event => setQuery(event.target.value)} /></label>
+      <span className="toolbar-note">{filtered.length} изделий · ревизия A</span>
+    </div>
+    <Panel title="Реестр изделий" eyebrow="СВЯЗЬ С ПРОИЗВОДСТВЕННЫМИ ЗАКАЗАМИ">
+      <div className="table-wrap"><table><thead><tr><th>Изделие</th><th>Заказ</th><th>Состав</th><th>Состояние по событиям</th><th>История</th></tr></thead><tbody>
+        {filtered.map(item => { const status = productStatus(item.id); return <tr key={item.id}><td><button className="cell-link mono" onClick={() => openItem(item.id)}>{item.id}</button><small>Кронштейн приборного блока</small></td><td className="mono">{item.work_order_id}</td><td>{item.components.length} компонента<small>Ревизия {item.assembly_revision}</small></td><td><Badge tone={status.tone}>{status.label}</Badge></td><td><button className="icon-button" aria-label={`История ${item.id}`} onClick={() => openItem(item.id)}><Icon name="arrow" /></button></td></tr>; })}
+      </tbody></table></div>
+      {!filtered.length && <Empty title="Изделия не найдены" text="Проверьте номер или выберите другую смену." />}
+    </Panel>
+  </>;
 }
 
 function OperationsTable({ scope, openItem, onlyRework = false }: { scope: Scope; openItem: (id: string) => void; onlyRework?: boolean }) {
