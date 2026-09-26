@@ -77,6 +77,7 @@ export function inspectionCaseFrom(record: Case): InspectionCase {
   const data = controllerCaseData(record, product, mediaIndex);
   const observation = data.observation;
   const own = eventsFor(record.item);
+  const received = own.find(event => event.event_type === 'item_received');
   const decision = record.decisions.at(-1);
   const latestItemDecision = own.filter(event => event.event_type === 'quality_decision').at(-1);
   const master = own.filter(event => event.event_type === 'master_action').at(-1);
@@ -98,8 +99,8 @@ export function inspectionCaseFrom(record: Case): InspectionCase {
     itemId: record.item,
     partName: catalogs.item_types.find(type => type.id === product.item_type_id)?.name ?? product.item_type_id,
     workOrder: product.work_order_id,
-    supplierLotId: stringValue((product as typeof product & { supplier_lot_id?: string }).supplier_lot_id),
-    routeSheet: stringValue((product as typeof product & { route_sheet_id?: string }).route_sheet_id),
+    supplierLotId: stringValue(received?.data.supplier_lot_id),
+    routeSheet: stringValue(received?.data.traveler_id),
     drawingRevision: product.assembly_revision,
     iteration: own.filter(event => event.event_type === 'master_action').length + 1,
     status,

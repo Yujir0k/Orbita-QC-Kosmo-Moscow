@@ -22,6 +22,26 @@ function load(entry) {
 const domain = load('domain.ts');
 const nav = load('navigation.ts');
 const controllerCase = load('controller-case.ts');
+const controllerEvidence = load('controller-evidence.ts');
+
+test('The no-photo desk uses linked source facts without inventing dimensions or future work', () => {
+  domain.resetDemo();
+  const case49 = domain.cases.find(row => row.item === 'ITEM-049' && row.type === 'DENT');
+  const evidence = controllerEvidence.controllerEvidenceFrom(case49, domain.eventsFor('ITEM-049'), false);
+  assert.equal(evidence.observation.data.confidence, 0.93);
+  assert.equal(evidence.previousInspection.data.inspection_result, 'no_signs_detected');
+  assert.equal(evidence.operation.data.program_id, 'PRG-BRACKET-A');
+  assert.equal(evidence.machine.data.spindle_load_peak_pct, 59);
+  assert.equal(evidence.machine.data.tool_life_used_min, 134);
+  assert.equal(evidence.measurement, undefined);
+  assert.ok(evidence.missing.includes('Исходный кадр наблюдения'));
+  assert.equal(evidence.runEvents.filter(row => row.event_type === 'operation_started').length, 1);
+  const case7 = domain.cases.find(row => row.item === 'ITEM-007' && row.type === 'BURR');
+  const warning = controllerEvidence.controllerEvidenceFrom(case7, domain.eventsFor('ITEM-007'), false);
+  assert.equal(warning.machine.data.value, 7.1);
+  assert.equal(warning.machine.data.configured_limit, 5);
+  assert.match(controllerEvidence.machineAlertText(warning.machine), /Индекс вибрации 7.1.*пороге 5/);
+});
 
 test('Routes remain role-specific and all modules belong to a role', () => {
   for (const workspace of nav.workspaces) assert.ok(nav.roles.some(role => nav.canAccess(role.id, workspace.id)), workspace.id);

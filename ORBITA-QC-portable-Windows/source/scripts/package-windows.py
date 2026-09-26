@@ -27,6 +27,8 @@ with ZipFile(temporary, 'w', ZIP_DEFLATED, compresslevel=6) as archive:
     for name in ['README.md', 'ДЕМО_СЦЕНАРИИ.md', 'АРХИТЕКТУРА_И_СБОР_ДАННЫХ.md', 'validate_expanded.py', 'replay_ingest.py']:
         file = quality / name
         archive.write(file, file.relative_to(workspace))
+    audit = workspace / 'АУДИТ_ДАННЫХ_ОТК.md'
+    archive.write(audit, audit.relative_to(workspace))
 
 with ZipFile(temporary) as archive:
     broken = archive.testzip()
