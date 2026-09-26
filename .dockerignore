@@ -1,0 +1,14 @@
+**/.git
+**/node_modules
+**/dist
+**/site
+**/runtime
+**/data
+**/.secrets
+**/server/generated
+**/*.zip
+**/*.log
+**/*.pdf
+quality_dataset
+.incoming-technologist
+.runtime

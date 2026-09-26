@@ -1,0 +1,163 @@
+name: orbita-production
+x-api: &api
+  build:
+    context: .
+    target: api
+  image: orbita-qc-api:local
+  init: true
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  environment: &api-env
+    DEMO_MODE: 'true'
+    DB_HOST: db
+    DB_NAME: orbita
+    DB_USER: orbita_app
+    DB_PASSWORD_FILE: /run/secrets/db-app-password
+    DB_CA_FILE: /run/secrets/ca.crt
+    MEDIA_DB_HOST: media-db
+    MEDIA_DB_NAME: orbita
+    MEDIA_DB_USER: orbita_app
+    MEDIA_DB_PASSWORD_FILE: /run/secrets/media-app-password
+    DB_POOL_SIZE: '12'
+    SIGNING_KEY_FILE: /run/secrets/signing.key
+    KEYRING_FILE: /run/secrets/keyring.json
+    TLS_KEY_FILE: /run/secrets/api.key
+    TLS_CERT_FILE: /run/secrets/api.crt
+    NODE_EXTRA_CA_CERTS: /run/secrets/ca.crt
+    PUBLIC_ORIGIN: https://localhost:8443
+    EMULATOR_URL: https://emulator:8443
+    EMULATOR_TOKEN_FILE: /run/secrets/emulator-token
+  volumes:
+    - ./.secrets/ca.crt:/run/secrets/ca.crt:ro
+    - ./.secrets/db-app-password:/run/secrets/db-app-password:ro
+    - ./.secrets/media-app-password:/run/secrets/media-app-password:ro
+    - ./.secrets/api.key:/run/secrets/api.key:ro
+    - ./.secrets/api.crt:/run/secrets/api.crt:ro
+    - ./.secrets/keyring.json:/run/secrets/keyring.json:ro
+    - ./.secrets/emulator-token:/run/secrets/emulator-token:ro
+    - ./.secrets/signing.key:/run/secrets/signing.key:ro
+    - ./.runtime/backups:/backups
+  networks: [backend]
+  mem_limit: 1536m
+  cpus: 2
+  healthcheck:
+    test: [CMD, node, -e, "require('https').get('https://api:8443/health/ready',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+    interval: 15s
+    timeout: 5s
+    retries: 5
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    entrypoint: [/bin/sh, /opt/postgres-start.sh]
+    environment:
+      POSTGRES_USER: orbita_owner
+      POSTGRES_DB: orbita
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-owner-password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    volumes:
+      - ./.runtime/postgres:/var/lib/postgresql/data
+      - ./.secrets/db-owner-password:/run/secrets/db-owner-password:ro
+      - ./.secrets/db-app-password:/run/secrets/db-app-password:ro
+      - ./.secrets/db.key:/run/secrets/db.key:ro
+      - ./.secrets/db.crt:/run/secrets/db.crt:ro
+      - ./deployment/pg_hba.conf:/opt/pg_hba.conf:ro
+      - ./deployment/postgres-start.sh:/opt/postgres-start.sh:ro
+      - ./deployment/postgres-init.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+      - ./app/source/server/migrations:/opt/migrations:ro
+    networks: [backend]
+    shm_size: 256m
+    mem_limit: 1536m
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U orbita_owner -d orbita]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  media-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    entrypoint: [/bin/sh, /opt/postgres-start.sh]
+    environment:
+      POSTGRES_USER: orbita_owner
+      POSTGRES_DB: orbita
+      POSTGRES_PASSWORD_FILE: /run/secrets/media-owner-password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    volumes:
+      - ./.runtime/media-postgres:/var/lib/postgresql/data
+      - ./.secrets/media-owner-password:/run/secrets/media-owner-password:ro
+      - ./.secrets/db.key:/run/secrets/db.key:ro
+      - ./.secrets/db.crt:/run/secrets/db.crt:ro
+      - ./.secrets/media-app-password:/run/secrets/db-app-password:ro
+      - ./deployment/pg_hba.conf:/opt/pg_hba.conf:ro
+      - ./deployment/postgres-start.sh:/opt/postgres-start.sh:ro
+      - ./deployment/postgres-init.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+      - ./app/source/server/migrations:/opt/migrations:ro
+    networks: [backend]
+    mem_limit: 1536m
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U orbita_owner -d orbita]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  initialize:
+    <<: *api
+    restart: 'no'
+    command: [node, server/initialize.mjs]
+    environment:
+      <<: *api-env
+      USERS_FILE: /run/secrets/users.json
+    volumes:
+      - ./.secrets/ca.crt:/run/secrets/ca.crt:ro
+      - ./.secrets/db-app-password:/run/secrets/db-app-password:ro
+      - ./.secrets/media-app-password:/run/secrets/media-app-password:ro
+      - ./.secrets/keyring.json:/run/secrets/keyring.json:ro
+      - ./.secrets/users.json:/run/secrets/users.json:ro
+    healthcheck: {disable: true}
+    depends_on:
+      db: {condition: service_healthy}
+      media-db: {condition: service_healthy}
+  emulator:
+    <<: *api
+    command: [node, server/emulator.mjs]
+    volumes:
+      - ./.secrets/ca.crt:/run/secrets/ca.crt:ro
+      - ./.secrets/db-app-password:/run/secrets/db-app-password:ro
+      - ./.secrets/keyring.json:/run/secrets/keyring.json:ro
+      - ./.secrets/emulator-token:/run/secrets/emulator-token:ro
+      - ./.secrets/emulator.key:/run/secrets/emulator.key:ro
+      - ./.secrets/emulator.crt:/run/secrets/emulator.crt:ro
+    environment:
+      <<: *api-env
+      TLS_KEY_FILE: /run/secrets/emulator.key
+      TLS_CERT_FILE: /run/secrets/emulator.crt
+    healthcheck:
+      test: [CMD, node, -e, "require('https').get('https://emulator:8443/health/ready',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+  api:
+    <<: *api
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+      emulator: {condition: service_healthy}
+  web:
+    build: {context: ., target: web}
+    image: orbita-qc-web:local
+    restart: unless-stopped
+    ports: ['127.0.0.1:8443:8443']
+    volumes:
+      - ./.secrets/ca.crt:/run/secrets/ca.crt:ro
+      - ./.secrets/web.key:/run/secrets/web.key:ro
+      - ./.secrets/web.crt:/run/secrets/web.crt:ro
+    networks: [backend]
+    depends_on:
+      api: {condition: service_healthy}
+    mem_limit: 256m
+networks:
+  backend:
+    driver: bridge

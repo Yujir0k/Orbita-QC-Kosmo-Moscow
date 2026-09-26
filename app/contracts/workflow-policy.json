@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "roles": {
+    "controller": [
+      "confirm",
+      "confirm_hold",
+      "quarantine",
+      "additional",
+      "reject",
+      "accepted_within_spec",
+      "recheck_fail",
+      "release",
+      "scrap",
+      "manual_measurement",
+      "controller_check"
+    ],
+    "master": [
+      "master_complete",
+      "master_scrap",
+      "master_process_report"
+    ],
+    "technologist": [
+      "hypothesis",
+      "cause_review_detailed",
+      "evidence_request"
+    ]
+  }
+}

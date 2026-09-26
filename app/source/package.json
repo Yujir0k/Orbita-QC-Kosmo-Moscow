@@ -1,0 +1,38 @@
+{
+  "name": "orbita-qc-frontend",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "contracts:check": "node scripts/check-contracts.mjs && node scripts/generate-contracts.mjs --check",
+    "security:scan": "node scripts/security-scan.mjs",
+    "security:rotate": "node scripts/rotate-keyring.mjs",
+    "sbom:generate": "pnpm sbom --sbom-format cyclonedx --sbom-type application --out sbom.cdx.json",
+    "ci:check": "pnpm contracts:check && pnpm test && pnpm security:scan && pnpm build && pnpm build:server && pnpm test:crypto && pnpm sbom:generate",
+    "data:sync": "node scripts/sync-dataset.mjs",
+    "contracts:generate": "node scripts/generate-contracts.mjs",
+    "build:server": "node scripts/build-domain.mjs",
+    "test:database": "node --test server/tests/database.test.mjs",
+    "test:crypto": "node --test server/tests/crypto.test.mjs",
+    "test:smoke": "node scripts/smoke-production.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "pg": "^8.23.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.5"
+  },
+  "packageManager": "pnpm@11.25.0"
+}

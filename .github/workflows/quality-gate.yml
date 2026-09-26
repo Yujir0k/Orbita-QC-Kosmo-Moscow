@@ -1,18 +1,13 @@
 name: Quality and security gate
-
-on:
-  push:
-  pull_request:
-
+on: [push, pull_request]
 permissions:
   contents: read
-
 jobs:
   verify:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ORBITA-QC-portable-Windows/source
+        working-directory: app/source
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -20,21 +15,26 @@ jobs:
           version: 11.25.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24.14.0
           cache: pnpm
-          cache-dependency-path: ORBITA-QC-portable-Windows/source/pnpm-lock.yaml
+          cache-dependency-path: app/source/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm contracts:check
-      - run: pnpm test
-      - run: pnpm security:scan
+      - run: pnpm ci:check
       - run: pnpm audit --audit-level high
-      - run: pnpm build:portable
-      - run: pnpm sbom:generate
-      - name: Package Windows workspace
-        run: py -3 scripts/package-windows.py
+      - name: Start TLS stack with two API replicas
+        working-directory: .
+        run: sh deployment/start.sh
+      - name: Validate persisted workflows and live HTTPS API
+        working-directory: .
+        run: |
+          docker compose exec -T api node --test server/tests/database.test.mjs
+          TEST_CA_FILE="$PWD/.secrets/ca.crt" node app/source/scripts/smoke-production.mjs
+          docker compose exec -T api node scripts/verify-outbox.mjs
+      - name: Stop stack
+        if: always()
+        working-directory: .
+        run: docker compose down
       - uses: actions/upload-artifact@v4
         with:
-          name: orbita-qc-windows-and-sbom
-          path: |
-            ORBITA-QC-workspaces-Windows.zip
-            ORBITA-QC-portable-Windows/source/sbom.cdx.json
+          name: orbita-qc-sbom
+          path: app/source/sbom.cdx.json

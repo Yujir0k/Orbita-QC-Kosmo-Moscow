@@ -1,2 +1,15 @@
-ORBITA-QC-portable-Windows/data/
-ORBITA-QC-portable-Windows/source/sbom.cdx.json
+app/data/
+app/source/sbom.cdx.json
+
+.secrets/
+.runtime/
+**/node_modules/
+**/dist/
+**/server/generated/
+**/*.tsbuildinfo
+
+**/__pycache__/
+quality_dataset/load_dataset/
+*.log
+compose.*.local.yaml
+deployment/erp-mapping.json

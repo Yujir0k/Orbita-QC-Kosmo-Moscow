@@ -1,0 +1,5 @@
+# Enable credential authentication. Supply enterprise certificates/secrets before exposure.
+services:
+  api:
+    environment:
+      DEMO_MODE: 'false'
