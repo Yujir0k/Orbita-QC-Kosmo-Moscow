@@ -92,6 +92,27 @@ test('ITEM-013 moves across roles and release requires controller action', () =>
   assert.equal(domain.metrics('all').defects, 1);
 });
 
+test('A controller can record a case-linked instrument reading without deciding the defect', () => {
+  domain.resetDemo();
+  const selected = domain.cases.find(row => row.item === 'ITEM-013' && row.type === 'SCRATCH');
+  assert.ok(selected);
+  assert.throws(() => domain.recordManualMeasurement('ITEM-013', selected.id, 'Толщина стенки', 5.12, 'GAGE-01', 'QC-01', false), /поверку/);
+  const eventId = domain.recordManualMeasurement('ITEM-013', selected.id, 'Толщина стенки', 5.12, 'GAGE-01', 'QC-01', true);
+  const recorded = domain.eventsFor('ITEM-013').find(row => row.event_id === eventId);
+  assert.equal(recorded.event_type, 'manual_measurement');
+  assert.equal(recorded.data.case_id, selected.id);
+  assert.equal(recorded.data.measured_value, 5.12);
+  assert.equal(recorded.data.instrument_id, 'GAGE-01');
+  assert.ok(!domain.eventsFor('ITEM-013').some(row => row.event_type === 'quality_decision'));
+  assert.ok(memory.get('orbita-qc-expanded-v2').includes(eventId));
+  const incoming = domain.cases.find(row => row.item === 'ITEM-015' && row.region === 'CP-IN');
+  const incomingId = domain.recordManualMeasurement('ITEM-015', incoming.id, 'Толщина стенки', 5.01, 'GAGE-02', 'QC-01', true);
+  const incomingReading = domain.eventsFor('ITEM-015').find(row => row.event_id === incomingId);
+  assert.equal(incomingReading.data.basis_event_ids[0], incoming.observations.at(-1).event_id);
+  assert.equal(incomingReading.operation_run_id, undefined);
+  domain.resetDemo();
+});
+
 test('Controller can confirm a defect while holding the item without scheduling rework', () => {
   domain.resetDemo();
   domain.performAction('ITEM-014', 'controller', 'confirm_hold', 'Заусенец подтверждён по кадру; требуется удержание', 'QC-01');

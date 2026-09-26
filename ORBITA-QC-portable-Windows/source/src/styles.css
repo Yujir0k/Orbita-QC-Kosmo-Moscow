@@ -673,3 +673,39 @@ main:has(.qc-cockpit) .page-heading, main:has(.qc-cockpit)>footer { display: non
 @media (max-width: 1280px) { .qc-layout { grid-template-columns: minmax(230px, 22%) minmax(0, 1fr); } .qc-toolbar-row { align-items: flex-start; flex-direction: column; gap: 4px; } .qc-meta { justify-content: flex-start; width: 100%; } }
 @media (max-width: 900px) { .qc-layout { grid-template-columns: minmax(205px, 30%) minmax(0, 1fr); } .qc-instrument-grid { grid-template-columns: repeat(3, minmax(220px, 1fr)); overflow-x: auto; } .qc-decision-fields:has(.qc-recommendation) { grid-template-columns: repeat(2, minmax(0, 1fr)); } .qc-recommendation { grid-column: 1 / -1; } }
 @media (max-width: 650px) { .qc-layout { display: flex; } .qc-workbench { flex-basis: 860px; height: 860px; } .qc-frame-pair { gap: 5px; } .qc-frame-label { font-size: 9px; } .qc-toolbar button { padding: 4px 6px; } .qc-instrument-grid { grid-template-columns: repeat(3, 230px); } .qc-meta { font-size: 10px; } .qc-decision-fields:has(.qc-recommendation) { grid-template-columns: 1fr; } }
+
+/* The available evidence determines how the inspection desk uses its height. */
+.qc-frame-pair.single { grid-template-columns: minmax(0, 1fr); }
+.qc-frame-pair.single .qc-frame:first-child { background: #0d1117; }
+.qc-optical-notice { display: flex; flex: 0 0 36px; align-items: center; gap: 8px; min-width: 0; height: 36px; padding: 0 12px; border: 1px solid #6e5a2c; border-radius: 4px; background: #2b261b; color: #f0c674; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qc-optical-notice svg { flex: 0 0 auto; }
+.qc-workbench.no-photos .qc-lower { flex: 1 1 auto; }
+.qc-workbench.no-photos .qc-instrument-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: minmax(170px, 40%) minmax(0, 1fr); }
+.qc-workbench.no-photos .qc-instrument-card:first-child { grid-column: 1 / -1; }
+.qc-workbench.no-photos .qc-instrument-card { padding: 14px; }
+.qc-workbench.no-photos .qc-instrument-card h3 { font-size: 14px; }
+.qc-workbench.no-photos .qc-card-lead, .qc-workbench.no-photos .qc-card-detail, .qc-workbench.no-photos .qc-route { font-size: 12px; }
+.qc-workbench.no-photos .qc-measure-grid { display: none; }
+.qc-workbench.no-photos .qc-card-status { display: block; width: fit-content; }
+.qc-measure-table-wrap { width: 100%; margin: 8px 0; overflow-x: auto; }
+.qc-measure-table { width: 100%; border-collapse: collapse; color: #e6edf3; font-size: 12px; text-align: left; }
+.qc-measure-table th, .qc-measure-table td { padding: 8px; border: 1px solid #30363d; }
+.qc-measure-table th { background: #21262d; color: #8b949e; font-weight: 600; white-space: nowrap; }
+.qc-measure-table td { background: #0d1117; }
+.qc-add-measurement { display: inline-flex; align-items: center; min-height: 34px; margin: 4px 0; padding: 6px 10px; border: 1px solid #58a6ff; border-radius: 4px; background: #1f6feb; color: #fff; font-weight: 700; font-size: 12px; }
+.qc-manual-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; align-items: end; margin-top: 8px; padding-top: 8px; border-top: 1px solid #30363d; }
+.qc-manual-form label { display: grid; gap: 4px; min-width: 0; color: #8b949e; font-size: 11px; }
+.qc-manual-form input:not([type='checkbox']) { width: 100%; min-width: 0; height: 32px; padding: 4px 6px; border: 1px solid #56616c; border-radius: 4px; background: #0d1117; color: #fff; }
+.qc-manual-form .qc-calibrated { display: flex; grid-column: 1 / -1; align-items: center; color: #e6edf3; }
+.qc-manual-form button { min-height: 32px; padding: 5px 9px; border: 1px solid #3fb950; border-radius: 4px; background: #238636; color: #fff; font-weight: 700; }
+.qc-measurement-message { margin: 6px 0; color: #7ee2a3; font-size: 12px; }
+.qc-workbench.no-photos .qc-telemetry-value { margin-top: 9px; font-size: 12px; }
+.qc-workbench.no-photos .qc-instrument-card progress { height: 10px; }
+.qc-event-timeline, .qc-item-history { margin-top: 13px; border-top: 1px solid #30363d; }
+.qc-event-timeline h4, .qc-item-history h4 { margin: 9px 0; color: #fff; font-size: 12px; }
+.qc-event-timeline ol, .qc-item-history ol { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.qc-event-timeline li, .qc-item-history li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; padding-left: 8px; border-left: 2px solid #58a6ff; color: #e6edf3; font-size: 12px; line-height: 1.35; }
+.qc-item-history li { grid-template-columns: 78px minmax(0, 1fr); }
+.qc-event-timeline time, .qc-item-history time { color: #8b949e; font-variant-numeric: tabular-nums; }
+@media (max-width: 1100px) { .qc-workbench.no-photos .qc-instrument-grid { grid-template-rows: minmax(180px, 43%) minmax(0, 1fr); } .qc-manual-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 650px) { .qc-workbench.no-photos { flex-basis: 930px; height: 930px; } .qc-optical-notice { flex-basis: auto; min-height: 36px; height: auto; padding: 6px 9px; white-space: normal; } .qc-workbench.no-photos .qc-instrument-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(220px, auto) minmax(220px, auto) minmax(220px, auto); overflow-y: auto; } .qc-workbench.no-photos .qc-instrument-card:first-child { grid-column: auto; } .qc-measure-table { min-width: 570px; } }

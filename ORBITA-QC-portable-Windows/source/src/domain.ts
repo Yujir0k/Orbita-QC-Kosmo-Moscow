@@ -67,7 +67,8 @@ export function validateDelivery(raw: unknown): string | null {
     if (e.schema_version === '2.0' && (!textField(d.triage_priority) || !d.capture_context || typeof d.capture_context !== 'object')) return 'Нет полей результата версии 2.0';
     for (const finding of d.defects) if (!textField(finding.finding_id) || !textField(finding.defect_type_id) || !item.components.some(c => c.id === finding.component_id)) return 'Некорректная ссылка на признак или компонент';
   }
-  if (['operation_started', 'operation_finished', 'operation_paused', 'manual_measurement'].includes(e.event_type!) && !textField(e.operation_run_id)) return 'Нет operation_run_id';
+  if (['operation_started', 'operation_finished', 'operation_paused'].includes(e.event_type!) && !textField(e.operation_run_id)) return 'Нет operation_run_id';
+  if (e.event_type === 'manual_measurement' && !textField(e.operation_run_id) && !textField(e.data.case_id)) return 'Замер не привязан к операции или случаю качества';
   if (['quality_decision', 'master_action', 'technical_disposition', 'manual_measurement'].includes(e.event_type!) && !textField(e.actor_id)) return 'Нет actor_id';
   if (e.data.evidence_refs && (!Array.isArray(e.data.evidence_refs) || e.data.evidence_refs.some(ref => !mediaById.has(ref) || mediaById.get(ref)?.item_id !== e.item_id))) return 'Неизвестное или чужое медиа';
   return null;
@@ -345,4 +346,29 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
     make('quality_decision', { decision: action === 'release' ? 'release_after_rework' : 'confirmed', disposition: action === 'release' ? 'release' : 'rework', finding_refs: refs, reason });
   }
   advanceItem(item); save(); return action;
+}
+
+/** Record a controller's instrument reading without treating it as a CV result or quality decision. */
+export function recordManualMeasurement(item: string, caseId: string, parameter: string, value: number, instrumentId: string, executor: string, calibrationConfirmed: boolean): string {
+  const selected = cases.find(entry => entry.id === caseId && entry.item === item);
+  if (!selected) throw new Error('Случай контроля не найден');
+  if (!parameter.trim() || !Number.isFinite(value) || value < 0 || !instrumentId.trim() || !executor.trim()) throw new Error('Укажите параметр, значение, прибор и контролёра');
+  if (!calibrationConfirmed) throw new Error('Подтвердите поверку прибора');
+  const own = eventsFor(item);
+  const latest = own.at(-1);
+  const observation = selected.observations.at(-1);
+  const run = observation?.operation_run_id ?? own.filter(event => event.event_type === 'operation_started' && event.station_id === observation?.station_id).at(-1)?.operation_run_id;
+  if (!latest) throw new Error('Изделие ещё не поступило');
+  const occurredAt = new Date(Math.max(...own.map(event => Date.parse(event.occurred_at))) + 60000).toISOString();
+  const event: QualityEvent = {
+    event_id: `UI-${crypto.randomUUID()}`, event_type: 'manual_measurement', schema_version: '2.0', occurred_at: occurredAt,
+    source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id,
+    station_id: observation?.station_id ?? latest.station_id, shift_id: observation?.shift_id ?? latest.shift_id, operation_run_id: run, actor_id: executor.trim(),
+    data: { case_id: caseId, basis_event_ids: observation ? [observation.event_id] : [], feature_id: parameter.trim(), measured_value: value, unit: 'mm', instrument_id: instrumentId.trim(), calibration_status: 'operator_confirmed', is_camera_measurement: false },
+  };
+  const outcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event });
+  if (outcome.kind === 'error') throw new Error(outcome.reason);
+  events.sort(sortEvents);
+  save();
+  return event.event_id;
 }

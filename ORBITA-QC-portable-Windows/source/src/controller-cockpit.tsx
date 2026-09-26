@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react';
-import { cases, defectNames, describeEvent, events, eventsFor, inScope, items, mediaIndex, performAction, stationNames, time, type Case, type QualityEvent, type Scope, type WorkflowAction } from './domain';
+import { cases, defectNames, describeEvent, eventNames, events, eventsFor, inScope, items, mediaIndex, performAction, recordManualMeasurement, stationNames, time, type Case, type QualityEvent, type Scope, type WorkflowAction } from './domain';
 import { controllerCaseData } from './controller-case';
 import { inspectionCaseFrom, type InspectionCase } from './inspection-case';
 import { Icon } from './ui';
@@ -53,13 +53,13 @@ export function queueStatus(record: Case): boolean {
   return caseData.status === 'NEW_SIGNAL' || caseData.status === 'REWORK_VERIFICATION' || caseData.status === 'UNDER_REVIEW' && caseData.iteration > 1 && caseData.masterReworkReport?.actionType === 'inspection_support';
 }
 
-function Frame({ url, label, emptyText, contrast, zoom, grid, bbox }: { url?: string; label: string; emptyText: string; contrast: boolean; zoom: boolean; grid: boolean; bbox?: [number, number, number, number] }) {
+function Frame({ url, label, contrast, zoom, grid, bbox }: { url: string; label: string; contrast: boolean; zoom: boolean; grid: boolean; bbox?: [number, number, number, number] }) {
   return <div className={['qc-frame', contrast && 'high-contrast', zoom && 'zoomed', grid && 'with-grid'].filter(Boolean).join(' ')}>
     <span className="qc-frame-label">{label}</span>
-    {url ? <div className="qc-image-stage">
+    <div className="qc-image-stage">
       <img src={url} alt={label}/>
       {bbox && <span className="qc-bbox" style={{ left: bbox[0] + '%', top: bbox[1] + '%', width: bbox[2] + '%', height: bbox[3] + '%' }} aria-label="Область дефекта от CV"/>}
-    </div> : <div className="qc-frame-empty"><Icon name="control" size={28}/><span>{emptyText}</span></div>}
+    </div>
   </div>;
 }
 
@@ -81,9 +81,9 @@ function EvidenceViewer({ record, hashState }: { record: InspectionCase; hashSta
     <h2 className="qc-tier-title">Визуальная база</h2>
     {hashState === 'invalid' && <p className="qc-image-warning" role="alert">Целостность кадра нарушена. Решение по изображению заблокировано.</p>}
     {evidence.quality !== 'OPTIMAL' && <p className="qc-image-warning" role="alert">{evidence.quality === 'NO_IMAGE' ? 'Кадр не поступил. Доступна очная проверка.' : 'Качество кадра ограничено. Нужна очная проверка.'}</p>}
-    <div className="qc-frame-pair">
-      <Frame url={evidence.beforeImageUrl} label={record.iteration > 1 ? 'ДО · До доработки' : 'ДО · Входной контроль / Заготовка'} emptyText={record.iteration > 1 ? 'Кадр до доработки не передан' : 'Снимок входного контроля не передан'} contrast={contrast} zoom={zoom} grid={grid}/>
-      <Frame url={evidence.currentImageUrl} label={'СЕЙЧАС · ' + stage} emptyText="Кадр текущего этапа отсутствует" contrast={contrast} zoom={zoom} grid={grid} bbox={evidence.defectBBox}/>
+    <div className={['qc-frame-pair', !(evidence.beforeImageUrl && evidence.currentImageUrl) && 'single'].filter(Boolean).join(' ')}>
+      {evidence.beforeImageUrl && <Frame url={evidence.beforeImageUrl} label={record.iteration > 1 ? 'ДО · До доработки' : 'ДО · Входной контроль / Заготовка'} contrast={contrast} zoom={zoom} grid={grid}/>}
+      {evidence.currentImageUrl && <Frame url={evidence.currentImageUrl} label={'СЕЙЧАС · ' + stage} contrast={contrast} zoom={zoom} grid={grid} bbox={evidence.defectBBox}/>}
     </div>
     <div className="qc-toolbar-row"><div className="qc-toolbar">
       <button aria-pressed={zoom} onClick={() => setZoom(value => !value)}><Icon name="search" size={17}/>Зум <kbd>Z</kbd></button>
@@ -100,10 +100,27 @@ function EvidenceViewer({ record, hashState }: { record: InspectionCase; hashSta
 }
 
 /** Show only dimensions, machine readings and conclusions received for this item. */
-function InspectionInstruments({ record, history }: { record: InspectionCase; history: QualityEvent[] }) {
-  const measurement = record.masterReworkReport?.manualMeasurement;
+function InspectionInstruments({ record, history, expanded }: { record: InspectionCase; history: QualityEvent[]; expanded: boolean }) {
+  const [manualOpen, setManualOpen] = useState(false);
+  const [parameter, setParameter] = useState('');
+  const [value, setValue] = useState('');
+  const [instrument, setInstrument] = useState('');
+  const [operator, setOperator] = useState('');
+  const [calibrated, setCalibrated] = useState(false);
+  const [measurementMessage, setMeasurementMessage] = useState('');
+  const manualEvent = history.filter(event => event.event_type === 'manual_measurement' && typeof event.data.measured_value === 'number' && (!event.data.case_id || event.data.case_id === record.id)).at(-1);
+  const measurement = manualEvent ? {
+    parameterName: String(manualEvent.data.feature_id ?? 'Параметр не указан'),
+    measuredValue: Number(manualEvent.data.measured_value),
+    nominalValue: typeof manualEvent.data.nominal_value === 'number' ? manualEvent.data.nominal_value : undefined,
+    toleranceMin: typeof manualEvent.data.lower_limit === 'number' ? manualEvent.data.lower_limit : undefined,
+    toleranceMax: typeof manualEvent.data.upper_limit === 'number' ? manualEvent.data.upper_limit : undefined,
+    toolName: typeof manualEvent.data.instrument_id === 'string' ? manualEvent.data.instrument_id : undefined,
+  } : record.masterReworkReport?.manualMeasurement;
   const machine = history.filter(event => event.event_type === 'machine_state').at(-1);
   const operation = history.filter(event => event.event_type === 'operation_started' && event.operation_run_id === machine?.operation_run_id).at(-1);
+  const runId = machine?.operation_run_id ?? history.filter(event => event.event_type === 'operation_started').at(-1)?.operation_run_id;
+  const machineEvents = history.filter(event => event.operation_run_id === runId && ['operation_started', 'machine_state', 'operation_paused', 'operator_action', 'operation_finished'].includes(event.event_type));
   const received = history.find(event => event.event_type === 'item_received');
   const finding = record.technologistFinding;
   const peak = typeof machine?.data.spindle_load_peak_pct === 'number' ? machine.data.spindle_load_peak_pct : undefined;
@@ -112,27 +129,50 @@ function InspectionInstruments({ record, history }: { record: InspectionCase; hi
   const deviation = measurement && nominal != null ? measurement.measuredValue - nominal : undefined;
   const outOfTolerance = measurement && (measurement.toleranceMin != null && measurement.measuredValue < measurement.toleranceMin || measurement.toleranceMax != null && measurement.measuredValue > measurement.toleranceMax);
   const traveler = typeof received?.data.traveler_id === 'string' ? received.data.traveler_id : record.routeSheet;
+  const measurementStatus = !measurement ? 'Замер не поступил' : outOfTolerance ? 'Вне допуска' : measurement.toleranceMin == null && measurement.toleranceMax == null ? 'Пределы не переданы' : 'В допуске';
+  const submitMeasurement = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      recordManualMeasurement(record.itemId, record.id, parameter, Number(value), instrument, operator, calibrated);
+      setMeasurementMessage('Показание прибора записано в историю изделия.');
+      setManualOpen(false);
+    } catch (error) { setMeasurementMessage(error instanceof Error ? error.message : 'Не удалось записать замер'); }
+  };
   return <section className="qc-instruments" aria-label="Приборы, метрология и телеметрия">
     <h2 className="qc-tier-title">Приборы, метрология и телеметрия</h2>
     <div className="qc-instrument-grid">
       <article className="qc-instrument-card"><h3>Метрология и чертёж (КД)</h3>
         <p className="qc-card-lead">Контролируемый размер: <strong>{measurement?.parameterName ?? 'замер не поступил'}</strong></p>
         <dl className="qc-measure-grid"><div><dt>Номинал</dt><dd>{nominal == null ? '—' : `${nominal.toFixed(2)} мм`}</dd></div><div><dt>Допуск по КД</dt><dd>{measurement?.toleranceMin == null && measurement?.toleranceMax == null ? '—' : `${measurement.toleranceMin ?? '—'}…${measurement.toleranceMax ?? '—'} мм`}</dd></div><div><dt>Факт замера</dt><dd>{measurement ? `${measurement.measuredValue.toFixed(2)} мм` : '—'}</dd></div><div><dt>Отклонение</dt><dd>{deviation == null ? '—' : `${deviation > 0 ? '+' : ''}${deviation.toFixed(2)} мм`}</dd></div></dl>
+        {expanded && <div className="qc-measure-table-wrap"><table className="qc-measure-table"><thead><tr><th>Параметр</th><th>Номинал</th><th>Допуск КД</th><th>Факт</th><th>Отклонение</th><th>Статус</th></tr></thead><tbody><tr><td>{measurement?.parameterName ?? '—'}</td><td>{nominal == null ? '—' : `${nominal.toFixed(2)} мм`}</td><td>{measurement?.toleranceMin == null && measurement?.toleranceMax == null ? '—' : `${measurement.toleranceMin ?? '—'}…${measurement.toleranceMax ?? '—'} мм`}</td><td>{measurement ? `${measurement.measuredValue.toFixed(2)} мм` : '—'}</td><td>{deviation == null ? '—' : `${deviation > 0 ? '+' : ''}${deviation.toFixed(2)} мм`}</td><td>{measurementStatus}</td></tr></tbody></table></div>}
         <p className={['qc-card-status', outOfTolerance ? 'danger' : ''].join(' ')}>{!measurement ? 'Инструментальный замер ещё не передан' : outOfTolerance ? 'Вне допуска по зарегистрированным пределам' : measurement.toleranceMin == null && measurement.toleranceMax == null ? 'Пределы допуска не переданы' : 'В пределах зарегистрированного допуска'}</p>
         {measurement?.toolName && <small>Прибор: {measurement.toolName}</small>}
+        {expanded && !measurement && <button className="qc-add-measurement" type="button" onClick={() => setManualOpen(value => !value)}>+ Внести ручной замер с прибора</button>}
+        {expanded && manualOpen && <form className="qc-manual-form" onSubmit={submitMeasurement}>
+          <label>Контролируемый параметр<input required value={parameter} onChange={event => setParameter(event.target.value)} placeholder="Название по КД или программе контроля"/></label>
+          <label>Показание, мм<input required type="number" min="0" step="any" value={value} onChange={event => setValue(event.target.value)}/></label>
+          <label>Идентификатор прибора<input required value={instrument} onChange={event => setInstrument(event.target.value)}/></label>
+          <label>Контролёр<input required value={operator} onChange={event => setOperator(event.target.value)}/></label>
+          <label className="qc-calibrated"><input type="checkbox" checked={calibrated} onChange={event => setCalibrated(event.target.checked)}/> Поверка прибора подтверждена</label>
+          <button type="submit">Записать показание</button>
+        </form>}
+        {measurementMessage && <p role="status" className="qc-measurement-message">{measurementMessage}</p>}
       </article>
       <article className="qc-instrument-card"><h3>Телеметрия станка и логи ЧПУ</h3>
         <p className="qc-card-lead"><strong>{machine?.equipment_id ?? record.machineContext.machineId ?? 'Станок не указан'}</strong> · {machine?.operation_run_id ?? 'Запуск не указан'} · {operation?.actor_id ?? record.machineContext.operatorId ?? 'Оператор не указан'}</p>
         <div className="qc-telemetry-value"><span>Износ инструмента</span><strong>{record.machineContext.toolWearPercent == null ? 'Нет показания' : `${record.machineContext.toolWearPercent}%`}</strong></div>
         {record.machineContext.toolWearPercent != null && <progress max="100" value={record.machineContext.toolWearPercent}/>}
         {life != null && <p className="qc-card-detail">Наработка инструмента: {life} мин</p>}
+        {expanded && <><div className="qc-telemetry-value"><span>Пиковая нагрузка шпинделя</span><strong>{peak == null ? 'Нет показания' : `${peak}%`}</strong></div>{peak != null && <progress max="100" value={Math.min(peak, 100)} aria-label="Пиковая нагрузка шпинделя"/>}</>}
         <p className="qc-machine-log">{machine ? <><time>{time(machine.occurred_at).split(', ').at(-1)}</time> · Состояние: {machine.data.state === 'running' ? 'работает' : machine.data.state ?? 'не указано'}{peak == null ? '' : ` · Пиковая нагрузка шпинделя ${peak}%`}{machine.data.alarm_code ? ` · Сигнал ${machine.data.alarm_code}` : ''}</> : 'События телеметрии для этого изделия не поступили'}</p>
+        {expanded && <div className="qc-event-timeline"><h4>Лента операции</h4>{machineEvents.length ? <ol>{machineEvents.map(event => <li key={event.event_id}><time>{time(event.occurred_at).split(', ').at(-1)}</time><span>{event.event_type === 'machine_state' ? `Станок: ${event.data.state === 'running' ? 'работает' : event.data.state ?? 'состояние не указано'}${typeof event.data.spindle_load_peak_pct === 'number' ? ` · нагрузка ${event.data.spindle_load_peak_pct}%` : ''}${event.data.alarm_code ? ` · сигнал ${event.data.alarm_code}` : ''}` : event.event_type === 'operation_started' ? `Операция начата · ${event.data.operation_id ?? event.operation_run_id}` : event.event_type === 'operation_finished' ? 'Операция завершена' : `${eventNames[event.event_type] ?? event.event_type} · ${describeEvent(event)}`}</span></li>)}</ol> : <p>События операции не поступили</p>}</div>}
       </article>
       <article className="qc-instrument-card"><h3>Заключение технолога и маршрут</h3>
         <p className={['qc-card-status', finding?.investigationStatus === 'COMPLETED' ? 'resolved' : ''].join(' ')}>{finding?.investigationStatus === 'COMPLETED' ? 'Заключение записано' : finding ? 'Расследование ведётся' : 'Расследование не открыто'}</p>
         <p className="qc-card-lead">{finding?.description ?? 'Предписание технолога ещё не поступило'}</p>
         {finding?.reworkPermitted != null && <p className="qc-card-detail">Доработка {finding.reworkPermitted ? 'разрешена' : 'запрещена'}</p>}
         <p className="qc-route">Партия <strong>{record.supplierLotId ?? 'не указана'}</strong> · Маршрутный лист <strong>{traveler ?? 'не передан'}</strong></p>
+        {expanded && <div className="qc-item-history"><h4>История детали</h4><ol>{history.map(event => <li key={event.event_id}><time>{time(event.occurred_at)}</time><span>{eventNames[event.event_type] ?? event.event_type}</span></li>)}</ol></div>}
       </article>
     </div>
   </section>;
@@ -292,6 +332,7 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
   }).sort((a, b) => b.source.priority - a.source.priority || a.view.createdAt.localeCompare(b.view.createdAt));
   const selected = filtered.find(row => row.source.id === caseId) ?? filtered.find(row => row.view.itemId === 'ITEM-013') ?? filtered[0];
   const view = selected?.view;
+  const hasAnyPhotos = Boolean(view?.visualEvidence.beforeImageUrl || view?.visualEvidence.currentImageUrl);
   const imageUrl = view?.visualEvidence.currentImageUrl;
   const expectedHash = view?.visualEvidence.cameraMeta.imageHash;
   useEffect(() => {
@@ -345,7 +386,7 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
       <div className="qc-identity"><strong className="mono">{view?.itemId ?? 'Выберите изделие'}</strong>{view && <><span>·</span><strong className="mono">{view.workOrder}</strong><span className="qc-part-name">({view.partName.replace(/^Условный\s+/, '')})</span></>}</div>
       {view && sourceCase && <span className={['qc-defect-badge', view.urgency.toLowerCase()].join(' ')}>{defectNames[sourceCase.type] ?? sourceCase.type} · {priorityLabel}</span>}
       <div className="qc-header-right">
-        <span className={['qc-hash-status', hashState].join(' ')}><Icon name={hashState === 'valid' ? 'check' : 'help'} size={15}/>{hashState === 'valid' ? 'Хеш кадра валиден' : hashState === 'checking' ? 'Проверка хеша' : hashState === 'invalid' ? 'Хеш не совпал' : 'Хеш не передан'}</span>
+        <span className={['qc-hash-status', hashState].join(' ')}><Icon name={hashState === 'valid' ? 'check' : 'help'} size={15}/>{!hasAnyPhotos ? 'Кадр не поступил' : hashState === 'valid' ? 'Хеш кадра валиден' : hashState === 'checking' ? 'Проверка хеша' : hashState === 'invalid' ? 'Хеш не совпал' : 'Хеш не передан'}</span>
         <button ref={drawerTrigger} className="qc-drawer-trigger" onClick={() => setDrawerOpen(true)} disabled={!view}><Icon name="help" size={17}/>Досье и телеметрия <kbd>D</kbd></button>
       </div>
     </header>
@@ -359,9 +400,9 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
           <span className="qc-queue-secondary"><span>{compareAge(item.createdAt, timelineEnd).replace('в ленте', 'в очереди')}</span><span className={item.visualEvidence.hasImage ? 'has-image' : ''}>{item.visualEvidence.hasImage ? 'Есть снимок' : 'Нет снимка'}</span></span>
         </button>) : <p className="qc-empty-queue">В этом фильтре нет открытых заявок.</p>}</div>
       </aside>
-      {view && sourceCase && data ? <main className="qc-workbench">
-        <div className="qc-upper"><EvidenceViewer key={view.id} record={view} hashState={hashState}/></div>
-        <div className="qc-lower"><InspectionInstruments record={view} history={own}/><DecisionPanel key={view.id + '-' + view.iteration} record={view} source={sourceCase} hashState={hashState}/></div>
+      {view && sourceCase && data ? <main className={['qc-workbench', !hasAnyPhotos && 'no-photos'].filter(Boolean).join(' ')}>
+        {hasAnyPhotos ? <div className="qc-upper"><EvidenceViewer key={view.id} record={view} hashState={hashState}/></div> : <div className="qc-optical-notice" role="status"><Icon name="help" size={16}/>Оптический контроль недоступен · Решение принимается на основе телеметрии оборудования и метрологических замеров</div>}
+        <div className="qc-lower"><InspectionInstruments key={view.id} record={view} history={own} expanded={!hasAnyPhotos}/><DecisionPanel key={view.id + '-' + view.iteration} record={view} source={sourceCase} hashState={hashState}/></div>
       </main> : <div className="qc-no-selection">Выберите заявку в очереди</div>}
     </div>
     {drawerOpen && view && sourceCase && observation && <DossierDrawer record={view} source={sourceCase} observation={observation} machine={machine} missingFields={data?.missing ?? []} onClose={closeDrawer} openPassport={openPassport} closeRef={drawerClose}/>}
