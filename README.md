@@ -15,7 +15,6 @@
 ```powershell
 git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git A:\orbita-qc
 cd A:\orbita-qc
-git switch codex/production-backend
 pwsh -File deployment/start.ps1 -Replicas 2
 ```
 
@@ -30,7 +29,6 @@ pwsh -File deployment/start.ps1 -OpenSsl 'C:\Program Files\OpenSSL-Win64\bin\ope
 ```sh
 git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git orbita-qc
 cd orbita-qc
-git switch codex/production-backend
 sh deployment/start.sh
 ```
 
