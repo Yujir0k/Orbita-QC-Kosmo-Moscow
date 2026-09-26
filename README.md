@@ -189,7 +189,7 @@ flowchart LR
 | --- | --- | --- |
 | ![Сравнить операции](docs/screenshots/technologist-compare.png) | ![Заключение](docs/screenshots/technologist-conclusion.png) | ![Аналитика технолога](docs/screenshots/technologist-analytics.png) |
 
-| Раздел / вкладка | Для чего нужен и что реализовано | Экран | Для чего нужен и что реализовано | Экран |
+| Раздел / вкладка | Для чего нужен и что реализовано | Экран |
 | --- | --- | --- |
 | Обзор рабочего места | Показывает подтверждённые случаи, состояние исследований и запросы сведений. | [Открыть](docs/screenshots/technologist-home.png) |
 | Разбор причин · Обстоятельства | Сводит изделие, операцию, оборудование, инструмент, наладку и основания. | [Открыть](docs/screenshots/technologist-investigation.png) |
