@@ -18,6 +18,7 @@ const security = await createSecurity({ directory: temp, rootKey, items: [{ id: 
   users: [{ id: 'qc', role: 'controller', lineIds: ['LINE-1'], password: 'correct-controller-password' },
     { id: 'master', role: 'master', lineIds: ['LINE-2'], password: 'correct-master-password' },
     { id: 'master-line1', role: 'master', lineIds: ['LINE-1'], password: 'correct-master-line1-password' },
+    { id: 'tech', role: 'technologist', lineIds: ['LINE-1'], password: 'correct-technologist-password' },
     { id: 'admin', role: 'administrator', lineIds: ['LINE-1'], password: 'correct-admin-password' }] })
 const server = createServer(async (request, response) => {
   const pathname = new URL(request.url, 'http://127.0.0.1').pathname
@@ -93,6 +94,39 @@ test('a controller action is attributed by the server and its original is encryp
   assert.equal((await request('/api/security/verify', { cookie: admin.cookie })).body.valid, true)
   assert.equal(security.validateMesDecision(event), true)
   assert.equal(security.validateMesDecision({ ...event, line_id: 'OTHER-LINE' }), false)
+})
+
+test('technologist requests and conclusions and a master report persist in the audited history', async () => {
+  const tech = await login('tech', 'correct-technologist-password')
+  const master = await login('master-line1', 'correct-master-line1-password')
+  const caseId = 'NC-ITEM-1-BURR-EDGE'
+  const sendAction = async (session, action, reason, data, extra = {}) => {
+    const approval = await request('/api/security/actions', { method: 'POST', cookie: session.cookie, csrf: session.csrf,
+      body: { itemId: 'ITEM-1', action, caseId, reason, ...extra } })
+    assert.equal(approval.status, 200)
+    const actionId = approval.body.actionId
+    const event = { event_id: `UI-${actionId}-1`, event_type: action === 'cause_review_detailed' ? 'cause_review' : action,
+      schema_version: '2.0', occurred_at: new Date().toISOString(), source_id: 'ORBITA-UI', actor_id: approval.body.actorId,
+      item_id: 'ITEM-1', item_type_id: 'TYPE-1', line_id: 'LINE-1', station_id: 'ST-1', shift_id: 'SHIFT-1',
+      data: { ...data, case_id: caseId, reason, security_action_id: actionId } }
+    const completedAction = await request('/api/security/actions/complete', { method: 'POST', cookie: session.cookie, csrf: session.csrf,
+      body: { actionId, deliveries: [{ delivery_id: `UI-DLV-${randomUUID()}`, deliver_at: new Date().toISOString(), message: event }] } })
+    assert.equal(completedAction.status, 200, JSON.stringify(completedAction.body))
+    return event
+  }
+  assert.equal((await request('/api/security/actions', { method: 'POST', cookie: master.cookie, csrf: master.csrf,
+    body: { itemId: 'ITEM-1', action: 'evidence_request', caseId, reason: 'Проверьте состояние оснастки', recipient: 'master' } })).status, 403)
+  const inquiry = await sendAction(tech, 'evidence_request', 'Проверьте состояние оснастки',
+    { recipient_role: 'master', status: 'open', finding_refs: ['FIND-1'] }, { recipient: 'master' })
+  await sendAction(master, 'master_process_report', 'Оснастка проверена, отклонений не выявлено',
+    { request_id: inquiry.event_id, fixture_condition: 'checked', tool_condition: 'unknown', setup_changed: 'no',
+      comment: 'Оснастка проверена, отклонений не выявлено', basis_event_ids: ['EVENT-1'] })
+  await sendAction(tech, 'cause_review_detailed', 'Причина требует повторной проверки данных',
+    { status: 'hypothesis', cause_type: 'undetermined', finding_refs: ['FIND-1'], basis_event_ids: ['EVENT-1'],
+      alternatives: 'Вероятен входной дефект', missing_data: 'Нужна проверка инструмента', reviewed_event_ids: ['EVENT-1'] })
+  const history = await request('/api/security/events', { cookie: tech.cookie })
+  assert.equal(history.status, 200)
+  assert.ok(history.body.deliveries.some(row => row.message.event_id === inquiry.event_id))
 })
 
 test('local demonstration switches roles without account credentials', async () => {

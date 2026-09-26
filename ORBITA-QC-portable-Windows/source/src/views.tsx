@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, Empty, Icon, ImagePreview, Metric, Note, Panel, ProductDrawing } from './ui';
 import { canAccess, moduleById, roles, roleById, sectionsFor, type ModuleId, type RoleId, type Route, type Section } from './navigation';
-import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
+import { causeReviewNeedsRevision, cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
 import { ControllerCockpit } from './controller-cockpit';
 import { MasterTerminal } from './master-terminal';
@@ -12,13 +12,20 @@ import { AdminOverview } from './admin-overview';
 import { AdminHealthView, SecurityBackupView, SecurityCryptoView, SecuritySessionsPanel } from './admin-operations';
 import { SecurityAuditView } from './security-ui';
 import { MobileOpsView } from './mobileops-ui';
+import { TechnologistWorkbench } from './technologist-workbench';
+import { TechnologistAnalyticsView } from './technologist-analytics-view';
+import { pendingEvidenceRequests } from './technologist-evidence';
+import { recipientName } from './investigation-services';
+import { productSpecification } from './product-catalog';
+import { DataQualityView } from './data-quality-view';
 import planet from './assets/planet-orbita.webp';
 
 export type Navigate = (module: ModuleId, section?: string, item?: string) => void;
 export interface ViewProps { route: Route; scope: Scope; navigate: Navigate; openItem: (id: string) => void; openCase: (item: string, caseId: string) => void; changeRole: (role: RoleId, module?: ModuleId) => void }
 
-function CaseTable({ data, openItem }: { data: Case[]; openItem: (id: string) => void }) {
-  return data.length ? <div className="table-wrap"><table><thead><tr><th>Случай / изделие</th><th>Наблюдение</th><th>Рассмотрение</th><th>Причина</th><th><span className="sr-only">Открыть</span></th></tr></thead><tbody>{data.map(c => <tr key={c.id}><td><button className="cell-link mono" onClick={() => openItem(c.item)}>{c.id}</button><small>{c.item}</small></td><td><strong>{defectNames[c.type]}</strong><small>{stationNames[c.observations[0].station_id]} · {c.observations.length} набл.</small></td><td><Badge tone={c.tone}>{c.status}</Badge></td><td><span className={c.review?.data.status === 'confirmed' ? 'text-green' : 'text-sub'}>{c.review?.data.status === 'confirmed' ? 'Установлена' : c.review ? 'Гипотеза' : 'Не установлена'}</span></td><td><button className="icon-button" aria-label={`Открыть ${c.id}`} onClick={() => openItem(c.item)}><Icon name="arrow" size={17} /></button></td></tr>)}</tbody></table></div> : <Empty title="В этом срезе случаев нет" text="Измените смену или условия отбора." />;
+function CaseTable({ data, openItem, openCase }: { data: Case[]; openItem: (id: string) => void; openCase?: (item: string, caseId: string) => void }) {
+  const open = (row: Case) => openCase ? openCase(row.item, row.id) : openItem(row.item);
+  return data.length ? <div className="table-wrap"><table><thead><tr><th>Случай / изделие</th><th>Наблюдение</th><th>Рассмотрение</th><th>Причина</th><th><span className="sr-only">Открыть</span></th></tr></thead><tbody>{data.map(c => <tr key={c.id}><td><button className="cell-link mono" onClick={() => open(c)}>{c.id}</button><small>{c.item}</small></td><td><strong>{defectNames[c.type]}</strong><small>{stationNames[c.observations[0].station_id]} · {c.observations.length} набл.</small></td><td><Badge tone={c.tone}>{c.status}</Badge></td><td><span className={c.review?.data.status === 'confirmed' ? 'text-green' : 'text-sub'}>{c.review?.data.status === 'confirmed' ? 'Установлена' : c.review ? 'Гипотеза' : 'Не установлена'}</span></td><td><button className="icon-button" aria-label={`Открыть ${c.id}`} onClick={() => open(c)}><Icon name="arrow" size={17} /></button></td></tr>)}</tbody></table></div> : <Empty title="В этом срезе случаев нет" text="Измените смену или условия отбора." />;
 }
 
 const homeStory: Record<RoleId, { eyebrow: string; title: string; text: string; cta: string; module: ModuleId; section?: string; item?: string }> = {
@@ -30,7 +37,7 @@ const homeStory: Record<RoleId, { eyebrow: string; title: string; text: string; 
 };
 
 export function HomeView(props: ViewProps) {
-  const { route, scope, navigate, openItem } = props;
+  const { route, scope, navigate, openItem, openCase } = props;
   const role = route.role;
   const m = metrics(scope);
   const story = homeStory[role];
@@ -57,18 +64,23 @@ export function HomeView(props: ViewProps) {
         <Metric label="Незавершённые операции" value={m.unfinished} note="Требуют внимания мастера" icon="clock" tone="amber" onClick={() => navigate('operations')} />
         <Metric label="Повторные запуски" value={m.rework} note="Связаны с первичной обработкой" icon="branch" onClick={() => navigate('operations')} />
         <Metric label="Открытые действия" value={relevantTasks.length} note="Из фактов учебной смены" icon="tasks" tone="red" onClick={() => navigate('operations')} />
+      </> : role === 'technologist' ? <>
+        <Metric label="Подтверждённые случаи" value={visibleCases.filter(c => c.confirmed).length} note="Каждый дефект — отдельное дело" icon="quality" onClick={() => navigate('investigation')}/>
+        <Metric label="Нужен разбор" value={visibleCases.filter(c => c.confirmed && (!['confirmed', 'unknown'].includes(c.review?.data.status ?? '') || causeReviewNeedsRevision(c))).length} note="Без вывода, гипотезы и новые данные" icon="investigation" tone="amber" onClick={() => navigate('investigation')}/>
+        <Metric label="Ожидают сведений" value={visibleCases.filter(c => c.confirmed && pendingEvidenceRequests(c).length > 0).length} note="Открытые запросы" icon="clock" onClick={() => navigate('tasks')}/>
+        <Metric label="Причина установлена" value={visibleCases.filter(c => c.confirmed && c.review?.data.status === 'confirmed' && !causeReviewNeedsRevision(c)).length} note="Актуальные заключения" icon="check" tone="green" onClick={() => navigate('analytics', 'causes')}/>
       </> : <>
         <Metric label="Проверено изделий" value={m.inspected} note="С оцениваемым наблюдением" icon="quality" tone="green" onClick={() => navigate('products')} />
-        <Metric label="Изделия с дефектами" value={m.defectiveItems} note="За всю историю выбранной смены" icon="products" tone="red" onClick={() => navigate(role === 'technologist' ? 'investigation' : 'analytics')} />
-        <Metric label="Подтверждённые дефекты" value={m.defects} note="Повторные наблюдения объединены" icon="investigation" tone="amber" onClick={() => navigate(role === 'technologist' ? 'investigation' : 'analytics')} />
-        <Metric label={role === 'controller' ? 'Ожидают решения' : 'Причина не установлена'} value={role === 'controller' ? m.pending : m.defectiveItems - m.established} note={role === 'controller' ? 'Требуют решения контролёра' : 'Изделия с подтверждённым дефектом'} icon="help" onClick={() => navigate(role === 'technologist' ? 'investigation' : role === 'controller' ? 'quality' : 'analytics', role === 'leader' ? 'causes' : undefined)} />
+        <Metric label="Изделия с дефектами" value={m.defectiveItems} note="За всю историю выбранной смены" icon="products" tone="red" onClick={() => navigate('analytics')} />
+        <Metric label="Подтверждённые дефекты" value={m.defects} note="Повторные наблюдения объединены" icon="investigation" tone="amber" onClick={() => navigate('analytics')} />
+        <Metric label={role === 'controller' ? 'Ожидают решения' : 'Причина не установлена'} value={role === 'controller' ? m.pending : m.defectiveItems - m.established} note={role === 'controller' ? 'Требуют решения контролёра' : 'Изделия с подтверждённым дефектом'} icon="help" onClick={() => navigate(role === 'controller' ? 'quality' : 'analytics', role === 'leader' ? 'causes' : undefined)} />
       </>}
     </div>
     <div className="home-columns">
       <div className="stack">
         {role === 'administrator' ? <Panel title="Контур обмена" eyebrow="ПОДКЛЮЧЕНИЯ" action={<Button onClick={() => navigate('integrations')}>Все профили</Button>}><div className="connection-list">{profiles.map((p, i) => <button key={p.system} onClick={() => navigate('integrations')}><span className="connector-symbol">{['1C', 'Г', 'M', 'К'][i]}</span><div><strong>{['1С:Предприятие', 'Галактика ERP', 'MES', 'КОМПАС-3D'][i]}</strong><small>{['Заказы ⇄ результаты качества', 'Заказы ⇄ результаты качества', 'Операции ⇄ статусы', 'Структура сборки → паспорт'][i]}</small></div><Badge>Профиль</Badge><Icon name="chevron" /></button>)}</div></Panel>
           : role === 'master' || role === 'leader' ? <Panel title="Требуют действия" eyebrow="ОТКЛОНЕНИЯ И ИСПОЛНЕНИЕ" action={<Button onClick={() => navigate('tasks', role === 'leader' ? 'team' : 'mine')}>Все задачи</Button>}><TaskList data={relevantTasks.slice(0, 4)} openItem={openItem} /></Panel>
-          : <Panel title={role === 'technologist' ? 'Причины для исследования' : 'Случаи учебной смены'} eyebrow={role === 'technologist' ? 'ДОКАЗАТЕЛЬСТВА И ГИПОТЕЗЫ' : 'КОНТРОЛЬ КАЧЕСТВА'} action={<Button onClick={() => navigate(role === 'technologist' ? 'investigation' : 'quality', 'cases')}>Все случаи</Button>}><CaseTable data={visibleCases.filter(c => role !== 'technologist' || c.confirmed).slice(0, 4)} openItem={openItem} /></Panel>}
+          : <Panel title={role === 'technologist' ? 'Подтверждённые случаи для разбора' : 'Случаи учебной смены'} eyebrow={role === 'technologist' ? 'ОТК ПОДТВЕРДИЛ · ПРИЧИНА ОТДЕЛЬНО' : 'КОНТРОЛЬ КАЧЕСТВА'} action={<Button onClick={() => navigate(role === 'technologist' ? 'investigation' : 'quality', role === 'technologist' ? 'cases' : 'signals')}>Все случаи</Button>}><CaseTable data={visibleCases.filter(c => role !== 'technologist' || c.confirmed).slice(0, 4)} openItem={openItem} openCase={role === 'technologist' ? openCase : undefined}/></Panel>}
         <Panel title="От сигнала до результата" eyebrow="СКВОЗНОЙ СЦЕНАРИЙ" className="workflow-panel"><WorkflowStrip {...props} /></Panel>
       </div>
       <div className="stack">
@@ -92,8 +104,8 @@ function WorkflowStrip({ route, navigate, changeRole }: ViewProps) {
   return <div className="workflow-strip">{flow.map((step, i) => <button key={step.label} onClick={() => canAccess(route.role, step.module) ? navigate(step.module) : changeRole(step.role, step.module)} title={canAccess(route.role, step.module) ? `Открыть: ${step.label}` : `Показать рабочее место: ${roleById[step.role].name}`}><span className="flow-icon"><Icon name={step.icon} /><em>{String(i + 1).padStart(2, '0')}</em></span><strong>{step.label}</strong><small>{step.detail}</small>{i < flow.length - 1 && <Icon className="flow-arrow" name="chevron" size={14} />}</button>)}</div>;
 }
 
-function TaskList({ data, openItem }: { data: typeof tasks; openItem: (id: string) => void }) {
-  return data.length ? <div className="task-list">{data.map(task => <button key={task.id} onClick={() => openItem(task.item)}><span className={`task-symbol ${task.done ? 'green' : 'amber'}`}><Icon name={task.done ? 'check' : 'clock'} /></span><div><strong>{task.title}</strong><small><span className="mono">{task.item}</span> · {roleById[task.role].name}</small><p>{task.description}</p></div><Badge tone={task.done ? 'green' : 'amber'}>{task.done ? 'Завершено' : 'Требует действия'}</Badge><Icon name="chevron" /></button>)}</div> : <Empty title="Открытых задач в этом срезе нет" text="Новые действия будут появляться здесь вместе с основанием и карточкой изделия." />;
+function TaskList({ data, openItem, openCase }: { data: typeof tasks; openItem: (id: string) => void; openCase?: (item: string, caseId: string) => void }) {
+  return data.length ? <div className="task-list">{data.map(task => <button key={task.id} onClick={() => task.caseId && openCase ? openCase(task.item, task.caseId) : openItem(task.item)}><span className={`task-symbol ${task.done ? 'green' : 'amber'}`}><Icon name={task.done ? 'check' : 'clock'} /></span><div><strong>{task.title}</strong><small><span className="mono">{task.item}</span> · {roleById[task.role].name}</small><p>{task.description}</p></div><Badge tone={task.done ? 'green' : 'amber'}>{task.done ? 'Завершено' : 'Требует действия'}</Badge><Icon name="chevron" /></button>)}</div> : <Empty title="Открытых задач в этом срезе нет" text="Новые действия будут появляться здесь вместе с основанием и карточкой изделия." />;
 }
 
 function QualityView({ route, scope, openItem, openCase, navigate }: ViewProps) {
@@ -111,7 +123,7 @@ function ProductsView({ scope, openItem }: ViewProps) {
   const [group, setGroup] = useState<RegistryGroup | 'all'>('all');
   const rows = items.filter(item => item.item_type_id === 'TYPE-BRACKET-01' && (scope === 'all' || events.some(event => event.item_id === item.id && inScope(event, scope))))
     .map(item => projectRegistryRow(item, eventsFor(item.id)));
-  const filtered = rows.filter(row => (group === 'all' || row.group === group) && `${row.item.id} ${row.item.work_order_id} ${row.lot} ${row.traveler}`.toLowerCase().includes(query.toLowerCase()));
+  const filtered = rows.filter(row => (group === 'all' || row.group === group) && `${row.item.id} ${row.item.work_order_id} ${row.lot} ${row.traveler} ${productSpecification(row.item.id).name} ${productSpecification(row.item.id).assembly} ${productSpecification(row.item.id).designation}`.toLowerCase().includes(query.toLowerCase()));
   const filters: { id: RegistryGroup | 'all'; label: string; tone: string }[] = [
     { id: 'all', label: 'Все изделия', tone: 'muted' }, { id: 'needs', label: 'Требуют решения ОТК', tone: 'amber' },
     { id: 'rework', label: 'На доработке в цехе', tone: 'blue' }, { id: 'good', label: 'Годны (контроль пройден)', tone: 'green' },
@@ -122,12 +134,12 @@ function ProductsView({ scope, openItem }: ViewProps) {
     <div className="registry-overview"><div><span className="eyebrow">ЕДИНЫЙ РЕЕСТР УЧАСТКА</span><h2>Изделия и их маршрут</h2><p>Местонахождение, решение ОТК и целостность истории для каждого кронштейна.</p></div><strong className="mono">{rows.length}<small>изделий в срезе</small></strong></div>
     <div className="registry-filters" role="group" aria-label="Фильтр по статусу качества">{filters.map(filter => <button key={filter.id} className={['registry-chip', filter.tone, group === filter.id && 'active'].filter(Boolean).join(' ')} aria-pressed={group === filter.id} onClick={() => setGroup(filter.id)}>{filter.label}<span>{filter.id === 'all' ? `(${rows.length})` : rows.filter(row => row.group === filter.id).length}</span></button>)}</div>
     <div className="workspace-toolbar registry-toolbar">
-      <label className="local-search"><Icon name="search" /><input aria-label="Поиск по реестру" placeholder="Изделие, заказ, партия или МЛ…" value={query} onChange={event => setQuery(event.target.value)} /></label>
+      <label className="local-search"><Icon name="search" /><input aria-label="Поиск по реестру" placeholder="Изделие, название, ЕСКД, заказ или МЛ…" value={query} onChange={event => setQuery(event.target.value)} /></label>
       <span className="toolbar-note">Показано {filtered.length} из {rows.length}</span>
     </div>
     <Panel title="Реестр изделий" eyebrow="ПРОИЗВОДСТВО · ОТК · АУДИТ">
       <div className="table-wrap registry-table"><table><thead><tr><th>Изделие</th><th>Заказ и МЛ</th><th>Текущее местонахождение</th><th>Статус качества</th><th>Целостность</th><th>Действие</th></tr></thead><tbody>
-        {filtered.map(row => <tr key={row.item.id}><td><strong className="mono registry-id">{row.item.id}</strong><small>Кронштейн приборного блока</small><small className="mono">Партия {row.lot}</small></td><td><strong className="mono">{row.item.work_order_id}</strong><small className="mono">МЛ {row.traveler}</small></td><td className="registry-location">{row.location}</td><td><Badge tone={row.tone}>{row.status}</Badge></td><td><span className="registry-audit"><Icon name="security" size={16}/>Audit OK <small>(SHA-256)</small></span></td><td><button className="registry-open" onClick={() => openItem(row.item.id)} aria-label={`Паспорт ${row.item.id}`}>Паспорт <Icon name="arrow" size={15}/></button></td></tr>)}
+        {filtered.map(row => <tr key={row.item.id} className="product-open-row" tabIndex={0} aria-label={`Открыть паспорт ${row.item.id}`} onClick={() => openItem(row.item.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openItem(row.item.id); } }}><td><strong className="mono registry-id">{row.item.id}</strong><small>{productSpecification(row.item.id).name}</small><small className="mono">{productSpecification(row.item.id).designation} · партия {row.lot}</small></td><td><strong className="mono">{row.item.work_order_id}</strong><small className="mono">МЛ {row.traveler}</small></td><td className="registry-location">{row.location}</td><td><Badge tone={row.tone}>{row.status}</Badge></td><td><span className="registry-audit"><Icon name="security" size={16}/>Audit OK <small>(SHA-256)</small></span></td><td><button className="registry-open" onClick={event => { event.stopPropagation(); openItem(row.item.id); }} aria-label={`Паспорт ${row.item.id}`}>Паспорт <Icon name="arrow" size={15}/></button></td></tr>)}
       </tbody></table></div>
       {!filtered.length && <Empty title="Изделия не найдены" text="Проверьте номер или выберите другую смену." />}
     </Panel>
@@ -202,6 +214,7 @@ function EventsView(props: ViewProps) {
   const [query, setQuery] = useState('');
   const state = ingestState();
   if (route.section === 'replay') return <EventReplayView {...props}/>;
+  if (route.section === 'quality' && route.role === 'technologist') return <DataQualityView openItem={openItem}/>;
   if (route.section === 'quality') return <>
     <div className="metric-grid">
       <Metric label="Принято" value={state.counts.accepted + state.counts.late} note="Уникальные поступившие события" icon="events" onClick={() => navigate('events', 'journal')}/>
@@ -241,15 +254,23 @@ function GuideView(props: ViewProps) {
 }
 
 export function WorkspaceView(props: ViewProps) {
-  const { route, scope, openItem } = props;
+  const { route, scope, openItem, openCase } = props;
+  if (route.module === 'tasks' && route.role === 'technologist') {
+    const requests = events.filter(event => event.event_type === 'evidence_request' && inScope(event, scope));
+    return <div className="stack"><Panel title="Дела, требующие разбора" eyebrow="МОИ ЗАДАЧИ"><TaskList data={tasks.filter(task => task.role === 'technologist' && inScope(task.event, scope))} openItem={openItem} openCase={openCase}/></Panel><Panel title="Запросы сведений" eyebrow="СЛУЖБЫ ПРЕДПРИЯТИЯ">{requests.length ? <div className="event-list">{requests.slice().reverse().map(request => {
+      const record = cases.find(row => row.id === request.data.case_id);
+      const pending = record && pendingEvidenceRequests(record).some(event => event.event_id === request.event_id);
+      return <button key={request.event_id} onClick={() => record && openCase(record.item, record.id)}><div><strong>{recipientName(request.data.recipient_role)} · {request.item_id}</strong><p>{request.data.reason}</p><small>{request.actor_id} · {time(request.occurred_at)}</small></div><Badge tone={pending ? 'amber' : 'green'}>{pending ? 'Ожидаем ответ' : 'Ответ получен'}</Badge><Icon name="arrow"/></button>;
+    })}</div> : <Empty title="Запросов пока нет" text="Их можно отправить из вкладки «Заключение» выбранного дела."/>}</Panel></div>;
+  }
   switch (route.module) {
     case 'home': return <HomeView {...props}/>;
     case 'quality': return <QualityView {...props}/>;
     case 'products': return <ProductsView {...props}/>;
     case 'production': return <ProductionView {...props}/>;
     case 'operations': return <MasterTerminal scope={scope}/>;
-    case 'investigation': return <InvestigationView {...props}/>;
-    case 'analytics': return <AnalyticsView {...props}/>;
+    case 'investigation': return route.role === 'technologist' && route.section === 'cases' ? <TechnologistWorkbench {...props}/> : <InvestigationView {...props}/>;
+    case 'analytics': return route.role === 'technologist' ? <TechnologistAnalyticsView {...props}/> : <AnalyticsView {...props}/>;
     case 'integrations': return <IntegrationsView {...props}/>;
     case 'events': return <EventsView {...props}/>;
     case 'security': if (route.section === 'audit' || route.section === 'integrity') return <SecurityAuditView/>; if (route.section === 'backup') return <SecurityBackupView/>; if (route.section === 'crypto') return <SecurityCryptoView/>; break;

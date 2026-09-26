@@ -38,7 +38,8 @@ export function controllerEvidenceFrom(record: Case, history: QualityEvent[], ha
   const beforeObservation = history.filter(event => Date.parse(event.occurred_at) <= Date.parse(observation.occurred_at));
   const runId = observation.operation_run_id;
   const operation = runId ? beforeObservation.filter(event => event.event_type === 'operation_started' && event.operation_run_id === runId).at(-1) : undefined;
-  const machine = runId ? beforeObservation.filter(event => event.event_type === 'machine_state' && event.operation_run_id === runId).at(-1) : undefined;
+  const machineSamples = runId ? beforeObservation.filter(event => event.event_type === 'machine_state' && event.operation_run_id === runId) : [];
+  const machine = machineSamples.filter(event => event.data.synthetic !== true).at(-1) ?? machineSamples.at(-1);
   const cutoff = Math.max(Date.parse(observation.occurred_at), ...history.filter(event => event.event_type === 'master_action').map(event => Date.parse(event.occurred_at)));
   const measurement = history.filter(event => event.event_type === 'manual_measurement' && typeof event.data.measured_value === 'number' && event.data.case_id === record.id && Date.parse(event.occurred_at) >= cutoff).at(-1);
   const missing = [

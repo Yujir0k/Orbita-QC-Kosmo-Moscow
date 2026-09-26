@@ -1,5 +1,6 @@
 import demo from './demo-data.json';
 import type { RoleId } from './navigation';
+import { evidenceRecipients, matchesEvidenceAnswer, recipientName, type EvidenceRecipient } from './investigation-services';
 
 export interface Finding { finding_id: string; defect_type_id: string; component_id: string; region: string; severity: string; description?: string; observed_feature?: string; length_mm?: number; width_mm?: number; depth_estimated_mm?: number | null; defect_class?: 'SCRATCH' | 'CRACK' | 'BURR' | 'DENT' | 'DISCOLORATION'; dimension_source?: string; dimension_uncertainty_mm?: number }
 export interface MediaSlot { url: string | null; sha256_hash: string; status: 'AVAILABLE' | 'MISSING'; absence_reason: 'LOST_IN_TRANSIT' | 'CLASSIFIED_RESTRICTED' | 'NO_CAMERA_AT_STATION' | 'NONE' }
@@ -26,7 +27,7 @@ export type Scope = 'all' | 'SHIFT-A' | 'SHIFT-B';
 type OutcomeKind = 'accepted' | 'duplicate' | 'late' | 'error';
 export interface IngestOutcome { delivery_id: string; event_id: string; item_id: string; kind: OutcomeKind; reason: string; received_at?: string; source_id?: string }
 interface StoredState { sourceIds: string[]; other: Delivery[]; pendingIds: string[]; outcomes: IngestOutcome[]; counts: Record<OutcomeKind, number>; playing: boolean }
-const dataset = demo as unknown as { items: Product[]; catalogs: typeof demo.catalogs; media: MediaAsset[]; source: Delivery[]; inspectionPlan: typeof demo.inspectionPlan; profiles: typeof demo.profiles };
+const dataset = demo as unknown as { items: Product[]; catalogs: typeof demo.catalogs; media: MediaAsset[]; source: Delivery[]; seedDecisions: Delivery[]; contextDeliveries: Delivery[]; technicalCatalog: typeof demo.technicalCatalog; inspectionPlan: typeof demo.inspectionPlan; profiles: typeof demo.profiles };
 const storageKey = 'orbita-qc-expanded-v2';
 export const items = dataset.items;
 export const catalogs = dataset.catalogs;
@@ -34,12 +35,15 @@ export const inspectionPlan = dataset.inspectionPlan;
 export const profiles = dataset.profiles.profiles;
 export const mediaIndex = dataset.media;
 export const sourceDeliveries = dataset.source;
-const sourceById = new Map(sourceDeliveries.map(row => [row.delivery_id, row]));
+export const seedDecisions = dataset.seedDecisions;
+export const contextDeliveries = dataset.contextDeliveries;
+export const technicalCatalog = dataset.technicalCatalog;
+const sourceById = new Map([...sourceDeliveries, ...seedDecisions, ...contextDeliveries].map(row => [row.delivery_id, row]));
 const itemById = new Map(items.map(item => [item.id, item]));
 const mediaById = new Map(mediaIndex.map(asset => [asset.asset_id, asset]));
 export const defectNames: Record<string, string> = { DENT: 'Вмятина', SCRATCH: 'Царапина', BURR: 'Заусенец', CHIP: 'Скол', CRACK: 'Трещина', DISCOLORATION: 'Изменение цвета', UNASSESSABLE: 'Нужна доппроверка' };
 export const stationNames: Record<string, string> = Object.fromEntries(catalogs.stations.map(s => [s.id, s.name]));
-export const eventNames: Record<string, string> = { item_received: 'Поступление изделия', inspection_result: 'Наблюдение контроля', operation_started: 'Начало операции', operation_finished: 'Завершение операции', operation_paused: 'Пауза операции', quality_decision: 'Решение контролёра', controller_check: 'Очная проверка контролёра', cause_review: 'Заключение технолога', technical_disposition: 'Допустимость доработки', master_action: 'Работа мастера', manual_measurement: 'Ручной замер', machine_state: 'Состояние оборудования', operator_action: 'Наблюдение действия' };
+export const eventNames: Record<string, string> = { item_received: 'Поступление изделия', inspection_result: 'Наблюдение контроля', manual_inspection: 'Очный осмотр контролёра', operation_started: 'Начало операции', operation_finished: 'Завершение операции', operation_paused: 'Пауза операции', quality_decision: 'Решение контролёра', controller_check: 'Очная проверка контролёра', cause_review: 'Заключение технолога', technical_disposition: 'Допустимость доработки', master_action: 'Работа мастера', master_process_report: 'Сведения мастера об операции', evidence_request: 'Запрос сведений технологом', manual_measurement: 'Ручной замер', machine_state: 'Состояние оборудования', operator_action: 'Наблюдение действия', operation_context: 'Технологическая карта операции', service_report: 'Ответ службы предприятия' };
 export const decisionNames: Record<string, string> = { confirmed: 'Подтверждено', rejected: 'Признак отклонён', accepted_within_spec: 'Видимый след в пределах КД', release_after_rework: 'Выпуск после контроля', additional_check: 'Доппроверка', scrap_approved: 'Списание', recheck: 'Повторная проверка' };
 export const resultNames: Record<string, string> = { signs_detected: 'Есть признаки', no_signs_detected: 'Признаков не выявлено', unable_to_assess: 'Оценить невозможно' };
 export const time = (value: string): string => new Date(value).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' });
@@ -82,7 +86,13 @@ export function validateDelivery(raw: unknown): string | null {
   if (['operation_started', 'operation_finished', 'operation_paused'].includes(e.event_type!) && !textField(e.operation_run_id)) return 'Нет operation_run_id';
   if (e.event_type === 'manual_measurement' && !textField(e.operation_run_id) && !textField(e.data.case_id)) return 'Замер не привязан к операции или случаю качества';
   if (e.event_type === 'controller_check' && (!textField(e.data.case_id) || !['signs_detected', 'no_signs_detected'].includes(e.data.inspection_result ?? '') || !textField(e.data.reason))) return 'Неполная очная проверка';
-  if (['quality_decision', 'controller_check', 'master_action', 'technical_disposition', 'manual_measurement'].includes(e.event_type!) && !textField(e.actor_id)) return 'Нет actor_id';
+  if (e.event_type === 'manual_inspection' && (!textField(e.data.case_id) || !['signs_detected', 'no_signs_detected', 'unable_to_assess'].includes(e.data.inspection_result ?? '') || !textField(e.data.reason))) return 'Неполный результат очного осмотра';
+  if (['quality_decision', 'controller_check', 'master_action', 'master_process_report', 'evidence_request', 'cause_review', 'technical_disposition', 'manual_measurement', 'manual_inspection', 'service_report'].includes(e.event_type!) && !textField(e.actor_id)) return 'Нет actor_id';
+  if (e.event_type === 'master_process_report' && (!textField(e.data.case_id) || !textField(e.data.comment) || !['checked', 'issue', 'unknown', 'not_applicable'].includes(String(e.data.fixture_condition)) || !['checked', 'issue', 'unknown', 'not_applicable'].includes(String(e.data.tool_condition)) || !['yes', 'no', 'unknown'].includes(String(e.data.setup_changed)))) return 'Неполные сведения мастера';
+  if (e.event_type === 'evidence_request' && (!textField(e.data.case_id) || !Object.hasOwn(evidenceRecipients, String(e.data.recipient_role)) || !textField(e.data.reason))) return 'Неполный запрос сведений';
+  if (e.event_type === 'operation_context' && (!textField(e.operation_run_id) || !textField(e.data.program_name) || !textField(e.data.program_revision) || !textField(e.data.executor_id) || !textField(e.data.equipment_id))) return 'Неполная технологическая карта операции';
+  if (e.event_type === 'service_report' && (!['mechanic', 'laboratory'].includes(String(e.data.recipient_role)) || !textField(e.data.case_id) || !textField(e.data.request_id) || !textField(e.data.reason))) return 'Неполный ответ службы предприятия';
+  if (e.event_type === 'cause_review' && (!Array.isArray(e.data.finding_refs) || !textField(e.data.reason) || !['hypothesis', 'confirmed', 'unknown'].includes(e.data.status ?? ''))) return 'Неполное заключение технолога';
   if (e.data.evidence_refs && (!Array.isArray(e.data.evidence_refs) || e.data.evidence_refs.some(ref => !mediaById.has(ref) || mediaById.get(ref)?.item_id !== e.item_id))) return 'Неизвестное или чужое медиа';
   return null;
 }
@@ -98,7 +108,7 @@ export const ingestState = () => state;
 export const snapshotDemoState = (): StoredState => structuredClone(state);
 export function restoreDemoState(snapshot: StoredState) { state = structuredClone(snapshot); save(); }
 const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* Browser storage may be disabled. */ } };
-const save = () => { refresh(); persist(); notify(); };
+const save = () => { refresh(); hydrateTechnicalContext(); refresh(); persist(); notify(); };
 
 export let deliveries: Delivery[] = [];
 export let events: QualityEvent[] = [];
@@ -174,12 +184,29 @@ function bootstrap() {
     accept(row, false);
     if (e.event_type === 'inspection_result' && ['signs_detected', 'unable_to_assess'].includes(e.data.inspection_result ?? '')) blocked.add(e.item_id);
   }
+  for (const row of seedDecisions) accept(row, false);
   state.outcomes = [];
   save();
 }
+/** Add synthetic context only after its source operation or decision has been accepted. */
+function hydrateTechnicalContext() {
+  const known = new Set(events.map(event => event.event_id));
+  for (const row of contextDeliveries) {
+    const event = row.message;
+    if (known.has(event.event_id)) continue;
+    const eligible = event.event_type === 'machine_state'
+      ? events.some(anchor => anchor.event_type === 'operation_finished' && anchor.item_id === event.item_id && anchor.operation_run_id === event.operation_run_id && Date.parse(event.occurred_at) <= Date.parse(anchor.occurred_at))
+      : (event.data.basis_event_ids ?? []).every(id => known.has(id));
+    if (eligible) { accept(row, false); known.add(event.event_id); }
+  }
+}
 try {
   const saved: unknown = JSON.parse(localStorage.getItem(storageKey) ?? 'null');
-  if (saved && typeof saved === 'object' && Array.isArray((saved as StoredState).sourceIds) && Array.isArray((saved as StoredState).pendingIds)) { state = saved as StoredState; state.playing = false; refresh(); }
+  if (saved && typeof saved === 'object' && Array.isArray((saved as StoredState).sourceIds) && Array.isArray((saved as StoredState).pendingIds)) {
+    state = saved as StoredState; state.playing = false; refresh();
+    for (const row of seedDecisions) if (!events.some(event => event.item_id === row.message.item_id && event.event_type === 'quality_decision')) accept(row, false);
+    save();
+  }
   else bootstrap();
 } catch { bootstrap(); }
 /** Reset the built-in stream to open work before any human decisions. */
@@ -276,7 +303,7 @@ export function projectOperations(input: QualityEvent[]): Operation[] {
     return { id: start.operation_run_id!, item: start.item_id, name: start.data.operation_id === 'OP-MILL' ? 'Обработка корпуса' : start.data.operation_id === 'OP-REWORK' ? 'Доработка' : 'Сборка кронштейна', actor: start.actor_id, shift: start.shift_id, start: start.occurred_at, end: finish?.occurred_at, duration: finish ? (Date.parse(finish.occurred_at) - Date.parse(start.occurred_at)) / 60000 : undefined, rework: !!start.data.previous_operation_run_id, paused: !finish && input.some(e => e.event_type === 'operation_paused' && e.operation_run_id === start.operation_run_id), station: start.station_id };
   });
 }
-export interface Task { id: string; title: string; item: string; role: RoleId; event: QualityEvent; done: boolean; description: string; priority: number; why: string }
+export interface Task { id: string; title: string; item: string; caseId?: string; role: RoleId; event: QualityEvent; done: boolean; description: string; priority: number; why: string }
 export function projectTasks(input: QualityEvent[]): Task[] {
   const result: Task[] = [];
   const byItem = new Map<string, QualityEvent[]>();
@@ -293,6 +320,20 @@ export function projectTasks(input: QualityEvent[]): Task[] {
     if (lastDecision && ['rework', 'hold', 'quarantine'].includes(lastDecision.data.disposition ?? '') && (!lastMaster || Date.parse(lastMaster.occurred_at) < Date.parse(lastDecision.occurred_at))) add('master', lastDecision.data.disposition === 'rework' ? 'Выполнить доработку и передать контроль' : lastDecision.data.disposition === 'hold' ? 'Организовать очную проверку' : 'Организовать карантин', lastDecision, 'Решение контролёра. Работа мастера не означает выпуск.');
     if (item === 'ITEM-013' && lastDecision?.data.decision === 'confirmed' && !own.some(e => e.event_type === 'technical_disposition')) add('technologist', 'Оценить нестандартную доработку', lastDecision, 'Нужна оценка допустимости до снятия материала.');
     if (item === 'ITEM-015' && lastDecision?.data.disposition === 'quarantine' && !own.some(e => e.event_type === 'technical_disposition')) add('technologist', 'Оценить ремонтопригодность', lastDecision, 'Критическая кромка: проверьте маршрут.');
+  }
+  for (const record of projectCases(input)) {
+    if (!record.confirmed || (['confirmed', 'unknown'].includes(record.review?.data.status ?? '') && !causeReviewNeedsRevision(record, input))) continue;
+    const decision = record.decisions.find(event => event.data.decision === 'confirmed');
+    if (!decision) continue;
+    result.push({ id: `TASK-technologist-${record.id}`, title: `Установить обстоятельства: ${defectNames[record.type] ?? record.type}`, item: record.item, caseId: record.id, role: 'technologist', event: decision, done: false, description: causeReviewNeedsRevision(record, input) ? 'Поступили новые факты. Пересмотрите ранее записанный вывод.' : record.review ? 'Гипотеза сохранена, проверьте основания и альтернативы.' : 'Дефект подтверждён ОТК; причина рассматривается отдельно.', priority: record.priority, why: record.why });
+  }
+  for (const request of input.filter(event => event.event_type === 'evidence_request')) {
+    const recipient = request.data.recipient_role as EvidenceRecipient;
+    const caseId = String(request.data.case_id);
+    const answered = input.some(event => matchesEvidenceAnswer(request, event));
+    const role: RoleId = recipient === 'master' || recipient === 'controller' ? recipient : 'technologist';
+    const title = recipient === 'master' ? 'Передать сведения об операции' : recipient === 'controller' ? 'Уточнить результат контроля' : `Получить ответ: ${recipientName(recipient)}`;
+    if (!answered) result.push({ id: `TASK-request-${request.event_id}`, title, item: request.item_id, caseId, role, event: request, done: false, description: request.data.reason ?? 'Технолог запросил дополнительные основания.', priority: 105, why: 'Открытый запрос технолога' });
   }
   return result.sort((a, b) => b.priority - a.priority || a.item.localeCompare(b.item));
 }
@@ -318,9 +359,19 @@ export function productStatus(id: string): { label: string; tone: 'red' | 'amber
 }
 export function describeEvent(event: QualityEvent): string {
   if (event.data.reason) return event.data.reason;
+  if (event.event_type === 'operation_context') return `${event.data.program_name} · ${event.data.tool_name} · ${event.data.fixture_name} · ${event.data.executor_id}`;
+  if (event.data.comment && ['master_process_report', 'master_action'].includes(event.event_type)) return event.data.comment;
   if (event.data.inspection_result) return `${resultNames[event.data.inspection_result]}. ${event.data.observation_quality === 'poor' ? 'Ограниченное качество наблюдения.' : 'Качество наблюдения достаточное.'}`;
-  if (event.event_type === 'machine_state') return `${event.data.parameter ?? event.data.state}: ${event.data.value ?? ''} ${event.data.unit ?? ''}`;
+  if (event.event_type === 'machine_state') {
+    const reading = event.data.parameter != null && event.data.value != null
+      ? `${event.data.parameter}: ${event.data.value}${event.data.unit ? ` ${event.data.unit}` : ''}`
+      : typeof event.data.vibration_index === 'number' ? `индекс вибронагрузки ${event.data.vibration_index}` : '';
+    return [machineStateLabel(event.data.state), reading].filter(Boolean).join(' · ');
+  }
   return [event.operation_run_id, event.actor_id, event.equipment_id].filter(Boolean).join(' · ') || 'Событие производственного процесса';
+}
+export function machineStateLabel(state: unknown): string {
+  return ({ running: 'Станок в работе', warning: 'Предупреждение оборудования', idle: 'Ожидание операции', paused: 'Работа приостановлена', stopped: 'Станок остановлен', fault: 'Авария оборудования', offline: 'Нет связи со станком', maintenance: 'Техническое обслуживание' } as Record<string, string>)[String(state)] ?? 'Состояние не определено';
 }
 
 export type WorkflowAction = 'confirm' | 'confirm_hold' | 'additional' | 'reject' | 'accepted_within_spec' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'master_scrap' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
@@ -489,4 +540,101 @@ export function recordControllerCheck(item: string, caseId: string, result: 'sig
   events.sort(sortEvents);
   save();
   return event.event_id;
+}
+
+function appendRoleEvent(item: string, eventType: string, actor: string, data: EventData, run?: QualityEvent, approval?: { actionId: string; actorId: string }): string {
+  const own = eventsFor(item);
+  const anchor = run ?? own.at(-1);
+  if (!anchor) throw new Error('История изделия не найдена');
+  const event: QualityEvent = {
+    event_id: approval ? `UI-${approval.actionId}-1` : `UI-${crypto.randomUUID()}`, event_type: eventType, schema_version: '2.0',
+    occurred_at: new Date(Math.max(Date.now(), ...own.map(entry => Date.parse(entry.occurred_at) + 1000))).toISOString(),
+    source_id: approval ? 'ORBITA-UI' : eventType === 'service_report' ? `SERVICE-${String(data.recipient_role).toUpperCase()}` : eventType === 'master_process_report' ? 'MASTER-UI' : 'TECH-UI',
+    item_id: item, item_type_id: anchor.item_type_id, line_id: anchor.line_id,
+    station_id: anchor.station_id, shift_id: anchor.shift_id,
+    operation_run_id: run?.operation_run_id, equipment_id: run?.equipment_id,
+    actor_id: approval?.actorId ?? actor.trim(), data: approval ? { ...data, security_action_id: approval.actionId } : data,
+  };
+  const outcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event });
+  if (outcome.kind === 'error') throw new Error(outcome.reason);
+  events.sort(sortEvents); save();
+  return event.event_id;
+}
+
+export interface MasterProcessInput {
+  caseId: string; operationRunId: string; fixtureCondition: 'checked' | 'issue' | 'unknown' | 'not_applicable';
+  toolCondition: 'checked' | 'issue' | 'unknown' | 'not_applicable';
+  setupChanged: 'yes' | 'no' | 'unknown'; comment: string; actor: string; requestId?: string;
+}
+/** A master's account supplements MES/MachineLogs; it never rewrites their original messages. */
+export function recordMasterProcessReport(input: MasterProcessInput, approval?: { actionId: string; actorId: string }): string {
+  const selected = cases.find(record => record.id === input.caseId && record.confirmed);
+  if (!selected) throw new Error('Нужен случай с подтверждённым ОТК дефектом');
+  if (input.comment.trim().length < 8 || !input.actor.trim()) throw new Error('Укажите исполнителя и фактические сведения об операции');
+  const run = input.operationRunId ? eventsFor(selected.item).find(event => event.event_type === 'operation_started' && event.operation_run_id === input.operationRunId) : undefined;
+  if (input.operationRunId && !run) throw new Error('Операция не относится к изделию');
+  const requestId = input.requestId ?? openRequestId(selected.item, selected.id, 'master');
+  if (requestId && !eventsFor(selected.item).some(event => event.event_id === requestId && event.data.case_id === selected.id && event.data.recipient_role === 'master')) throw new Error('Запрос не относится к этому случаю');
+  return appendRoleEvent(selected.item, 'master_process_report', input.actor, {
+    case_id: input.caseId, request_id: requestId, fixture_condition: input.fixtureCondition, tool_condition: input.toolCondition,
+    setup_changed: input.setupChanged, comment: input.comment.trim(), reason: input.comment.trim(),
+    basis_event_ids: [selected.decisions.find(event => event.data.decision === 'confirmed')?.event_id, run?.event_id].filter((id): id is string => !!id),
+  }, run, approval);
+}
+
+export interface CauseReviewInput {
+  caseId: string; status: 'hypothesis' | 'confirmed' | 'unknown'; causeType: string;
+  reason: string; alternatives: string; missingData: string; basisEventIds: string[]; actor: string;
+}
+/** A cause finding is a separate authored event tied to one confirmed defect and accepted evidence. */
+export function recordCauseReview(input: CauseReviewInput, approval?: { actionId: string; actorId: string }): string {
+  const selected = cases.find(record => record.id === input.caseId && record.confirmed);
+  if (!selected) throw new Error('Расследовать можно только подтверждённый случай');
+  if (!['hypothesis', 'confirmed', 'unknown'].includes(input.status)) throw new Error('Неизвестный статус заключения');
+  if (input.reason.trim().length < 12 || !input.actor.trim()) throw new Error('Укажите автора и обоснованный вывод');
+  if (input.status === 'confirmed' && (!input.causeType || input.causeType === 'undetermined' || input.basisEventIds.length < 2 || input.alternatives.trim().length < 8)) throw new Error('Для установленной причины нужны тип, минимум два события и проверка альтернатив');
+  const own = eventsFor(selected.item);
+  const basis = [...new Set(input.basisEventIds)];
+  if (input.status === 'confirmed' && basis.length < 2) throw new Error('Нужны минимум два разных события');
+  if (basis.some(id => !own.some(event => event.event_id === id))) throw new Error('Основание не принадлежит этому изделию');
+  if (input.status === 'confirmed' && !basis.some(id => own.some(event => event.event_id === id && ['item_received', 'operation_started', 'operation_finished', 'machine_state', 'operator_action', 'master_process_report', 'manual_inspection', 'manual_measurement', 'service_report', 'operation_context'].includes(event.event_type)))) throw new Error('Нужно независимое обстоятельство: вход, операция, станок или проверка мастера');
+  if (input.status === 'confirmed' && input.causeType === 'procedural_error' && !basis.some(id => own.some(event => event.event_id === id && event.event_type === 'operator_action' && event.data.procedure_step_id))) throw new Error('Для подтверждения нарушения процедуры нужны наблюдение действия и связанный шаг процедуры');
+  if (input.status === 'unknown' && input.missingData.trim().length < 8) throw new Error('Укажите, каких сведений не хватает для установления причины');
+  return appendRoleEvent(selected.item, 'cause_review', input.actor, {
+    case_id: input.caseId, status: input.status, cause_type: input.status === 'unknown' ? 'unknown' : input.causeType || 'undetermined',
+    finding_refs: selected.refs, basis_event_ids: basis,
+    reason: input.reason.trim(), alternatives: input.alternatives.trim(), missing_data: input.missingData.trim(),
+    reviewed_event_ids: own.filter(event => !['cause_review', 'evidence_request'].includes(event.event_type)).map(event => event.event_id),
+  }, undefined, approval);
+}
+
+function openRequestId(item: string, caseId: string, role: 'master' | 'controller') {
+  const own = eventsFor(item);
+  return own.filter(event => event.event_type === 'evidence_request' && event.data.case_id === caseId && event.data.recipient_role === role
+    && !own.some(answer => answer.data.request_id === event.event_id)).at(-1)?.event_id;
+}
+
+/** Late or new facts do not erase a conclusion; they explicitly ask for reconsideration. */
+export function causeReviewNeedsRevision(record: Case, input: QualityEvent[] = events): boolean {
+  const reviewed = record.review?.data.reviewed_event_ids;
+  if (!Array.isArray(reviewed)) return false;
+  return input.some(event => event.item_id === record.item && !['cause_review', 'evidence_request'].includes(event.event_type) && !reviewed.includes(event.event_id));
+}
+
+export function requestInvestigationEvidence(caseId: string, recipient: EvidenceRecipient, reason: string, actor: string, approval?: { actionId: string; actorId: string }): string {
+  const selected = cases.find(record => record.id === caseId && record.confirmed);
+  if (!selected) throw new Error('Случай не подтверждён ОТК');
+  if (!Object.hasOwn(evidenceRecipients, recipient)) throw new Error('Неизвестная служба предприятия');
+  if (reason.trim().length < 8 || !actor.trim()) throw new Error('Укажите запрашиваемые сведения и автора');
+  return appendRoleEvent(selected.item, 'evidence_request', actor, {
+    case_id: caseId, recipient_role: recipient, reason: reason.trim(), status: 'open', finding_refs: selected.refs,
+  }, undefined, approval);
+}
+
+/** Local counterpart of an incoming OGM/CZL response, tied to its exact request. */
+export function recordServiceReport(input: { requestId: string; recipient: 'mechanic' | 'laboratory'; reason: string; actor: string; documentId: string }): string {
+  const request = events.find(event => event.event_id === input.requestId && event.event_type === 'evidence_request' && event.data.recipient_role === input.recipient);
+  if (!request) throw new Error('Запрос не относится к выбранной службе');
+  if (input.reason.trim().length < 12 || !input.actor.trim() || !input.documentId.trim()) throw new Error('Укажите результат, автора и номер документа');
+  return appendRoleEvent(request.item_id, 'service_report', input.actor, { case_id: request.data.case_id, request_id: request.event_id, recipient_role: input.recipient, reason: input.reason.trim(), document_id: input.documentId.trim(), basis_event_ids: [request.event_id] });
 }

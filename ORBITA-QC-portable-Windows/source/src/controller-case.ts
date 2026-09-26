@@ -34,6 +34,8 @@ export const regionNames: Record<string, string> = {
   inner_slot_edge: 'Внутренняя кромка паза',
 };
 
+export const regionLabel = (region: string) => regionNames[region] ?? region.replace(/_/g, ' ');
+
 const readable = (value: unknown) => typeof value === 'string' && value.trim() ? value : 'Не передано';
 
 /** Disambiguate separate inspection operations for one item in the controller queue. */

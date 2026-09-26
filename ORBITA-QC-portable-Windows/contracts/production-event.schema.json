@@ -9,7 +9,7 @@
   "properties": {
     "event_id": { "$ref": "#/$defs/identifier" },
     "event_type": {
-      "enum": ["item_received", "inspection_result", "operation_started", "operation_finished", "operation_paused", "quality_decision", "controller_check", "cause_review", "technical_disposition", "master_action", "manual_measurement", "machine_state", "operator_action"]
+      "enum": ["item_received", "inspection_result", "operation_started", "operation_finished", "operation_paused", "quality_decision", "controller_check", "cause_review", "technical_disposition", "master_action", "master_process_report", "evidence_request", "manual_inspection", "manual_measurement", "machine_state", "operator_action", "operation_context", "service_report"]
     },
     "schema_version": { "enum": ["1.0", "2.0"] },
     "occurred_at": { "type": "string", "format": "date-time", "maxLength": 64 },

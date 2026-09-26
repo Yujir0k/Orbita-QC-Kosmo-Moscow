@@ -7,7 +7,7 @@ import { readJsonObject } from './contract-validator.mjs'
 const roleForAction = {
   confirm: 'controller', confirm_hold: 'controller', additional: 'controller', reject: 'controller', accepted_within_spec: 'controller',
   recheck_fail: 'controller', release: 'controller', scrap: 'controller', controller_check: 'controller', manual_measurement: 'controller',
-  master_complete: 'master', master_scrap: 'master', tech_allow: 'technologist', tech_deny: 'technologist', hypothesis: 'technologist', cause_confirm: 'technologist',
+  master_complete: 'master', master_scrap: 'master', master_process_report: 'master', tech_allow: 'technologist', tech_deny: 'technologist', hypothesis: 'technologist', cause_confirm: 'technologist', cause_review_detailed: 'technologist', evidence_request: 'technologist',
 }
 const decisionForAction = { confirm: 'confirmed', confirm_hold: 'confirmed', additional: 'additional_check', reject: 'rejected', accepted_within_spec: 'accepted_within_spec', recheck_fail: 'confirmed', release: 'release_after_rework', scrap: 'scrap_approved' }
 const dispositionForAction = { confirm: item => item === 'ITEM-015' ? 'quarantine' : 'rework', confirm_hold: () => 'hold', additional: () => 'hold', reject: () => 'release', accepted_within_spec: () => 'release', recheck_fail: () => 'rework', release: () => 'release', scrap: () => 'scrap' }
@@ -20,6 +20,8 @@ const sequenceForAction = (action, item, approved) => {
   if (['master_complete', 'master_scrap'].includes(action)) return ['master_action']
   if (action === 'manual_measurement') return ['manual_measurement']
   if (action === 'controller_check') return approved?.checkResult === 'signs_detected' && approved?.identified ? ['controller_check', 'inspection_result'] : ['controller_check']
+  if (action === 'master_process_report') return ['master_process_report']
+  if (action === 'evidence_request') return ['evidence_request']
   if (['tech_allow', 'tech_deny'].includes(action)) return ['technical_disposition']
   return ['cause_review']
 }
@@ -39,9 +41,28 @@ function validActionData(event, approved) {
   if (event.event_type === 'technical_disposition') return onlyKeys(d, ['security_action_id', 'disposition', 'basis_event_ids', 'reason'])
     && d.disposition === (approved.action === 'tech_allow' ? 'rework_allowed' : 'rework_not_allowed')
     && d.reason === approved.reason && strings(d.basis_event_ids)
-  if (event.event_type === 'cause_review') return onlyKeys(d, ['security_action_id', 'status', 'finding_refs', 'reason'])
-    && d.status === (approved.action === 'cause_confirm' ? 'confirmed' : 'hypothesis')
-    && d.reason === approved.reason && strings(d.finding_refs)
+  if (event.event_type === 'cause_review') return approved.action === 'cause_review_detailed'
+    ? onlyKeys(d, ['security_action_id', 'case_id', 'status', 'cause_type', 'finding_refs', 'basis_event_ids', 'reason', 'alternatives', 'missing_data', 'reviewed_event_ids'])
+      && d.case_id === approved.caseId && ['hypothesis', 'confirmed', 'unknown'].includes(d.status)
+      && typeof d.cause_type === 'string' && d.cause_type.length <= 128 && d.reason === approved.reason
+      && typeof d.alternatives === 'string' && d.alternatives.length <= 4000
+      && typeof d.missing_data === 'string' && d.missing_data.length <= 4000
+      && strings(d.finding_refs) && strings(d.basis_event_ids) && strings(d.reviewed_event_ids)
+      && (d.status !== 'confirmed' || d.basis_event_ids.length >= 2 && d.alternatives.trim().length >= 8)
+    : onlyKeys(d, ['security_action_id', 'status', 'finding_refs', 'reason'])
+      && d.status === (approved.action === 'cause_confirm' ? 'confirmed' : 'hypothesis')
+      && d.reason === approved.reason && strings(d.finding_refs)
+  if (event.event_type === 'evidence_request') return approved.action === 'evidence_request'
+    && onlyKeys(d, ['security_action_id', 'case_id', 'recipient_role', 'reason', 'status', 'finding_refs'])
+    && d.case_id === approved.caseId && d.recipient_role === approved.recipient && d.reason === approved.reason
+    && d.status === 'open' && strings(d.finding_refs)
+  if (event.event_type === 'master_process_report') return approved.action === 'master_process_report'
+    && onlyKeys(d, ['security_action_id', 'case_id', 'request_id', 'fixture_condition', 'tool_condition', 'setup_changed', 'comment', 'reason', 'basis_event_ids'])
+    && d.case_id === approved.caseId && d.reason === approved.reason && d.comment === approved.reason
+    && (d.request_id === undefined || typeof d.request_id === 'string' && d.request_id.length <= 128)
+    && ['checked', 'issue', 'unknown', 'not_applicable'].includes(d.fixture_condition)
+    && ['checked', 'issue', 'unknown', 'not_applicable'].includes(d.tool_condition)
+    && ['yes', 'no', 'unknown'].includes(d.setup_changed) && strings(d.basis_event_ids)
   if (event.event_type === 'master_action') return onlyKeys(d, ['security_action_id', 'action_type', 'workflow_status', 'evidence_refs', 'photo_uploaded_at', 'observation_quality', 'executor_id', 'rework_method', 'duration_minutes', 'actual_size_mm', 'paper_inspection', 'comment', 'reason'])
     && d.action_type === (approved.action === 'master_scrap' ? 'scrap_to_isolator' : approved.masterDetails ? 'rework_completed' : d.action_type)
     && ['rework_completed', 'inspection_support', 'scrap_to_isolator'].includes(d.action_type) && strings(d.evidence_refs)
@@ -265,11 +286,12 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         if (!session) return true
         await audit.verify()
         const body = await bodyOf(request)
-        if (!onlyKeys(body, ['itemId', 'action', 'reason', 'caseId', 'includePhoto', 'masterDetails', 'measurement', 'missingPhotoConfirmation', 'checkResult', 'identified'])) throw fail(422, 'Действие содержит неожиданные поля')
+        if (!onlyKeys(body, ['itemId', 'action', 'reason', 'caseId', 'includePhoto', 'masterDetails', 'measurement', 'missingPhotoConfirmation', 'checkResult', 'identified', 'recipient'])) throw fail(422, 'Действие содержит неожиданные поля')
         const item = allItems.find(row => row.id === body.itemId)
         if (!item || !Object.hasOwn(roleForAction, body.action) || typeof body.reason !== 'string' || body.reason.trim().length < 5 || body.reason.length > 4000) throw fail(422, 'Некорректное действие или основание')
         if (body.caseId !== undefined && (typeof body.caseId !== 'string' || body.caseId.length > 128)
           || body.includePhoto !== undefined && typeof body.includePhoto !== 'boolean'
+          || body.recipient !== undefined && (body.action !== 'evidence_request' || !['master', 'controller', 'mechanic', 'laboratory'].includes(body.recipient))
           || body.masterDetails !== undefined && (body.action !== 'master_complete' || !object(body.masterDetails) || !onlyKeys(body.masterDetails, ['method', 'operator', 'durationMinutes', 'actualSizeMm', 'paperInspection'])
             || typeof body.masterDetails.method !== 'string' || !body.masterDetails.method.trim() || body.masterDetails.method.length > 400
             || typeof body.masterDetails.operator !== 'string' || !body.masterDetails.operator.trim() || body.masterDetails.operator.length > 128
@@ -282,7 +304,9 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
           || body.checkResult !== undefined && (body.action !== 'controller_check' || !['signs_detected', 'no_signs_detected'].includes(body.checkResult))
           || body.identified !== undefined && (body.action !== 'controller_check' || !object(body.identified)
             || !onlyKeys(body.identified, ['defectTypeId', 'region', 'componentId']) || !['defectTypeId', 'region', 'componentId'].every(key => typeof body.identified[key] === 'string' && body.identified[key].length > 0 && body.identified[key].length <= 128))) throw fail(422, 'Некорректные параметры действия')
-        if (body.action === 'controller_check' && (!body.caseId || !body.checkResult)
+        if (['cause_review_detailed', 'evidence_request', 'master_process_report'].includes(body.action) && !body.caseId
+          || body.action === 'evidence_request' && !body.recipient
+          || body.action === 'controller_check' && (!body.caseId || !body.checkResult)
           || body.action === 'manual_measurement' && (!body.caseId || !Number.isFinite(body.measurement?.value) || body.measurement.value < 0
             || typeof body.measurement.parameter !== 'string' || !body.measurement.parameter.trim() || typeof body.measurement.instrumentId !== 'string' || !body.measurement.instrumentId.trim()
             || body.measurement.calibrated !== true || !onlyKeys(body.measurement, ['parameter', 'value', 'instrumentId', 'calibrated', 'criteria']))
@@ -295,7 +319,7 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         const record = { type: 'action.approved', at: new Date(now()).toISOString(), actionId, actor: session.user.id, role: session.user.role,
           itemId: item.id, lineId: itemLines.get(item.id), action: body.action, reason: body.reason.trim(), caseId: body.caseId ?? null,
           includePhoto: body.includePhoto, masterDetails: body.masterDetails, measurement: body.measurement,
-          missingPhotoConfirmation: body.missingPhotoConfirmation, checkResult: body.checkResult, identified: body.identified }
+          missingPhotoConfirmation: body.missingPhotoConfirmation, checkResult: body.checkResult, identified: body.identified, recipient: body.recipient }
         await audit.append(record); actions.set(actionId, record)
         send(response, 200, { actionId, actorId: session.user.id, role: session.user.role })
         return true
@@ -319,7 +343,8 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
             || e.event_id !== `UI-${body.actionId}-${index + 1}` || ids.has(e.event_id) || e.event_type !== sequence[index]
             || e.item_id !== approved.itemId || e.item_type_id !== item?.item_type_id || e.line_id !== approved.lineId || !e.station_id || !e.shift_id
             || Number.isNaN(Date.parse(e.occurred_at)) || e.schema_version !== '2.0' || e.actor_id !== approved.actor || e.source_id !== 'ORBITA-UI'
-            || !onlyKeys(e, ['event_id', 'event_type', 'schema_version', 'occurred_at', 'source_id', 'item_id', 'item_type_id', 'line_id', 'station_id', 'shift_id', 'actor_id', 'operation_run_id', 'item_state', 'data'])
+            || !onlyKeys(e, ['event_id', 'event_type', 'schema_version', 'occurred_at', 'source_id', 'item_id', 'item_type_id', 'line_id', 'station_id', 'shift_id', 'actor_id', 'operation_run_id', 'equipment_id', 'item_state', 'data'])
+            || e.equipment_id !== undefined && e.event_type !== 'master_process_report'
             || e.item_state !== undefined && (!object(e.item_state) || !onlyKeys(e.item_state, ['physical_location', 'line_lock_status'])
               || typeof e.item_state.physical_location !== 'string' || e.item_state.physical_location.length > 256
               || !['HELD_AT_STATION', 'IN_BUFFER', 'ROUTED_FORWARD'].includes(e.item_state.line_lock_status))

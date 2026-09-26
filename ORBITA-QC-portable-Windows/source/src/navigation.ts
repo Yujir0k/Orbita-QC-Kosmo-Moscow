@@ -105,7 +105,7 @@ export interface Role { id: RoleId; name: string; initials: string; title: strin
 export const roles: Role[] = [
   { id: 'controller', name: 'Контролёр', initials: 'КК', title: 'Рабочее место контролёра', subtitle: 'Наблюдения, проверки и решения по качеству изделий.', focus: 'Качество и доказательства', primary: ['quality', 'products', 'home'], secondary: ['analytics'] },
   { id: 'master', name: 'Мастер', initials: 'МУ', title: 'Рабочее место мастера', subtitle: 'Ход производства, незавершённые работы и действия команды.', focus: 'Исполнение и ритм производства', primary: ['home', 'operations', 'products'], secondary: ['analytics'] },
-  { id: 'technologist', name: 'Технолог', initials: 'ТХ', title: 'Рабочее место технолога', subtitle: 'Причины отклонений, условия контроля и развитие анализа.', focus: 'Причины и улучшения', primary: ['home', 'investigation', 'tasks', 'products'], secondary: ['control', 'models', 'analytics', 'forecast', 'events'] },
+  { id: 'technologist', name: 'Технолог', initials: 'ТХ', title: 'Рабочее место технолога', subtitle: 'Подтверждённые дефекты, обстоятельства операций и обоснованные выводы.', focus: 'Причины и улучшения', primary: ['home', 'investigation', 'tasks', 'analytics', 'products'], secondary: ['events'] },
   { id: 'leader', name: 'Руководитель', initials: 'РК', title: 'Пульс качества', subtitle: 'Качество, производственное время и решения, требующие внимания.', focus: 'Результаты и риски', primary: ['home', 'analytics', 'production', 'tasks', 'products'], secondary: ['forecast'] },
   { id: 'administrator', name: 'Администратор', initials: 'АД', title: 'Центр управления системой', subtitle: 'Обмен данными, доступ, инфраструктура и защищённость.', focus: 'Надёжность и управление', primary: ['home', 'integrations', 'events', 'platform'], secondary: ['security', 'mobile'] },
 ];
@@ -121,6 +121,15 @@ export function sectionsFor(role: RoleId, module: ModuleId): Section[] {
   const sections = moduleById[module].sections;
   if (role === 'master' && module === 'operations') return sections.map(s => ({ ...s, label: 'Пульт участка' }));
   if (role === 'master' && module === 'tasks') return sections.filter(s => s.id === 'mine').map(s => ({ ...s, label: 'Очередь мастера' }));
+  if (role === 'technologist' && module === 'investigation') return sections.filter(s => s.id === 'cases');
+  if (role === 'technologist' && module === 'tasks') return sections.filter(s => s.id === 'mine');
+  if (role === 'technologist' && module === 'analytics') return [
+    { ...sections.find(s => s.id === 'causes')!, label: 'Сводка' },
+    { ...sections.find(s => s.id === 'quality')!, label: 'Дефекты и данные' },
+    section('equipment', 'Оборудование', 'Режимы и результаты контроля после запусков.', [], ['Выбрать станок', 'Сравнить контекст', 'Открыть основания']),
+    { ...sections.find(s => s.id === 'time')!, label: 'Операции' },
+    sections.find(s => s.id === 'reports')!,
+  ];
   if (module === 'quality' && role === 'controller') return sections.filter(s => s.id === 'signals');
   if (module === 'analytics' && role === 'controller') return sections.filter(s => ['quality', 'reports'].includes(s.id));
   return sections;

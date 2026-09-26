@@ -1,4 +1,5 @@
-import { actionDeliveries, performAction, reconcileMobileEvents, reconcileSecureEvents, recordControllerCheck, recordManualMeasurement, restoreDemoState, snapshotDemoState, type Delivery, type MasterReworkDetails, type WorkflowAction } from './domain';
+import { actionDeliveries, cases, performAction, reconcileMobileEvents, reconcileSecureEvents, recordCauseReview, recordControllerCheck, recordManualMeasurement, recordMasterProcessReport, requestInvestigationEvidence, restoreDemoState, snapshotDemoState, type CauseReviewInput, type Delivery, type MasterProcessInput, type MasterReworkDetails, type WorkflowAction } from './domain';
+import type { EvidenceRecipient } from './investigation-services';
 import type { RoleId } from './navigation';
 
 export type SecuritySession = { authenticated: true; user: { id: string; role: RoleId; lineIds: string[] }; csrfToken: string };
@@ -106,4 +107,28 @@ export async function secureRecordManualMeasurement(item: string, caseId: string
 export async function secureRecordControllerCheck(item: string, caseId: string, result: 'signs_detected' | 'no_signs_detected', reason: string, identified?: { defectTypeId: string; region: string; componentId: string }): Promise<string> {
   return secureAction(item, 'controller_check', reason, caseId,
     approval => recordControllerCheck(item, caseId, result, reason, approval.actorId, identified, approval), { checkResult: result, ...(identified ? { identified } : {}) });
+}
+
+/** Save a technologist's conclusion to the shared audited event history. */
+export async function secureRecordCauseReview(input: CauseReviewInput): Promise<string> {
+  const selected = cases.find(record => record.id === input.caseId);
+  if (!selected) throw new Error('Случай не найден');
+  return secureAction(selected.item, 'cause_review_detailed', input.reason, input.caseId,
+    approval => recordCauseReview({ ...input, actor: approval.actorId }, approval));
+}
+
+/** Route a request for additional facts to the assigned role and persist it. */
+export async function secureRequestInvestigationEvidence(caseId: string, recipient: EvidenceRecipient, reason: string): Promise<string> {
+  const selected = cases.find(record => record.id === caseId);
+  if (!selected) throw new Error('Случай не найден');
+  return secureAction(selected.item, 'evidence_request', reason, caseId,
+    approval => requestInvestigationEvidence(caseId, recipient, reason, approval.actorId, approval), { recipient });
+}
+
+/** Record the master's factual operation report in the shared history. */
+export async function secureRecordMasterProcessReport(input: MasterProcessInput): Promise<string> {
+  const selected = cases.find(record => record.id === input.caseId);
+  if (!selected) throw new Error('Случай не найден');
+  return secureAction(selected.item, 'master_process_report', input.comment, input.caseId,
+    approval => recordMasterProcessReport({ ...input, actor: approval.actorId }, approval));
 }
