@@ -9,6 +9,10 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test tests/*.test.cjs tests/*.test.mjs",
     "contracts:check": "node scripts/check-contracts.mjs",
+    "security:scan": "node scripts/security-scan.mjs",
+    "security:rotate": "node scripts/rotate-key.mjs",
+    "sbom:generate": "pnpm sbom --sbom-format cyclonedx --sbom-type application --out sbom.cdx.json",
+    "ci:check": "pnpm contracts:check && pnpm test && pnpm security:scan && pnpm build:portable && pnpm sbom:generate",
     "build:portable": "pnpm build && node scripts/portable.mjs",
     "data:sync": "node scripts/sync-dataset.mjs"
   },

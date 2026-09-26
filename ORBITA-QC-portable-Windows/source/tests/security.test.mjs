@@ -54,6 +54,8 @@ test('security bus authenticates, checks CSRF, role and item scope before mutati
   assert.equal((await request('/api/security/actions', { method: 'POST', cookie: master.cookie, csrf: master.csrf, body: { itemId: 'ITEM-1', action: 'master_complete', reason: 'Работа на линии завершена' } })).status, 403)
   const admin = await login('admin', 'correct-admin-password')
   assert.equal((await request('/api/integrations/state', { cookie: admin.cookie })).status, 200)
+  assert.equal((await request('/api/contracts', { cookie: admin.cookie })).status, 200)
+  assert.equal((await request('/api/contracts', { cookie: qc.cookie })).status, 403)
   assert.equal((await request('/api/security/audit', { cookie: qc.cookie })).status, 403)
 })
 
@@ -89,6 +91,22 @@ test('a controller action is attributed by the server and its original is encryp
   assert.equal((await request('/api/security/verify', { cookie: admin.cookie })).body.valid, true)
   assert.equal(security.validateMesDecision(event), true)
   assert.equal(security.validateMesDecision({ ...event, line_id: 'OTHER-LINE' }), false)
+})
+
+test('login throttling and administrator session revocation are enforced by the server', async () => {
+  for (let attempt = 0; attempt < 5; attempt++) assert.equal((await login('unknown-user', 'wrong-password')).status, 401)
+  assert.equal((await login('unknown-user', 'wrong-password')).status, 429)
+  const current = await login('admin', 'correct-admin-password')
+  const before = await request('/api/security/sessions', { cookie: current.cookie })
+  const secondary = await login('admin', 'correct-admin-password')
+  const list = await request('/api/security/sessions', { cookie: current.cookie })
+  assert.equal(list.status, 200)
+  const known = new Set(before.body.sessions.map(row => row.id))
+  const target = list.body.sessions.find(row => !known.has(row.id))
+  assert.ok(target)
+  const revoked = await request('/api/security/sessions/revoke', { method: 'POST', cookie: current.cookie, csrf: current.csrf, body: { sessionId: target.id } })
+  assert.equal(revoked.status, 200)
+  assert.equal((await request('/api/security/session', { cookie: secondary.cookie })).body.authenticated, false)
 })
 
 test('legacy runtime state migrates to authenticated encryption; changed audit records and truncation are detected', async () => {

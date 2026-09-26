@@ -239,5 +239,5 @@ export async function createPlantIntegrations({ directory, importAssembly, state
       return json(response, 404, { error: 'API-маршрут не найден' })
     } catch (error) { return json(response, error.status || 500, { error: error.message || 'Ошибка сервера' }) }
   }
-  return { handle, close: () => clearInterval(retryTimer) }
+  return { handle, status: publicState, close: () => clearInterval(retryTimer) }
 }

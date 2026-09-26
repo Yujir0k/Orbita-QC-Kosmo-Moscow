@@ -1,5 +1,6 @@
 import http from 'node:http'
-import { readFile, stat } from 'node:fs/promises'
+import { unlinkSync } from 'node:fs'
+import { mkdir, open, readFile, rm, stat } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -8,16 +9,35 @@ import { createPlantIntegrations } from './plant-integrations.mjs'
 import { createSecurity } from './security.mjs'
 import { createMobileOps } from './mobileops.mjs'
 import { createContractRegistry } from './contract-validator.mjs'
+import { createOperations } from './operations.mjs'
 
 const host = '127.0.0.1'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'site')
 const directory = path.dirname(root)
 const requestedPort = Number(process.env.ORBITA_PORT || 5173)
+const startedAt = new Date()
 
 if (!Number.isInteger(requestedPort) || requestedPort < 1 || requestedPort > 65525) {
   console.error('Invalid ORBITA_PORT. Use a number from 1 to 65525.')
   process.exit(1)
 }
+
+const lockFile = path.join(directory, 'data', 'server.lock')
+await mkdir(path.dirname(lockFile), { recursive: true })
+async function acquireServerLock() {
+  try {
+    const handle = await open(lockFile, 'wx', 0o600)
+    await handle.writeFile(JSON.stringify({ pid: process.pid, startedAt: startedAt.toISOString() })); await handle.close()
+  } catch (error) {
+    if (error.code !== 'EEXIST') throw error
+    let active = false
+    try { const saved = JSON.parse(await readFile(lockFile, 'utf8')); process.kill(saved.pid, 0); active = true } catch {}
+    if (active) throw new Error('ОРБИТА.QC уже использует эту папку данных')
+    await rm(lockFile, { force: true }); return acquireServerLock()
+  }
+}
+await acquireServerLock()
+process.on('exit', () => { try { unlinkSync(lockFile) } catch {} })
 
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -40,6 +60,7 @@ const security = await createSecurity({ directory, contracts })
 const integration = await createIntegration({ directory, getBaseUrl: () => `http://${host}:${port}`, storage: security.store, internalToken: security.internalToken, contracts })
 const plant = await createPlantIntegrations({ directory, importAssembly: integration.importAssembly, storage: security.store, authorizeDecision: security.validateMesDecision, contracts })
 const mobile = await createMobileOps({ directory, storage: security.store, audit: security.audit, contracts })
+const operations = await createOperations({ directory, security, contracts, integration, plant, startedAt })
 const server = http.createServer(async (request, response) => {
   response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
   response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
@@ -53,7 +74,12 @@ const server = http.createServer(async (request, response) => {
     try {
       const principal = await security.guard(request, response, pathname)
       if (!principal) return
-      if (pathname.startsWith('/api/mobile/')) await mobile.handle(request, response, pathname, principal)
+      if (pathname === '/api/contracts' && request.method === 'GET') {
+        response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' })
+        response.end(JSON.stringify(contracts.describe()))
+      }
+      else if (pathname.startsWith('/api/operations/')) await operations.handle(request, response, pathname, principal)
+      else if (pathname.startsWith('/api/mobile/')) await mobile.handle(request, response, pathname, principal)
       else if (pathname.startsWith('/api/plant/')) await plant.handle(request, response, pathname, principal)
       else await integration.handle(request, response, pathname)
     } catch (error) {

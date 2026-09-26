@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -7,6 +8,13 @@ const contractFiles = {
   decision: 'quality-decision.schema.json',
   integration: 'integration-exchange.schema.json',
   mobileops: 'mobileops.schema.json',
+}
+const contractLabels = {
+  event: ['Производственное событие', 'Единая оболочка событий истории изделия'],
+  delivery: ['Доставка', 'Время приёма и передаваемое производственное событие'],
+  decision: ['Решение контролёра', 'Автор, основание, решение и связь с исходными событиями'],
+  integration: ['ERP/MES-обмен', 'Задания, результаты качества, пакеты и квитанции шлюзов'],
+  mobileops: ['MobileOps', 'Задание комплекса, наблюдение, связь и результат доставки'],
 }
 const forbiddenKeys = new Set(['__proto__', 'prototype', 'constructor'])
 const fail = (status, message) => Object.assign(new Error(message), { status })
@@ -57,6 +65,7 @@ export async function readJsonObject(request, { maxBytes = 65_536 } = {}) {
 export async function createContractRegistry(directory) {
   const root = path.join(directory, 'contracts')
   const schemas = new Map()
+  const loadedAt = new Date().toISOString()
   const fileToName = new Map(Object.entries(contractFiles).map(([name, file]) => [file, name]))
   for (const [name, file] of Object.entries(contractFiles)) {
     const schema = JSON.parse(await readFile(path.join(root, file), 'utf8'))
@@ -154,5 +163,28 @@ export async function createContractRegistry(directory) {
     if (errors.length) throw fail(422, `${message}: ${errors[0]}`)
     return value
   }
-  return { files: { ...contractFiles }, validate, assert }
+  const describe = () => ({
+    status: 'loaded',
+    draft: '2020-12',
+    loadedAt,
+    count: schemas.size,
+    policies: {
+      remoteReferences: false,
+      rejectUnknownFields: true,
+      maxDepth: 32,
+      maxKeys: 10_000,
+      forbiddenKeys: [...forbiddenKeys],
+    },
+    schemas: [...schemas.entries()].map(([name, schema]) => ({
+      name,
+      file: contractFiles[name],
+      label: contractLabels[name][0],
+      purpose: contractLabels[name][1],
+      id: schema.$id,
+      title: schema.title,
+      draft: schema.$schema,
+      fingerprint: createHash('sha256').update(JSON.stringify(schema)).digest('hex'),
+    })),
+  })
+  return { files: { ...contractFiles }, validate, assert, describe }
 }

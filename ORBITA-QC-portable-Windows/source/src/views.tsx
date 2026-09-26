@@ -5,6 +5,9 @@ import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
 import { ControllerWorkspace } from './controller-ui';
 import { AdminCadView, AdminExchangeView, AdminMappingsView, AdminMesView } from './admin-integrations';
+import { AdminContractsView } from './admin-contracts';
+import { AdminOverview } from './admin-overview';
+import { AdminHealthView, SecurityBackupView, SecurityCryptoView, SecuritySessionsPanel } from './admin-operations';
 import { SecurityAuditView } from './security-ui';
 import { MobileOpsView } from './mobileops-ui';
 import planet from './assets/planet-orbita.webp';
@@ -35,6 +38,7 @@ export function HomeView(props: ViewProps) {
   const focusCases = cases.filter(c => c.item === focusItem);
   const focusProduct = items.find(item => item.id === focusItem)!;
   return <>
+    {role === 'administrator' && <AdminOverview navigate={navigate}/>}
     <div className="hero">
       <div className="hero-copy"><span className="eyebrow"><i />{story.eyebrow}</span><h2>{story.title}</h2><p>{story.text}</p><Button primary onClick={() => navigate(story.module, story.section)}>{story.cta}</Button></div>
       <div className="hero-orbit" aria-hidden="true"><div className="orbital-ring ring-one"/><div className="orbital-ring ring-two"/><img src={planet} alt=""/><span className="orbit-label">ОРБИТА / КОНТУР КАЧЕСТВА</span><span className="orbit-cross">+</span></div>
@@ -177,6 +181,7 @@ function IntegrationsView({ route, navigate }: ViewProps) {
   if (route.section === 'mes') return <AdminMesView />;
   if (route.section === 'mappings') return <AdminMappingsView />;
   if (route.section === 'cad') return <AdminCadView />;
+  if (route.section === 'contracts') return <AdminContractsView />;
   if (route.section !== 'connections') return <PreparedSection section={moduleById.integrations.sections.find(s => s.id === route.section)!} />;
   const profile = profiles[selected];
   return <><div className="integration-cards">{profiles.map((p, i) => <button key={p.system} className={`integration-card ${i === selected ? 'selected' : ''}`} aria-pressed={selected === i} onClick={() => setSelected(i)}><span className="connector-symbol">{['1C', 'Г', 'M', 'К'][i]}</span><h3>{['1С:Предприятие', 'Галактика ERP', 'MES', 'КОМПАС-3D'][i]}</h3><p>{['Заказы и результаты качества', 'Планирование и учёт', 'Ход производства', 'Состав и ревизии сборки'][i]}</p><Badge>Профиль подключения</Badge></button>)}</div><div className="two-columns"><Panel title={['1С:Предприятие', 'Галактика ERP', 'MES', 'КОМПАС-3D'][selected]} eyebrow="НАПРАВЛЕНИЯ ОБМЕНА"><div className="exchange-flow"><div><Icon name="integrations"/><strong>Внешняя система</strong><small>{profile.system}</small></div><span>⇄</span><div><Icon name="orbit"/><strong>ОРБИТА.QC</strong><small>Единая модель событий</small></div></div><dl className="facts"><div><dt>Входящие данные</dt><dd>{selected < 2 ? 'Заказы, номенклатура' : selected === 2 ? 'Операции, действия, оборудование' : 'Структура и ревизии сборки'}</dd></div><div><dt>Исходящие данные</dt><dd>{selected < 2 ? 'Результаты качества и решения' : selected === 2 ? 'Статусы несоответствий' : 'Не предусмотрены профилем'}</dd></div><div><dt>Интерфейс</dt><dd>{profile.technical_interface}</dd></div></dl><Button onClick={() => navigate('integrations', 'mappings')}>Сопоставления данных</Button></Panel><Panel title="Ввод в эксплуатацию" eyebrow="ШАГИ ПОДКЛЮЧЕНИЯ"><ol className="setup-list"><li><span>1</span><div><strong>Выбрать источник истины</strong><p>Для заказов выбирается авторитетная ERP предприятия.</p></div></li><li><span>2</span><div><strong>Сопоставить идентификаторы</strong><p>Заказ, изделие, операция и ревизия должны иметь устойчивые связи.</p></div></li><li><span>3</span><div><strong>Проверить доставку и возврат</strong><p>Квитанция, временный отказ, повтор и неизвестный идентификатор.</p></div></li></ol><Note>{selected < 3 ? 'Серверный адаптер готов к согласованному HTTP/JSON-шлюзу. Установленная система пока не подключена.' : 'Серверный клиент CAD-адаптера готов; SDK-процесс КОМПАС-3D на рабочей станции ещё требуется.'}</Note><Button onClick={() => navigate('integrations', 'exchange')}>Рабочая область обмена</Button></Panel></div></>;
@@ -195,7 +200,7 @@ function EventsView(props: ViewProps) {
       <Metric label="Карантин входа" value={state.counts.error} note="Ошибки с причиной" icon="alert" tone="red" onClick={() => navigate('events', 'replay')}/>
     </div>
     <IngestOutcomes openItem={openItem}/>
-    <PreparedSection section={moduleById.events.sections[1]} compact/>
+    <Note tone={state.counts.error ? 'amber' : 'green'}>{state.counts.error ? 'Ошибочное сообщение не изменяет историю и остаётся в карантине с причиной. Исправьте исходный JSON и повторно загрузите его в разделе «Сценарии и воспроизведение».' : 'Карантин пуст. Ошибочные сообщения не попадают в историю изделия.'} <Button onClick={() => navigate('events', 'replay')}>Открыть импорт и воспроизведение</Button></Note>
   </>;
   const filtered = events.filter(event => inScope(event, scope) && `${event.event_id} ${event.item_id} ${event.source_id} ${eventNames[event.event_type]}`.toLowerCase().includes(query.toLowerCase()));
   return <><div className="workspace-toolbar"><label className="local-search"><Icon name="search"/><input value={query} onChange={e => setQuery(e.target.value)} aria-label="Поиск событий" placeholder="Изделие, источник или событие…"/></label><span className="toolbar-note">{filtered.length} поступивших событий</span></div><Panel title="Сохранённая история учебного набора" eyebrow="ВРЕМЯ СОБЫТИЯ И ДОСТАВКИ"><div className="table-wrap"><table><thead><tr><th>Событие</th><th>Произошло / доставлено</th><th>Тип и источник</th><th>Изделие</th><th>Контекст</th></tr></thead><tbody>{filtered.map(event => <tr key={event.event_id}><td className="mono">{event.event_id}</td><td className="mono">{time(event.occurred_at)}<small>доставка {deliveryFor(event.event_id) ? time(deliveryFor(event.event_id)!.deliver_at) : '—'}</small></td><td><strong>{eventNames[event.event_type]}</strong><small className="mono">{event.source_id}</small></td><td><button className="cell-link mono" onClick={() => openItem(event.item_id)}>{event.item_id}</button></td><td className="wide-cell">{describeEvent(event)}</td></tr>)}</tbody></table></div>{!filtered.length && <Empty title="События не найдены" text="Измените поиск или смену." />}</Panel></>;
@@ -207,7 +212,8 @@ function ControlView({ route }: ViewProps) {
 }
 
 function PlatformView({ route }: ViewProps) {
-  if (route.section === 'users') return <Panel title="Матрица рабочих ролей" eyebrow="ОБЛАСТЬ ДАННЫХ И ПРАВА НА ДЕЙСТВИЯ"><div className="table-wrap"><table><thead><tr><th>Роль</th><th>Основная ответственность</th><th>Рабочие пространства</th></tr></thead><tbody>{roles.map(role => <tr key={role.id}><td><strong>{role.name}</strong></td><td>{role.focus}</td><td>{[...role.primary, ...role.secondary].filter(id => id !== 'home').map(id => moduleById[id].label).join(' · ')}</td></tr>)}</tbody></table></div><Note>Смена роли требует нового входа. Сервер проверяет права на изменяющие действия и область линии; рабочие разделы без серверных данных отдельно помечены.</Note></Panel>;
+  if (route.section === 'users') return <><Panel title="Матрица рабочих ролей" eyebrow="ОБЛАСТЬ ДАННЫХ И ПРАВА НА ДЕЙСТВИЯ"><div className="table-wrap"><table><thead><tr><th>Роль</th><th>Основная ответственность</th><th>Рабочие пространства</th></tr></thead><tbody>{roles.map(role => <tr key={role.id}><td><strong>{role.name}</strong></td><td>{role.focus}</td><td>{[...role.primary, ...role.secondary].filter(id => id !== 'home').map(id => moduleById[id].label).join(' · ')}</td></tr>)}</tbody></table></div><Note>Смена роли требует нового входа. Сервер проверяет права на изменяющие действия и область линии; рабочие разделы без серверных данных отдельно помечены.</Note></Panel><SecuritySessionsPanel/></>;
+  if (route.section === 'health') return <AdminHealthView/>;
   if (route.section === 'topology') return <><Panel title="От источника до рабочего места" eyebrow="АРХИТЕКТУРА КОНТУРА"><div className="topology"><div><Icon name="source" size={30}/><h3>Источники</h3><p>VisionQC · OperatorVision<br/>MachineLogs · MES</p></div><Icon name="arrow"/><div><Icon name="cpu" size={30}/><h3>Edge-агенты</h3><p>Сбор · буфер<br/>защищённая доставка</p></div><Icon name="arrow"/><div><Icon name="database" size={30}/><h3>Центральное ядро</h3><p>Оригиналы · анализ<br/>проекции · обмен</p></div></div></Panel><PreparedSection section={moduleById.platform.sections[1]} compact /></>;
   return <PreparedSection section={moduleById.platform.sections.find(s => s.id === route.section)!} />;
 }
@@ -235,7 +241,7 @@ export function WorkspaceView(props: ViewProps) {
     case 'analytics': return <AnalyticsView {...props}/>;
     case 'integrations': return <IntegrationsView {...props}/>;
     case 'events': return <EventsView {...props}/>;
-    case 'security': if (route.section === 'audit' || route.section === 'integrity') return <SecurityAuditView/>; break;
+    case 'security': if (route.section === 'audit' || route.section === 'integrity') return <SecurityAuditView/>; if (route.section === 'backup') return <SecurityBackupView/>; if (route.section === 'crypto') return <SecurityCryptoView/>; break;
     case 'mobile': return <MobileOpsView section={route.section} openItem={openItem}/>;
     case 'control': return <ControlView {...props}/>;
     case 'platform': return <PlatformView {...props}/>;

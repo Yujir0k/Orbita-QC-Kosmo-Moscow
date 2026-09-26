@@ -218,5 +218,5 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
       return json(response, 404, { error: 'API-маршрут не найден' })
     } catch (error) { return json(response, error.status || 500, { error: error.message || 'Ошибка сервера' }) }
   }
-  return { handle, importAssembly, close: () => clearInterval(retryTimer) }
+  return { handle, importAssembly, status: publicState, close: () => clearInterval(retryTimer) }
 }

@@ -80,7 +80,8 @@ export function AdminExchangeView() {
     <div className="metric-grid integration-metrics">
       <div className="integration-kpi"><span>Получено заданий</span><strong>{state?.orders.length ?? '—'}</strong></div>
       <div className="integration-kpi"><span>Подтверждено результатов</span><strong>{state?.outbox.filter(row => row.status === 'accepted').length ?? '—'}</strong></div>
-      <div className="integration-kpi"><span>Ожидают подтверждения</span><strong>{state?.outbox.filter(row => row.status !== 'accepted').length ?? '—'}</strong></div>
+      <div className="integration-kpi"><span>Ожидают подтверждения</span><strong>{state?.outbox.filter(row => ['pending', 'sending', 'retry_wait'].includes(row.status)).length ?? '—'}</strong></div>
+      <div className="integration-kpi"><span>Ошибки доставки</span><strong>{state?.outbox.filter(row => row.status === 'failed').length ?? '—'}</strong></div>
     </div>
     <div className="two-columns">
       <Panel title="1. Получить задание" eyebrow="ERP → ОРБИТА.QC"><p className="panel-description">Выберите внутренний ID заказа. Сервер запросит его у активной ERP и проверит номера изделий.</p><div className="integration-form"><label>Заказ<select value={state?.available_orders.includes(orderId) ? orderId : state?.available_orders[0] ?? ''} onChange={event => setOrderId(event.target.value)}>{(state?.available_orders ?? []).map(id => <option key={id}>{id}</option>)}</select></label><Button primary disabled={!state?.configured || !state.available_orders.length || busy} onClick={() => { const id = state?.available_orders.includes(orderId) ? orderId : state?.available_orders[0]; if (id) void act(() => api('/api/integrations/pull', { work_order_id: id }), `Задание ${id} получено и сохранено`); }}>Получить из ERP</Button></div><p className="helper-text">Повторное получение того же задания не создаёт дубликат.</p></Panel>
@@ -134,19 +135,29 @@ export function AdminCadView() {
 }
 
 export function AdminMesView() {
-  const { state, error } = usePlantState();
+  const { state, error, load } = usePlantState();
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+  const retry = async (eventId: string) => {
+    setBusy(true); setNotice('');
+    try { await api(`/api/plant/mes/retry/${encodeURIComponent(eventId)}`, {}); await load(); setNotice(`Повтор решения ${eventId} выполнен.`); }
+    catch (problem) { setNotice(problem instanceof Error ? problem.message : 'Повтор MES не выполнен'); }
+    finally { setBusy(false); }
+  };
   return <>
     <Note>При настроенном шлюзе MES факты операций поступают автоматически. Решения ОТК передаются после записи в паспорте изделия, без отдельного ввода в MES.</Note>
     {error && <Note tone="amber">API недоступен: {error}</Note>}
     {state && !state.mes.configured && <Note tone="amber">Шлюз MES и сопоставления ID пока не настроены. Учебный поток приложения продолжает работать.</Note>}
     {state?.mes.last_error && <Note tone="amber">Последняя ошибка MES: {state.mes.last_error}</Note>}
+    {notice && <Note>{notice}</Note>}
     <div className="metric-grid integration-metrics">
       <div className="integration-kpi"><span>Получено фактов MES</span><strong>{state?.mes.received ?? '—'}</strong></div>
       <div className="integration-kpi"><span>Подтверждено решений</span><strong>{state?.mes.outbox.filter(row => row.status === 'accepted').length ?? '—'}</strong></div>
-      <div className="integration-kpi"><span>Ожидают / требуют разбора</span><strong>{state?.mes.outbox.filter(row => row.status !== 'accepted').length ?? '—'}</strong></div>
+      <div className="integration-kpi"><span>Ожидают подтверждения</span><strong>{state?.mes.outbox.filter(row => ['pending', 'sending', 'retry_wait'].includes(row.status)).length ?? '—'}</strong></div>
+      <div className="integration-kpi"><span>Ошибки доставки</span><strong>{state?.mes.outbox.filter(row => row.status === 'failed').length ?? '—'}</strong></div>
     </div>
     <Panel title="Факты операций" eyebrow="MES → ОРБИТА.QC">{state?.mes.deliveries.length ? <div className="table-wrap"><table><thead><tr><th>Событие</th><th>Тип</th><th>Изделие</th></tr></thead><tbody>{[...state.mes.deliveries].reverse().slice(0, 20).map(row => <tr key={row.message.event_id}><td className="mono">{row.message.event_id}</td><td>{row.message.event_type}</td><td>{row.message.item_id}</td></tr>)}</tbody></table></div> : <Empty title="Фактов MES пока нет" text="После настройки шлюза они будут поступать автоматически." />}</Panel>
-    <Panel title="Решения ОТК для MES" eyebrow="ОРБИТА.QC → MES">{state?.mes.outbox.length ? <div className="table-wrap"><table><thead><tr><th>Решение</th><th>Изделие</th><th>Состояние</th><th>Попытки</th></tr></thead><tbody>{[...state.mes.outbox].reverse().map(row => <tr key={row.event.event_id}><td className="mono">{row.event.event_id}</td><td>{row.event.item_id}</td><td><Badge tone={row.status === 'accepted' ? 'green' : 'amber'}>{statusLabel[row.status] ?? row.status}</Badge>{row.last_error && <small>{row.last_error}</small>}</td><td>{row.attempts}</td></tr>)}</tbody></table></div> : <Empty title="Решений для MES пока нет" text="Запишите решение контролёра в паспорте изделия." />}</Panel>
+    <Panel title="Решения ОТК для MES" eyebrow="ОРБИТА.QC → MES">{state?.mes.outbox.length ? <div className="table-wrap"><table><thead><tr><th>Решение</th><th>Изделие</th><th>Состояние</th><th>Попытки</th><th>Действие</th></tr></thead><tbody>{[...state.mes.outbox].reverse().map(row => <tr key={row.event.event_id}><td className="mono">{row.event.event_id}</td><td>{row.event.item_id}</td><td><Badge tone={row.status === 'accepted' ? 'green' : row.status === 'failed' ? 'red' : 'amber'}>{statusLabel[row.status] ?? row.status}</Badge>{row.last_error && <small>{row.last_error}</small>}</td><td>{row.attempts}</td><td>{row.status !== 'accepted' && <Button disabled={busy || !state.mes.configured} onClick={() => void retry(row.event.event_id)}>Повторить</Button>}</td></tr>)}</tbody></table></div> : <Empty title="Решений для MES пока нет" text="Запишите решение контролёра в паспорте изделия." />}</Panel>
   </>;
 }
 

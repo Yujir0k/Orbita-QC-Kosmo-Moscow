@@ -10,8 +10,15 @@ pnpm data:sync
 pnpm dev
 pnpm contracts:check
 pnpm test
+pnpm security:scan
 pnpm build:portable
+pnpm sbom:generate
+pnpm ci:check
 ```
+
+`pnpm ci:check` повторяет локально основные шаги `.github/workflows/quality-gate.yml`: контракты, тесты, поиск случайно добавленных runtime-данных и приватных ключей, production-сборку и CycloneDX SBOM. CI дополнительно выполняет `pnpm audit --audit-level high` и собирает Windows-архив.
+
+Ротация ключа выполняется только после остановки сервера: `pnpm security:rotate -- --confirm`. Команда проверяет аудит, сохраняет комплект восстановления, перешифровывает состояния и весь журнал, меняет ключ и повторно проверяет чтение. Учебные пароли после этого изменяются.
 
 `data:sync` читает `../../quality_dataset/expanded_dataset`: 180 изделий, справочники, индекс 8 фото и **только** `events/source_deliveries.jsonl`. Скрипт создаёт `src/demo-data.json`, реальные изображения в `public/media/` и копии внешнего и ошибочного потоков в `public/demo/`. План контроля и проектные интеграционные профили хранятся отдельно в `src/config.json`. Старый набор из 12 изделий не импортируется повторно. Файлы `expected/*` и `interactions/scripted_actions.jsonl` не являются входом приложения.
 
@@ -45,6 +52,10 @@ pnpm build:portable
 | `tests/mobileops.test.mjs` | Потеря связи, однократная доставка, зашифрованное восстановление и область прав |
 | `../contracts/*.schema.json`, `../contract-validator.mjs` | Версионированные JSON Schema и серверная проверка событий, доставок, решений, ERP/MES и MobileOps |
 | `scripts/check-contracts.mjs`, `tests/contracts.test.mjs` | Проверка встроенного потока, интеграционных примеров и отрицательных сценариев дрейфа контракта |
+| `src/admin-overview.tsx`, `src/admin-contracts.tsx` | Операционное состояние серверных контуров и реестр загруженных контрактов для администратора |
+| `../operations.mjs`, `src/admin-operations.tsx` | Health-check, очереди, дисковое состояние, проверяемое резервирование, сеансы и криптопрофиль |
+| `scripts/rotate-key.mjs`, `scripts/security-scan.mjs` | Офлайн-ротация ключа и защита CI от runtime-секретов в Git |
+| `tests/operations.test.mjs` | Пробное восстановление резервной копии и проверка перешифрования после ротации |
 | `src/security-client.ts`, `src/security-ui.tsx` | Вход, защищённые запросы и страница проверки аудита |
 | `tests/security.test.mjs` | Проверка прав, CSRF, шифрования и контрольного вмешательства |
 | `src/admin-integrations.tsx` | Действия администратора и серверные журналы |

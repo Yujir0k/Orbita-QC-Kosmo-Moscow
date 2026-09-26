@@ -18,7 +18,7 @@ export interface Product { id: string; item_type_id: string; work_order_id: stri
 export interface MediaAsset { asset_id: string; item_id: string; path_from_quality_dataset: string; capture_source: string; stage: string; description: string }
 export type Scope = 'all' | 'SHIFT-A' | 'SHIFT-B';
 type OutcomeKind = 'accepted' | 'duplicate' | 'late' | 'error';
-export interface IngestOutcome { delivery_id: string; event_id: string; item_id: string; kind: OutcomeKind; reason: string }
+export interface IngestOutcome { delivery_id: string; event_id: string; item_id: string; kind: OutcomeKind; reason: string; received_at?: string; source_id?: string }
 interface StoredState { sourceIds: string[]; other: Delivery[]; pendingIds: string[]; outcomes: IngestOutcome[]; counts: Record<OutcomeKind, number>; playing: boolean }
 const dataset = demo as unknown as { items: Product[]; catalogs: typeof demo.catalogs; media: MediaAsset[]; source: Delivery[]; inspectionPlan: typeof demo.inspectionPlan; profiles: typeof demo.profiles };
 const storageKey = 'orbita-qc-expanded-v2';
@@ -95,14 +95,15 @@ const originalById = () => new Map(events.map(event => [event.event_id, event]))
 /** Ingest exact repeats once and place late events by occurrence time in projections. */
 function accept(row: Delivery, log = true): IngestOutcome {
   const error = validateDelivery(row);
-  const known = originalById().get(row.message?.event_id);
+  const known = originalById().get(row?.message?.event_id);
+  const metadata = { received_at: validDate(row?.deliver_at) ? row.deliver_at : new Date().toISOString(), source_id: textField(row?.message?.source_id) ? row.message.source_id : 'UNKNOWN' };
   let outcome: IngestOutcome;
-  if (error) outcome = { delivery_id: row.delivery_id ?? '?', event_id: row.message?.event_id ?? '?', item_id: row.message?.item_id ?? '?', kind: 'error', reason: error };
-  else if (known && canonical(known) !== canonical(row.message)) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'error', reason: 'Конфликт: тот же event_id с другим содержимым' };
-  else if (known) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'duplicate', reason: 'Точный повтор event_id' };
+  if (error) outcome = { delivery_id: row?.delivery_id ?? '?', event_id: row?.message?.event_id ?? '?', item_id: row?.message?.item_id ?? '?', kind: 'error', reason: error, ...metadata };
+  else if (known && canonical(known) !== canonical(row.message)) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'error', reason: 'Конфликт: тот же event_id с другим содержимым', ...metadata };
+  else if (known) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'duplicate', reason: 'Точный повтор event_id', ...metadata };
   else {
     const late = events.some(e => e.item_id === row.message.item_id && Date.parse(e.occurred_at) > Date.parse(row.message.occurred_at));
-    outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: late ? 'late' : 'accepted', reason: late ? 'Поздняя доставка; история отсортирована по времени события' : 'Принято' };
+    outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: late ? 'late' : 'accepted', reason: late ? 'Поздняя доставка; история отсортирована по времени события' : 'Принято', ...metadata };
   }
   if (outcome.kind !== 'error') {
     if (sourceById.has(row.delivery_id)) state.sourceIds.push(row.delivery_id);

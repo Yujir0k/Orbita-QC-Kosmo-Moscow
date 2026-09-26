@@ -59,6 +59,10 @@ const send = (response, status, body, headers = {}) => {
 }
 const fail = (status, message) => Object.assign(new Error(message), { status })
 function permission(pathname, method) {
+  if (method === 'GET' && pathname === '/api/contracts') return ['administrator']
+  if (method === 'GET' && pathname === '/api/operations/health') return ['administrator']
+  if (method === 'GET' && pathname === '/api/operations/backups') return ['administrator']
+  if (method === 'POST' && pathname === '/api/operations/backups') return ['administrator']
   if (method === 'GET' && pathname === '/api/integrations/state') return ['administrator']
   if (method === 'POST' && /^\/api\/integrations\/(pull|results|cad|retry\/[^/]+)$/.test(pathname)) return ['administrator']
   if (method === 'GET' && pathname === '/api/plant/state') return ['administrator']
@@ -77,7 +81,12 @@ function permission(pathname, method) {
 
 export async function createSecurity({ directory, rootKey, auditFile, users, items, itemLineMap, contracts, now = () => Date.now() }) {
   const bodyOf = request => readJsonObject(request, { maxBytes: 1_000_000 })
-  const crypto = createCrypto(await loadRootKey(directory, rootKey))
+  const loadedRootKey = await loadRootKey(directory, rootKey)
+  const crypto = createCrypto(loadedRootKey)
+  const keyFingerprint = createHash('sha256').update(loadedRootKey).digest('hex').slice(0, 16)
+  let rotationMetadata = null
+  try { rotationMetadata = JSON.parse(await readFile(path.join(directory, 'data', 'security', 'key-rotation.json'), 'utf8')) }
+  catch (error) { if (error.code !== 'ENOENT') throw error }
   const store = createEncryptedStore(crypto)
   const audit = await createAuditLog(auditFile ?? path.join(directory, 'data', 'security', 'audit.jsonl'), crypto)
   const demo = items ? null : JSON.parse(await readFile(path.join(directory, 'source', 'src', 'demo-data.json'), 'utf8'))
@@ -97,13 +106,18 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
     if (row.event.type === 'action.completed') completed.set(row.event.actionId, row.event.deliveries)
   }
   const cookieName = 'orbita_session'
+  const sourceOf = request => String(request.socket?.remoteAddress ?? 'local').replace(/^::ffff:/, '')
+  const purgeSessions = () => {
+    for (const [tokenHash, session] of sessions) if (session.expiresAt < now() || session.idleUntil < now()) sessions.delete(tokenHash)
+  }
   const sessionOf = request => {
     const cookie = String(request.headers.cookie ?? '').split(';').map(part => part.trim()).find(part => part.startsWith(`${cookieName}=`))
     if (!cookie) return null
     const token = cookie.slice(cookieName.length + 1)
-    const session = sessions.get(createHash('sha256').update(token).digest('hex'))
-    if (!session || session.expiresAt < now() || session.idleUntil < now()) return null
-    session.idleUntil = now() + 30 * 60_000
+    const tokenHash = createHash('sha256').update(token).digest('hex')
+    const session = sessions.get(tokenHash)
+    if (!session || session.expiresAt < now() || session.idleUntil < now()) { if (session) sessions.delete(tokenHash); return null }
+    session.lastSeenAt = now(); session.idleUntil = now() + 30 * 60_000
     return session
   }
   const sameOrigin = request => {
@@ -124,11 +138,19 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
     }
     return session
   }
-  const issueSession = user => {
+  const issueSession = (user, source) => {
     const token = randomBytes(32).toString('base64url')
-    const session = { user, csrf: randomBytes(32).toString('base64url'), expiresAt: now() + 8 * 60 * 60_000, idleUntil: now() + 30 * 60_000 }
+    const session = { id: randomUUID(), user, csrf: randomBytes(32).toString('base64url'), source, createdAt: now(), lastSeenAt: now(), expiresAt: now() + 8 * 60 * 60_000, idleUntil: now() + 30 * 60_000 }
     sessions.set(createHash('sha256').update(token).digest('hex'), session)
     return { token, session }
+  }
+  const failureBucket = key => loginFailures.get(key) ?? { count: 0, until: 0 }
+  const recordFailure = (key, limit, lockMs) => {
+    const bucket = failureBucket(key)
+    bucket.count += 1
+    if (bucket.count >= limit) bucket.until = now() + lockMs
+    loginFailures.set(key, bucket)
+    return bucket
   }
   async function handle(request, response, pathname) {
     if (!pathname.startsWith('/api/security/')) return false
@@ -145,17 +167,20 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         if (!onlyKeys(body, ['id', 'password'])) throw fail(422, 'Запрос входа содержит неожиданные поля')
         const id = typeof body.id === 'string' ? body.id : ''
         const password = typeof body.password === 'string' ? body.password : ''
-        const attempts = loginFailures.get(id) ?? { count: 0, until: 0 }
-        if (attempts.until > now()) throw fail(429, 'Слишком много попыток входа')
+        const source = sourceOf(request)
+        const accountKey = `account:${id}`
+        const sourceKey = `source:${source}`
+        const retryAt = Math.max(failureBucket(accountKey).until, failureBucket(sourceKey).until)
+        if (retryAt > now()) throw Object.assign(fail(429, 'Слишком много попыток входа'), { headers: { 'Retry-After': String(Math.max(1, Math.ceil((retryAt - now()) / 1000))) } })
         const user = byId.get(id)
         const expected = user?.password ?? crypto.accountSecret(id)
         if (!user || !crypto.constantTimeEqual(password, expected)) {
-          attempts.count += 1; attempts.until = attempts.count >= 5 ? now() + 60_000 : 0; loginFailures.set(id, attempts)
-          await audit.append({ type: 'auth.failed', at: new Date(now()).toISOString(), actor: id || 'unknown' })
+          recordFailure(accountKey, 5, 60_000); recordFailure(sourceKey, 12, 5 * 60_000)
+          await audit.append({ type: 'auth.failed', at: new Date(now()).toISOString(), actor: id || 'unknown', source })
           throw fail(401, 'Неверные учётные данные')
         }
-        loginFailures.delete(id)
-        const { token, session } = issueSession({ id: user.id, role: user.role, lineIds: user.lineIds })
+        loginFailures.delete(accountKey)
+        const { token, session } = issueSession({ id: user.id, role: user.role, lineIds: user.lineIds }, source)
         await audit.append({ type: 'auth.login', at: new Date(now()).toISOString(), actor: user.id, role: user.role })
         send(response, 200, { authenticated: true, user: session.user, csrfToken: session.csrf }, { 'Set-Cookie': `${cookieName}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800` })
         return true
@@ -167,6 +192,31 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         if (cookie) sessions.delete(createHash('sha256').update(cookie.slice(cookieName.length + 1)).digest('hex'))
         await audit.append({ type: 'auth.logout', at: new Date(now()).toISOString(), actor: session.user.id, role: session.user.role })
         send(response, 200, { status: 'ok' }, { 'Set-Cookie': `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0` })
+        return true
+      }
+      if (pathname === '/api/security/sessions' && request.method === 'GET') {
+        const session = await requireSession(request, response, ['administrator'])
+        if (!session) return true
+        purgeSessions()
+        send(response, 200, { sessions: [...sessions.values()].map(value => ({ id: value.id, user: value.user, source: value.source, createdAt: new Date(value.createdAt).toISOString(), lastSeenAt: new Date(value.lastSeenAt).toISOString(), expiresAt: new Date(value.expiresAt).toISOString(), current: value.id === session.id })) })
+        return true
+      }
+      if (pathname === '/api/security/sessions/revoke' && request.method === 'POST') {
+        const session = await requireSession(request, response, ['administrator'])
+        if (!session) return true
+        const body = await bodyOf(request)
+        if (!onlyKeys(body, ['sessionId']) || typeof body.sessionId !== 'string') throw fail(422, 'Укажите сеанс')
+        const target = [...sessions].find(([, value]) => value.id === body.sessionId)
+        if (!target) throw fail(404, 'Сеанс уже завершён')
+        sessions.delete(target[0])
+        await audit.append({ type: 'auth.session_revoked', at: new Date(now()).toISOString(), actor: session.user.id, role: session.user.role, target: target[1].user.id, sessionId: body.sessionId })
+        send(response, 200, { status: 'revoked', sessionId: body.sessionId, current: body.sessionId === session.id })
+        return true
+      }
+      if (pathname === '/api/security/crypto/status' && request.method === 'GET') {
+        const session = await requireSession(request, response, ['administrator'])
+        if (!session) return true
+        send(response, 200, { fingerprint: keyFingerprint, profile: 'AES-256-GCM', rotation: rotationMetadata, mode: 'offline' })
         return true
       }
       if (pathname === '/api/security/actions' && request.method === 'POST') {
@@ -239,7 +289,7 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
       }
       send(response, 404, { error: 'Неизвестный маршрут безопасности' })
     } catch (error) {
-      send(response, error.status ?? 503, { error: error.status ? error.message : 'Проверка безопасности не выполнена' })
+      send(response, error.status ?? 503, { error: error.status ? error.message : 'Проверка безопасности не выполнена' }, error.headers)
     }
     return true
   }
@@ -264,6 +314,8 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
   }
   return {
     store, audit, handle, guard, internalToken,
+    sessionStatus: () => { purgeSessions(); return { active: sessions.size, expiresAfterHours: 8, idleMinutes: 30 } },
+    cryptoStatus: () => ({ fingerprint: keyFingerprint, profile: 'AES-256-GCM', rotation: rotationMetadata, mode: 'offline' }),
     demoCredentials: () => accounts.filter(user => !user.password).map(user => ({ id: user.id, role: user.role, password: crypto.accountSecret(user.id) })),
     validateMesDecision: event => {
       const actionId = event?.data?.security_action_id
