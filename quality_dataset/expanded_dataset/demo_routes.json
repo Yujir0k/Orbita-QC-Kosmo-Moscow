@@ -31,8 +31,41 @@
       "scenario": "Два дефекта в одном сигнале, один бракованный экземпляр."
     }
   ],
+  "additional_visual": [
+    {
+      "item_id": "ITEM-025",
+      "scenario": "Другой тип детали: L-образный кронштейн с заусенцем, затем чёткое фото очищенной кромки."
+    },
+    {
+      "item_id": "ITEM-028",
+      "scenario": "U-образный кронштейн с поверхностной риской, затем фото после доработки."
+    },
+    {
+      "item_id": "ITEM-029",
+      "scenario": "Ракурс второй камеры: ещё один дефект на отличающейся детали."
+    }
+  ],
+  "structured_evidence": [
+    {
+      "item_id": "ITEM-013",
+      "scenario": "Оба кадра доступны: новая риска появляется только после станка."
+    },
+    {
+      "item_id": "ITEM-019",
+      "scenario": "Риска есть до станка и после него: появление не связано с текущей операцией."
+    },
+    {
+      "item_id": "ITEM-020",
+      "scenario": "Входной кадр доступен, послеоперационный потерян при передаче edge-агента."
+    },
+    {
+      "item_id": "ITEM-021",
+      "scenario": "Оба сырых кадра закрыты для внешнего интерфейса; остаются геометрия CV и учебная КД."
+    }
+  ],
   "event_refs": {
     "ITEM-013": {
+      "before_machine": "E2-000002",
       "detected": "E2-000006",
       "confirmed": "E2-000007",
       "master_photo": "E2-000011",
@@ -41,6 +74,7 @@
       "measurement": "E2-000012"
     },
     "ITEM-014": {
+      "before_machine": "E2-000019",
       "detected": "E2-000023",
       "confirmed": "E2-000024",
       "first_master": "E2-000028",
@@ -68,13 +102,29 @@
     "ITEM-017": {
       "detected": "E2-000069",
       "machine_warning": "E2-000068",
-      "confirmed": "E2-000070",
-      "recheck": "E2-000074"
+      "confirmed": "E2-000071",
+      "recheck": "E2-000075"
     },
     "ITEM-018": {
-      "incoming_late": "E2-000080",
-      "detected": "E2-000083",
-      "confirmed": "E2-000084"
+      "incoming_late": "E2-000081",
+      "detected": "E2-000084",
+      "confirmed": "E2-000086"
+    },
+    "ITEM-019": {
+      "before_machine": "E2-000088",
+      "incoming_decision": "E2-000089",
+      "after_machine": "E2-000093",
+      "final_decision": "E2-000094"
+    },
+    "ITEM-020": {
+      "before_machine": "E2-000099",
+      "after_signal": "E2-000103",
+      "held": "E2-000104"
+    },
+    "ITEM-021": {
+      "incoming": "E2-000106",
+      "restricted_signal": "E2-000110",
+      "held": "E2-000111"
     }
   },
   "truth_source": "expected/demo_timeline.json; not fed into core ingestion"

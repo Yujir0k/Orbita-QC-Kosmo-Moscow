@@ -15,7 +15,7 @@ export interface ControllerCaseData {
   confidence: string;
 }
 
-const regionNames: Record<string, string> = {
+export const regionNames: Record<string, string> = {
   edge_B: 'Кромка B',
   body_outer_A: 'Наружная поверхность A корпуса',
   'CP-IN': 'Входной контроль · зона не определена',
@@ -27,16 +27,28 @@ const regionNames: Record<string, string> = {
   front_face: 'Лицевая поверхность',
   inner_edge: 'Внутренняя кромка',
   hole_edge: 'Кромка отверстия',
+  front_outer_edge: 'Передняя наружная кромка',
+  left_outer_face: 'Левая наружная поверхность',
+  right_upper_edge: 'Правая верхняя кромка',
+  front_left_flange: 'Передняя левая полка',
+  inner_slot_edge: 'Внутренняя кромка паза',
 };
 
 const readable = (value: unknown) => typeof value === 'string' && value.trim() ? value : 'Не передано';
+
+/** Disambiguate separate inspection operations for one item in the controller queue. */
+export function queueItemLabel(record: Case, records: Case[]): string {
+  const sameItem = records.filter(entry => entry.item === record.item).sort((a, b) => Date.parse(a.observations[0].occurred_at) - Date.parse(b.observations[0].occurred_at) || a.id.localeCompare(b.id));
+  if (sameItem.length < 2) return record.item;
+  return `${record.item}-OP${(sameItem.findIndex(entry => entry.id === record.id) + 1) * 10}`;
+}
 
 /** Build a case-specific evidence checklist from the accepted CV event, never from placeholder values. */
 export function controllerCaseData(caseRecord: Case, product: Product, assets: MediaAsset[]): ControllerCaseData {
   const observation = caseRecord.observations.at(-1)!;
   const finding = observation.data.defects?.find(row => row.component_id === caseRecord.component && row.region === caseRecord.region && row.defect_type_id === caseRecord.type);
   const capture = observation.data.capture_context ?? {};
-  const image = assets.find(asset => observation.data.evidence_refs?.includes(asset.asset_id));
+  const image = observation.data.media_evidence?.after_operation.status === 'MISSING' ? undefined : assets.find(asset => observation.data.evidence_refs?.includes(asset.asset_id));
   const component = product.components.find(row => row.id === caseRecord.component);
   const componentName = component?.component_type_id === 'BODY' ? 'Корпус' : component?.component_type_id === 'INSERT' ? 'Вставка' : component?.component_type_id === 'FASTENER' ? 'Крепёж' : 'Компонент не определён';
   const missing: string[] = [];

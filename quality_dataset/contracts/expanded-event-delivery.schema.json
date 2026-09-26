@@ -3,6 +3,54 @@
   "$id": "https://example.invalid/cosmo-quality/event-delivery/2.0",
   "title": "Expanded synthetic production delivery v2.0",
   "type": "object",
+  "$defs": {
+    "media_slot": {
+      "type": "object",
+      "required": ["url", "sha256_hash", "status", "absence_reason"],
+      "additionalProperties": false,
+      "properties": {
+        "url": {"type": ["string", "null"]},
+        "sha256_hash": {"type": "string"},
+        "status": {"enum": ["AVAILABLE", "MISSING"]},
+        "absence_reason": {"enum": ["LOST_IN_TRANSIT", "CLASSIFIED_RESTRICTED", "NO_CAMERA_AT_STATION", "NONE"]}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "AVAILABLE"}}}, "then": {
+          "properties": {"url": {"type": "string", "minLength": 1}, "sha256_hash": {"pattern": "^[0-9a-f]{64}$"}, "absence_reason": {"const": "NONE"}}}},
+        {"if": {"properties": {"status": {"const": "MISSING"}}}, "then": {
+          "properties": {"url": {"type": "null"}, "sha256_hash": {"const": ""}, "absence_reason": {"enum": ["LOST_IN_TRANSIT", "CLASSIFIED_RESTRICTED", "NO_CAMERA_AT_STATION"]}}}}
+      ]
+    },
+    "media_evidence": {
+      "type": "object", "required": ["before_operation", "after_operation"], "additionalProperties": false,
+      "properties": {"before_operation": {"$ref": "#/$defs/media_slot"}, "after_operation": {"$ref": "#/$defs/media_slot"}}
+    },
+    "kd_spec": {
+      "type": "object", "required": ["surface_zone_class", "max_allowable_defect_length_mm", "standard_ref"],
+      "properties": {
+        "surface_zone_class": {"enum": ["ZONE_A_CRITICAL", "ZONE_B_MATING", "ZONE_C_NON_CRITICAL"]},
+        "max_allowable_defect_length_mm": {"type": "number", "minimum": 0},
+        "standard_ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "defect": {
+      "type": "object",
+      "required": ["finding_id", "defect_type_id", "component_id", "region", "severity", "length_mm", "width_mm", "depth_estimated_mm", "defect_class"],
+      "properties": {
+        "length_mm": {"type": "number", "exclusiveMinimum": 0},
+        "width_mm": {"type": "number", "exclusiveMinimum": 0},
+        "depth_estimated_mm": {"type": ["number", "null"], "minimum": 0},
+        "defect_class": {"enum": ["SCRATCH", "CRACK", "BURR", "DENT", "DISCOLORATION"]}
+      }
+    },
+    "item_state": {
+      "type": "object", "required": ["physical_location", "line_lock_status"],
+      "properties": {
+        "physical_location": {"type": "string", "minLength": 1},
+        "line_lock_status": {"enum": ["HELD_AT_STATION", "IN_BUFFER", "ROUTED_FORWARD"]}
+      }
+    }
+  },
   "required": ["delivery_id", "deliver_at", "message"],
   "additionalProperties": false,
   "properties": {
@@ -10,11 +58,11 @@
     "deliver_at": {"type": "string", "format": "date-time"},
     "message": {
       "type": "object",
-      "required": ["event_id", "event_type", "schema_version", "occurred_at", "source_id", "item_id", "item_type_id", "line_id", "station_id", "shift_id", "data"],
+      "required": ["event_id", "event_type", "schema_version", "occurred_at", "source_id", "item_id", "item_type_id", "line_id", "station_id", "shift_id", "data", "item_state"],
       "additionalProperties": false,
       "properties": {
         "event_id": {"type": "string", "minLength": 1},
-        "event_type": {"enum": ["item_received", "inspection_result", "operation_started", "operation_finished", "operation_paused", "machine_state", "operator_action", "quality_decision", "cause_review", "master_action", "technical_disposition", "manual_measurement"]},
+        "event_type": {"enum": ["item_received", "inspection_result", "operation_started", "operation_finished", "operation_paused", "machine_state", "operator_action", "quality_decision", "controller_check", "cause_review", "master_action", "technical_disposition", "manual_measurement"]},
         "schema_version": {"const": "2.0"},
         "occurred_at": {"type": "string", "format": "date-time"},
         "source_id": {"type": "string", "minLength": 1},
@@ -27,23 +75,28 @@
         "actor_id": {"type": "string", "minLength": 1},
         "equipment_id": {"type": "string", "minLength": 1},
         "analyzer_version": {"type": "string", "minLength": 1},
+        "item_state": {"$ref": "#/$defs/item_state"},
         "data": {"type": "object"}
       },
       "allOf": [
         {
           "if": {"properties": {"event_type": {"const": "inspection_result"}}},
           "then": {"properties": {"data": {
-            "required": ["inspection_point_id", "inspection_result", "observation_quality", "confidence", "defects", "method", "evidence_refs", "triage_priority", "capture_context"],
+            "required": ["inspection_point_id", "inspection_result", "observation_quality", "confidence", "defects", "method", "evidence_refs", "triage_priority", "capture_context", "kd_spec"],
             "properties": {
               "inspection_result": {"enum": ["signs_detected", "no_signs_detected", "unable_to_assess"]},
               "observation_quality": {"enum": ["good", "poor"]},
               "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-              "defects": {"type": "array"},
+              "defects": {"type": "array", "items": {"$ref": "#/$defs/defect"}},
+              "kd_spec": {"$ref": "#/$defs/kd_spec"},
+              "media_evidence": {"$ref": "#/$defs/media_evidence"},
               "method": {"enum": ["external_analyzer", "manual_verification"]},
               "evidence_refs": {"type": "array", "items": {"type": "string"}},
               "triage_priority": {"enum": ["routine", "medium", "high", "critical"]},
               "capture_context": {"type": "object"}
-            }
+            },
+            "allOf": [{"if": {"properties": {"inspection_point_id": {"enum": ["CP-POST-MILL", "CP-FINAL"]}}},
+              "then": {"required": ["media_evidence"]}}]
           }}}
         },
         {
@@ -51,7 +104,7 @@
           "then": {"required": ["operation_run_id"]}
         },
         {
-          "if": {"properties": {"event_type": {"enum": ["quality_decision", "master_action", "technical_disposition", "manual_measurement"]}}},
+          "if": {"properties": {"event_type": {"enum": ["quality_decision", "controller_check", "master_action", "technical_disposition", "manual_measurement"]}}},
           "then": {"required": ["actor_id"]}
         }
       ]

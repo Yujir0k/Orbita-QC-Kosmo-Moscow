@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Badge, Button, Empty, Icon, Metric, Note, Panel, ProductDrawing } from './ui';
+import { Badge, Button, Empty, Icon, ImagePreview, Metric, Note, Panel, ProductDrawing } from './ui';
 import { canAccess, moduleById, roles, roleById, sectionsFor, type ModuleId, type RoleId, type Route, type Section } from './navigation';
-import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, productStatus, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
+import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
-import { ControllerCockpit, queueStatus } from './controller-cockpit';
+import { ControllerCockpit } from './controller-cockpit';
+import { MasterTerminal } from './master-terminal';
+import { projectRegistryRow, type RegistryGroup } from './product-registry';
 import planet from './assets/planet-orbita.webp';
 
 export type Navigate = (module: ModuleId, section?: string, item?: string) => void;
@@ -15,7 +17,7 @@ function CaseTable({ data, openItem }: { data: Case[]; openItem: (id: string) =>
 
 const homeStory: Record<RoleId, { eyebrow: string; title: string; text: string; cta: string; module: ModuleId; section?: string; item?: string }> = {
   controller: { eyebrow: 'ОТ ПРИЗНАКА К РЕШЕНИЮ', title: 'У каждого вывода\nесть основание.', text: 'Сигналы, контекст операции и история проверок — в одной карточке изделия.', cta: 'Открыть контроль качества', module: 'quality' },
-  master: { eyebrow: 'ПРОИЗВОДСТВО В ФОКУСЕ', title: 'Видеть отклонение.\nОрганизовать действие.', text: 'Приостановленные операции, карантин и доработка собраны в рабочем пространстве участка.', cta: 'Перейти к линии', module: 'production' },
+  master: { eyebrow: 'ПРОИЗВОДСТВО В ФОКУСЕ', title: 'Видеть отклонение.\nОрганизовать действие.', text: 'Приостановленные операции, карантин и доработка собраны в рабочем пространстве участка.', cta: 'Открыть пульт участка', module: 'operations' },
   technologist: { eyebrow: 'ПОНИМАТЬ ПРИЧИНЫ', title: 'Факты складываются\nв полную картину.', text: 'Сопоставляйте контроль до и после, журналы оборудования и действия на операции.', cta: 'Открыть расследования', module: 'investigation' },
   leader: { eyebrow: 'УПРАВЛЯТЬ НА ОСНОВЕ ДАННЫХ', title: 'Качество в деталях.\nПроизводство целиком.', text: 'От общего показателя до конкретного изделия, решения и подтверждающих событий.', cta: 'Исследовать показатели', module: 'analytics' },
   administrator: { eyebrow: 'ЕДИНЫЙ ПРОИЗВОДСТВЕННЫЙ КОНТУР', title: 'Связанные системы.\nПрослеживаемые данные.', text: 'Источники, обмен, права доступа и состояние компонентов собраны в одном месте.', cta: 'Открыть центр интеграций', module: 'integrations' },
@@ -45,9 +47,9 @@ export function HomeView(props: ViewProps) {
         <Metric label="Рабочие роли" value={5} note="Права и области доступа" icon="users" onClick={() => navigate('platform', 'users')} />
       </> : role === 'master' ? <>
         <Metric label="Изделия в срезе" value={m.items} note="По производственным событиям" icon="products" onClick={() => navigate('products')} />
-        <Metric label="Незавершённые операции" value={m.unfinished} note="Требуют внимания мастера" icon="clock" tone="amber" onClick={() => navigate('production', 'operations')} />
-        <Metric label="Повторные запуски" value={m.rework} note="Связаны с первичной обработкой" icon="branch" onClick={() => navigate('production', 'rework')} />
-        <Metric label="Открытые действия" value={relevantTasks.length} note="Из фактов учебной смены" icon="tasks" tone="red" onClick={() => navigate('tasks')} />
+        <Metric label="Незавершённые операции" value={m.unfinished} note="Требуют внимания мастера" icon="clock" tone="amber" onClick={() => navigate('operations')} />
+        <Metric label="Повторные запуски" value={m.rework} note="Связаны с первичной обработкой" icon="branch" onClick={() => navigate('operations')} />
+        <Metric label="Открытые действия" value={relevantTasks.length} note="Из фактов учебной смены" icon="tasks" tone="red" onClick={() => navigate('operations')} />
       </> : <>
         <Metric label="Проверено изделий" value={m.inspected} note="С оцениваемым наблюдением" icon="quality" tone="green" onClick={() => navigate('products')} />
         <Metric label="Изделия с дефектами" value={m.defectiveItems} note="За всю историю выбранной смены" icon="products" tone="red" onClick={() => navigate(role === 'technologist' ? 'investigation' : 'analytics')} />
@@ -77,7 +79,7 @@ function WorkflowStrip({ route, navigate, changeRole }: ViewProps) {
     { label: 'Наблюдение', detail: 'Внешний источник', icon: 'source', role: 'administrator', module: 'events' },
     { label: 'Рассмотрение', detail: 'Контролёр', icon: 'quality', role: 'controller', module: 'quality' },
     { label: 'Разбор причины', detail: 'Технолог', icon: 'investigation', role: 'technologist', module: 'investigation' },
-    { label: 'Действие', detail: 'Мастер', icon: 'tasks', role: 'master', module: 'production' },
+    { label: 'Действие', detail: 'Мастер', icon: 'tasks', role: 'master', module: 'operations' },
     { label: 'Результат', detail: 'Обмен с ERP', icon: 'integrations', role: 'administrator', module: 'integrations' },
   ];
   return <div className="workflow-strip">{flow.map((step, i) => <button key={step.label} onClick={() => canAccess(route.role, step.module) ? navigate(step.module) : changeRole(step.role, step.module)} title={canAccess(route.role, step.module) ? `Открыть: ${step.label}` : `Показать рабочее место: ${roleById[step.role].name}`}><span className="flow-icon"><Icon name={step.icon} /><em>{String(i + 1).padStart(2, '0')}</em></span><strong>{step.label}</strong><small>{step.detail}</small>{i < flow.length - 1 && <Icon className="flow-arrow" name="chevron" size={14} />}</button>)}</div>;
@@ -87,8 +89,8 @@ function TaskList({ data, openItem }: { data: typeof tasks; openItem: (id: strin
   return data.length ? <div className="task-list">{data.map(task => <button key={task.id} onClick={() => openItem(task.item)}><span className={`task-symbol ${task.done ? 'green' : 'amber'}`}><Icon name={task.done ? 'check' : 'clock'} /></span><div><strong>{task.title}</strong><small><span className="mono">{task.item}</span> · {roleById[task.role].name}</small><p>{task.description}</p></div><Badge tone={task.done ? 'green' : 'amber'}>{task.done ? 'Завершено' : 'Требует действия'}</Badge><Icon name="chevron" /></button>)}</div> : <Empty title="Открытых задач в этом срезе нет" text="Новые действия будут появляться здесь вместе с основанием и карточкой изделия." />;
 }
 
-function QualityView({ route, scope, openItem, openCase }: ViewProps) {
-  if (route.role === 'controller') return <ControllerCockpit scope={scope} caseId={route.caseId} openCase={openCase} openPassport={openItem}/>;
+function QualityView({ route, scope, openItem, openCase, navigate }: ViewProps) {
+  if (route.role === 'controller') return <ControllerCockpit scope={scope} caseId={route.caseId} openCase={openCase} openPassport={openItem} onExit={() => navigate('home')}/>;
   const [filter, setFilter] = useState('all');
   const source = cases.filter(c => c.observations.some(e => inScope(e, scope)));
   const data = source.filter(c => filter === 'all' || (filter === 'confirmed' && c.confirmed) || (filter === 'pending' && !c.decisions.length) || (filter === 'closed' && ['Отклонено', 'Выпуск после доработки'].includes(c.status)));
@@ -97,25 +99,28 @@ function QualityView({ route, scope, openItem, openCase }: ViewProps) {
   return <>{route.section === 'signals' && <SmartQueue role={route.role} scope={scope} openItem={openItem}/>}<div className="workspace-toolbar"><div className="filter-chips" aria-label="Фильтр случаев">{[['all', 'Все'], ['pending', 'На рассмотрении'], ['confirmed', 'Подтверждённые'], ['closed', 'Закрытые']].map(([key, label]) => <button key={key} aria-pressed={filter === key} className={filter === key ? 'active' : ''} onClick={() => setFilter(key)}>{label}{key === 'all' && <span>{source.length}</span>}</button>)}</div><span className="toolbar-note">Поступившие наблюдения</span></div><Panel title={route.section === 'signals' ? 'Наблюдения и их рассмотрение' : 'Реестр несоответствий'} eyebrow="ОБЪЕДИНЕНИЕ ПО ИЗДЕЛИЮ И ОБЛАСТИ"><CaseTable data={data} openItem={openItem} /></Panel><Note>Сигнал анализатора и подтверждённый дефект имеют разные статусы. Повторные наблюдения одной области в одной операции объединены; исходные события доступны в истории.</Note></>;
 }
 
-function ProductsView({ route, scope, openItem, openCase }: ViewProps) {
+function ProductsView({ scope, openItem }: ViewProps) {
   const [query, setQuery] = useState('');
-  const openProduct = (itemId: string) => {
-    const activeCase = route.role === 'controller' ? cases.find(record => record.item === itemId && queueStatus(record)) : undefined;
-    if (activeCase) openCase(itemId, activeCase.id);
-    else openItem(itemId);
-  };
-  const filtered = items
-    .filter(item => events.some(event => event.item_id === item.id && inScope(event, scope)))
-    .filter(item => `${item.id} ${item.work_order_id}`.toLowerCase().includes(query.toLowerCase()));
+  const [group, setGroup] = useState<RegistryGroup | 'all'>('all');
+  const rows = items.filter(item => item.item_type_id === 'TYPE-BRACKET-01' && (scope === 'all' || events.some(event => event.item_id === item.id && inScope(event, scope))))
+    .map(item => projectRegistryRow(item, eventsFor(item.id)));
+  const filtered = rows.filter(row => (group === 'all' || row.group === group) && `${row.item.id} ${row.item.work_order_id} ${row.lot} ${row.traveler}`.toLowerCase().includes(query.toLowerCase()));
+  const filters: { id: RegistryGroup | 'all'; label: string; tone: string }[] = [
+    { id: 'all', label: 'Все изделия', tone: 'muted' }, { id: 'needs', label: 'Требуют решения ОТК', tone: 'amber' },
+    { id: 'rework', label: 'На доработке в цехе', tone: 'blue' }, { id: 'good', label: 'Годны (контроль пройден)', tone: 'green' },
+    { id: 'scrap', label: 'Брак / Изолятор', tone: 'red' },
+  ];
 
   return <>
-    <div className="workspace-toolbar">
-      <label className="local-search"><Icon name="search" /><input aria-label="Поиск по реестру" placeholder="Номер изделия или заказа…" value={query} onChange={event => setQuery(event.target.value)} /></label>
-      <span className="toolbar-note">{filtered.length} изделий · ревизия A</span>
+    <div className="registry-overview"><div><span className="eyebrow">ЕДИНЫЙ РЕЕСТР УЧАСТКА</span><h2>Изделия и их маршрут</h2><p>Местонахождение, решение ОТК и целостность истории для каждого кронштейна.</p></div><strong className="mono">{rows.length}<small>изделий в срезе</small></strong></div>
+    <div className="registry-filters" role="group" aria-label="Фильтр по статусу качества">{filters.map(filter => <button key={filter.id} className={['registry-chip', filter.tone, group === filter.id && 'active'].filter(Boolean).join(' ')} aria-pressed={group === filter.id} onClick={() => setGroup(filter.id)}>{filter.label}<span>{filter.id === 'all' ? `(${rows.length})` : rows.filter(row => row.group === filter.id).length}</span></button>)}</div>
+    <div className="workspace-toolbar registry-toolbar">
+      <label className="local-search"><Icon name="search" /><input aria-label="Поиск по реестру" placeholder="Изделие, заказ, партия или МЛ…" value={query} onChange={event => setQuery(event.target.value)} /></label>
+      <span className="toolbar-note">Показано {filtered.length} из {rows.length}</span>
     </div>
-    <Panel title="Реестр изделий" eyebrow="СВЯЗЬ С ПРОИЗВОДСТВЕННЫМИ ЗАКАЗАМИ">
-      <div className="table-wrap"><table><thead><tr><th>Изделие</th><th>Заказ</th><th>Состав</th><th>Состояние по событиям</th><th>История</th></tr></thead><tbody>
-        {filtered.map(item => { const status = productStatus(item.id); return <tr key={item.id}><td><button className="cell-link mono" onClick={() => openProduct(item.id)}>{item.id}</button><small>Кронштейн приборного блока</small></td><td className="mono">{item.work_order_id}</td><td>{item.components.length} компонента<small>Ревизия {item.assembly_revision}</small></td><td><Badge tone={status.tone}>{status.label}</Badge></td><td><button className="icon-button" aria-label={`Открыть ${item.id}`} onClick={() => openProduct(item.id)}><Icon name="arrow" /></button></td></tr>; })}
+    <Panel title="Реестр изделий" eyebrow="ПРОИЗВОДСТВО · ОТК · АУДИТ">
+      <div className="table-wrap registry-table"><table><thead><tr><th>Изделие</th><th>Заказ и МЛ</th><th>Текущее местонахождение</th><th>Статус качества</th><th>Целостность</th><th>Действие</th></tr></thead><tbody>
+        {filtered.map(row => <tr key={row.item.id}><td><strong className="mono registry-id">{row.item.id}</strong><small>Кронштейн приборного блока</small><small className="mono">Партия {row.lot}</small></td><td><strong className="mono">{row.item.work_order_id}</strong><small className="mono">МЛ {row.traveler}</small></td><td className="registry-location">{row.location}</td><td><Badge tone={row.tone}>{row.status}</Badge></td><td><span className="registry-audit"><Icon name="security" size={16}/>Audit OK <small>(SHA-256)</small></span></td><td><button className="registry-open" onClick={() => openItem(row.item.id)} aria-label={`Паспорт ${row.item.id}`}>Паспорт <Icon name="arrow" size={15}/></button></td></tr>)}
       </tbody></table></div>
       {!filtered.length && <Empty title="Изделия не найдены" text="Проверьте номер или выберите другую смену." />}
     </Panel>
@@ -153,9 +158,9 @@ function InvestigationView({ route, scope, openItem }: ViewProps) {
   const before = observations.find(event => ['signs_detected', 'unable_to_assess'].includes(event.data.inspection_result ?? ''));
   const after = before ? observations.filter(event => Date.parse(event.occurred_at) > Date.parse(before.occurred_at)).at(-1) : undefined;
   const evidence = mediaFor(chosen);
-  const beforePhotos = evidence.filter(({ asset }) => ['before_rework', 'ambiguous_observation'].includes(asset.stage));
-  const afterPhotos = evidence.filter(({ asset }) => !['before_rework', 'ambiguous_observation'].includes(asset.stage));
-  return <><div className="workspace-toolbar"><label className="inline-select">Изделие<select value={chosen} onChange={e => setChosen(e.target.value)}>{items.filter(item => cases.some(c => c.item === item.id)).map(item => <option key={item.id}>{item.id}</option>)}</select></label><Button onClick={() => openItem(chosen)}>Полная история</Button></div><div className="two-columns">{[{ label: 'До действия', event: before, photos: beforePhotos }, { label: 'После действия', event: after, photos: afterPhotos }].map(({ label, event, photos }) => <Panel key={label} title={label} eyebrow={event ? `${event.source_id} / ${time(event.occurred_at)}` : 'НЕТ НОВОГО НАБЛЮДЕНИЯ'}>{photos.length ? <div className="comparison-media">{photos.map(({ event: photoEvent, asset }) => <figure key={asset.asset_id}><img src={mediaUrl(asset)} alt={asset.description}/><figcaption><strong>{asset.capture_source === 'fixed_camera' ? 'Камера CV' : 'Фото мастера'}</strong><span>{time(photoEvent.occurred_at)} · {photoEvent.data.observation_quality === 'poor' ? 'плохой обзор' : 'достаточный обзор'}</span><p>{asset.description}</p></figcaption></figure>)}</div> : <div className="evidence-placeholder"><Icon name="control" size={40}/><span>Кадр не поступил</span><small>Фото появится только после события с вложением</small></div>}{event ? <><Badge tone={event.data.observation_quality === 'poor' ? 'amber' : 'blue'}>{resultNames[event.data.inspection_result!]}</Badge><p className="panel-description">{describeEvent(event)}</p><div className="field-tags">{event.data.defects?.map(finding => <span key={finding.finding_id}>{defectNames[finding.defect_type_id]} · {finding.region}</span>)}</div></> : <Note tone="amber">Повторный результат ещё не поступил. Фото само по себе не устанавливает годность и размерный допуск.</Note>}</Panel>)}</div><Note tone="amber">Разница между наблюдениями помогает ограничить время появления признака. Для вывода о причине нужны дополнительные основания и проверка качества обоих наблюдений.</Note></>;
+  const beforePhotos = evidence.filter(({ asset }) => ['before_machine', 'before_rework', 'after_machine', 'ambiguous_observation'].includes(asset.stage));
+  const afterPhotos = evidence.filter(({ asset }) => !['before_machine', 'before_rework', 'after_machine', 'ambiguous_observation'].includes(asset.stage));
+  return <><div className="workspace-toolbar"><label className="inline-select">Изделие<select value={chosen} onChange={e => setChosen(e.target.value)}>{items.filter(item => cases.some(c => c.item === item.id)).map(item => <option key={item.id}>{item.id}</option>)}</select></label><Button onClick={() => openItem(chosen)}>Полная история</Button></div><div className="two-columns">{[{ label: 'До действия', event: before, photos: beforePhotos }, { label: 'После действия', event: after, photos: afterPhotos }].map(({ label, event, photos }) => <Panel key={label} title={label} eyebrow={event ? `${event.source_id} / ${time(event.occurred_at)}` : 'НЕТ НОВОГО НАБЛЮДЕНИЯ'}>{photos.length ? <div className="comparison-media">{photos.map(({ event: photoEvent, asset }) => <figure key={asset.asset_id}><ImagePreview src={mediaUrl(asset)} alt={asset.description} title={`${label} · ${asset.description}`} /><figcaption><strong>{asset.capture_source === 'fixed_camera' ? 'Камера CV' : 'Фото мастера'}</strong><span>{time(photoEvent.occurred_at)} · {photoEvent.data.observation_quality === 'poor' ? 'плохой обзор' : 'достаточный обзор'}</span><p>{asset.description}</p></figcaption></figure>)}</div> : <div className="evidence-placeholder"><Icon name="control" size={40}/><span>Кадр не поступил</span><small>Фото появится только после события с вложением</small></div>}{event ? <><Badge tone={event.data.observation_quality === 'poor' ? 'amber' : 'blue'}>{resultNames[event.data.inspection_result!]}</Badge><p className="panel-description">{describeEvent(event)}</p><div className="field-tags">{event.data.defects?.map(finding => <span key={finding.finding_id}>{defectNames[finding.defect_type_id]} · {finding.region}</span>)}</div></> : <Note tone="amber">Повторный результат ещё не поступил. Фото само по себе не устанавливает годность и размерный допуск.</Note>}</Panel>)}</div><Note tone="amber">Разница между наблюдениями помогает ограничить время появления признака. Для вывода о причине нужны дополнительные основания и проверка качества обоих наблюдений.</Note></>;
 }
 
 function AnalyticsView(props: ViewProps) {
@@ -229,6 +234,7 @@ export function WorkspaceView(props: ViewProps) {
     case 'quality': return <QualityView {...props}/>;
     case 'products': return <ProductsView {...props}/>;
     case 'production': return <ProductionView {...props}/>;
+    case 'operations': return <MasterTerminal scope={scope}/>;
     case 'investigation': return <InvestigationView {...props}/>;
     case 'analytics': return <AnalyticsView {...props}/>;
     case 'integrations': return <IntegrationsView {...props}/>;
@@ -236,7 +242,7 @@ export function WorkspaceView(props: ViewProps) {
     case 'control': return <ControlView {...props}/>;
     case 'platform': return <PlatformView {...props}/>;
     case 'guide': return <GuideView {...props}/>;
-    case 'tasks': if (route.section !== 'rules') return <><SmartQueue role={route.role} scope={scope} openItem={openItem}/><Panel title={route.section === 'team' ? 'Действия команды' : 'Задачи рабочего места'} eyebrow="СВЯЗЬ С ИЗДЕЛИЕМ И ОСНОВАНИЕМ"><TaskList data={tasks.filter(t => inScope(t.event, scope) && (route.section === 'team' || route.role === 'leader' || t.role === route.role))} openItem={openItem}/></Panel><Note>Показаны действия, выведенные из поступивших событий. Назначение исполнителей, сроки и уведомления будут подключены к сервису задач.</Note></>;
+    case 'tasks': if (route.role === 'master') return <MasterTerminal scope={scope}/>; if (route.section !== 'rules') return <><SmartQueue role={route.role} scope={scope} openItem={openItem}/><Panel title={route.section === 'team' ? 'Действия команды' : 'Задачи рабочего места'} eyebrow="СВЯЗЬ С ИЗДЕЛИЕМ И ОСНОВАНИЕМ"><TaskList data={tasks.filter(t => inScope(t.event, scope) && (route.section === 'team' || route.role === 'leader' || t.role === route.role))} openItem={openItem}/></Panel><Note>Показаны действия, выведенные из поступивших событий. Назначение исполнителей, сроки и уведомления будут подключены к сервису задач.</Note></>;
   }
   return <PreparedSection section={sectionsFor(route.role, route.module).find(s => s.id === route.section)!}/>;
 }

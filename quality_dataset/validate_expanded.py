@@ -46,8 +46,8 @@ def validate() -> None:
     item_by_id = {item['id']: item for item in items}
     asset_by_id = {asset['asset_id']: asset for asset in media}
     require(len(item_by_id) == len(items) == manifest['item_count'] == 180, 'Item count/IDs')
-    require(len(asset_by_id) == len(media) == manifest['media_asset_count'] == 8, 'Media count/IDs')
-    require(set(routes['event_refs']) == set(manifest['demo_item_ids']) == {f'ITEM-{n:03d}' for n in range(13, 19)}, 'Demo IDs')
+    require(len(asset_by_id) == len(media) == manifest['media_asset_count'] == 18, 'Media count/IDs')
+    require(set(routes['event_refs']) == set(manifest['demo_item_ids']) == {f'ITEM-{n:03d}' for n in range(13, 22)}, 'Demo IDs')
     require(len(categories) == 162 and sum(Counter(categories.values()).values()) == 162, 'Category count')
     require(Counter(categories.values()) == manifest['background_mix'], 'Category mix')
     require(all(asset['synthetic_generated_image'] is True for asset in media), 'Unmarked synthetic image')
@@ -85,6 +85,9 @@ def validate() -> None:
         require(message['item_type_id'] == item_by_id[message['item_id']]['item_type_id'], f'Item type mismatch: {event_id}')
         if message['schema_version'] == '2.0':
             require(message['line_id'] == item_by_id[message['item_id']]['line_id'], f'Line mismatch: {event_id}')
+            state = message.get('item_state', {})
+            require(isinstance(state.get('physical_location'), str) and bool(state['physical_location']), f'Physical location missing: {event_id}')
+            require(state.get('line_lock_status') in {'HELD_AT_STATION', 'IN_BUFFER', 'ROUTED_FORWARD'}, f'Invalid line lock: {event_id}')
             if message.get('actor_id') in operator_shift:
                 require(operator_shift[message['actor_id']] == message['shift_id'], f'Operator shift mismatch: {event_id}')
         data = message['data']
@@ -94,6 +97,33 @@ def validate() -> None:
             require(data['confidence'] is None or 0 <= data['confidence'] <= 1, f'Confidence range: {event_id}')
             require(data['inspection_result'] != 'unable_to_assess' or data['confidence'] is None, f'Unassessable confidence: {event_id}')
             require(data['inspection_result'] != 'signs_detected' or data['defects'], f'Missing defect: {event_id}')
+            if message['schema_version'] == '2.0':
+                require(bool(data.get('observation_summary')), f'Missing observation summary: {event_id}')
+                require(bool(data.get('comparison', {}).get('summary')), f'Missing comparison: {event_id}')
+                spec = data.get('kd_spec', {})
+                require(spec.get('surface_zone_class') in {'ZONE_A_CRITICAL', 'ZONE_B_MATING', 'ZONE_C_NON_CRITICAL'}, f'Invalid KD zone: {event_id}')
+                require(isinstance(spec.get('max_allowable_defect_length_mm'), (int, float)) and spec['max_allowable_defect_length_mm'] >= 0, f'Invalid KD limit: {event_id}')
+                require(isinstance(spec.get('standard_ref'), str) and bool(spec['standard_ref']), f'Missing KD reference: {event_id}')
+                if data['inspection_result'] == 'signs_detected':
+                    require(all(defect.get('description') and defect.get('observed_feature') for defect in data['defects']), f'Missing text evidence: {event_id}')
+                for defect in data['defects']:
+                    require(defect.get('defect_class') in {'SCRATCH', 'CRACK', 'BURR', 'DENT', 'DISCOLORATION'}, f'Invalid defect class: {event_id}')
+                    require(defect['defect_class'] == defect['defect_type_id'], f'Conflicting defect class: {event_id}')
+                    require(all(isinstance(defect.get(key), (int, float)) and defect[key] > 0 for key in ('length_mm', 'width_mm')), f'Invalid CV dimensions: {event_id}')
+                    require(defect.get('depth_estimated_mm') is None or isinstance(defect['depth_estimated_mm'], (int, float)) and defect['depth_estimated_mm'] >= 0, f'Invalid estimated depth: {event_id}')
+                    require(defect.get('dimension_source') == ('synthetic_calibrated_2d_cv_estimate' if data['method'] == 'external_analyzer' else 'synthetic_manual_scale_estimate'), f'Dimension origin lost: {event_id}')
+                if data['method'] == 'external_analyzer' and not data['evidence_refs']:
+                    require(bool(data['capture_context'].get('missing_image_reason')), f'Missing image gap reason: {event_id}')
+                if data['inspection_point_id'] != 'CP-IN':
+                    evidence = data.get('media_evidence', {})
+                    require(set(evidence) == {'before_operation', 'after_operation'}, f'Media pair missing: {event_id}')
+                    for name, slot in evidence.items():
+                        require(set(slot) == {'url', 'sha256_hash', 'status', 'absence_reason'}, f'Media slot fields: {event_id}/{name}')
+                        if slot['status'] == 'AVAILABLE':
+                            matching = [asset for asset in media if slot['url'] == '/media/' + Path(asset['path_from_quality_dataset']).name]
+                            require(len(matching) == 1 and matching[0]['item_id'] == message['item_id'] and matching[0]['sha256'] == slot['sha256_hash'] and slot['absence_reason'] == 'NONE', f'Invalid available media: {event_id}/{name}')
+                        else:
+                            require(slot['status'] == 'MISSING' and slot['url'] is None and slot['sha256_hash'] == '' and slot['absence_reason'] in {'LOST_IN_TRANSIT', 'CLASSIFIED_RESTRICTED', 'NO_CAMERA_AT_STATION'}, f'Invalid missing media: {event_id}/{name}')
             for asset_id in data['evidence_refs']:
                 require(asset_id in asset_by_id and asset_by_id[asset_id]['item_id'] == message['item_id'], f'Invalid media ref: {event_id}')
         if message['event_type'] == 'master_action':
@@ -103,7 +133,24 @@ def validate() -> None:
         if message['event_type'] == 'quality_decision':
             require(message.get('actor_id', '').startswith('QC-'), f'Wrong decision author: {event_id}')
             require(bool(data['reason']), f'Decision reason blank: {event_id}')
+        if message['event_type'] == 'controller_check':
+            require(message.get('actor_id', '').startswith('QC-'), f'Wrong check author: {event_id}')
+            require(data['observation_event_id'] in by_event or data['observation_event_id'] in
+                    {record['message']['event_id'] for record in deliveries}, f'Controller check lacks signal: {event_id}')
     require(len(by_event) == manifest['unique_event_count'], 'Unique event count')
+    for message in by_event.values():
+        if message['schema_version'] != '2.0' or message['event_type'] != 'quality_decision' or message['data']['decision'] != 'confirmed':
+            continue
+        observations = [by_event[ref.split('#')[0]] for ref in message['data']['finding_refs']]
+        if observations and all(not observation['data'].get('evidence_refs') for observation in observations):
+            prior_checks = [check for check in by_event.values()
+                            if check['event_type'] == 'controller_check' and check['item_id'] == message['item_id']
+                            and check['event_id'] in message['data']['evidence_event_ids']]
+            prior_manual = [observation for observation in by_event.values()
+                            if observation['item_id'] == message['item_id'] and observation['event_type'] == 'inspection_result'
+                            and observation['data']['method'] in {'manual', 'manual_verification'}
+                            and observation['occurred_at'] <= message['occurred_at']]
+            require(bool(prior_checks or prior_manual), f'Photo-free confirmation without documented human check: {message["event_id"]}')
     require(metrics['counts']['items'] == len(items), 'Metrics item count')
     require(metrics['counts']['unique_events'] == len(by_event), 'Metrics event count')
     require(metrics['counts']['duplicate_deliveries'] == len(deliveries) - len(by_event), 'Metrics duplicate count')
@@ -169,6 +216,23 @@ def validate() -> None:
     require(by_event[demo['ITEM-015']['scrap']]['data']['disposition'] == 'scrap', 'Critical disposition missing')
     require(by_event[demo['ITEM-016']['rejected']]['data']['decision'] == 'rejected', 'False positive not rejected')
     require(by_event[demo['ITEM-016']['suspected']]['data']['evidence_refs'] == ['M016-CV-GLARE'], 'Glare photo missing')
+    require(by_event[demo['ITEM-013']['before_machine']]['data']['evidence_refs'] == ['M013-CV-BEFORE'], 'Missing initial photo for 013')
+    require(by_event[demo['ITEM-014']['before_machine']]['data']['evidence_refs'] == ['M014-CV-BEFORE'], 'Missing initial photo for 014')
+    require(time_of('ITEM-013', 'before_machine') < time_of('ITEM-013', 'detected'), 'Before/after operation order for 013')
+    require(time_of('ITEM-014', 'before_machine') < time_of('ITEM-014', 'detected'), 'Before/after operation order for 014')
+    preexisting = by_event[demo['ITEM-019']['after_machine']]['data']
+    require(preexisting['media_evidence']['before_operation']['status'] == 'AVAILABLE' and preexisting['media_evidence']['after_operation']['status'] == 'AVAILABLE', 'Pre-existing defect photos incomplete')
+    require(by_event[demo['ITEM-019']['before_machine']]['data']['defects'][0]['length_mm'] == preexisting['defects'][0]['length_mm'], 'Pre-existing defect dimensions changed')
+    require('уже был' in preexisting['comparison']['summary'], 'Pre-existing defect attribution missing')
+    lost = by_event[demo['ITEM-020']['after_signal']]['data']['media_evidence']
+    require(lost['before_operation']['status'] == 'AVAILABLE' and lost['after_operation']['status'] == 'MISSING' and lost['after_operation']['absence_reason'] == 'LOST_IN_TRANSIT', 'Lost-after-photo scenario')
+    restricted = by_event[demo['ITEM-021']['restricted_signal']]['data']
+    require(all(slot['status'] == 'MISSING' and slot['absence_reason'] == 'CLASSIFIED_RESTRICTED' for slot in restricted['media_evidence'].values()), 'Restricted-photo scenario')
+    require(restricted['defects'][0]['length_mm'] > 0 and restricted['kd_spec']['standard_ref'], 'Restricted text metrics/KD missing')
+    for item, camera, master in [('ITEM-025', 'M025-CV-BURR', 'M025-MASTER-CLEAR'), ('ITEM-028', 'M028-CV-SCRATCH', 'M028-MASTER-CLEAR')]:
+        own = [event for event in by_event.values() if event['item_id'] == item]
+        require(any(camera in event['data'].get('evidence_refs', []) for event in own), f'Missing photo of defect: {item}')
+        require(any(master in event['data'].get('evidence_refs', []) for event in own), f'Missing photo after rework: {item}')
     require(len(timeline) == sum(len(value) for value in demo.values()), 'Timeline size')
     for step in timeline:
         require(demo[step['item_id']][step['step']] == step['event_id'], 'Timeline reference mismatch')

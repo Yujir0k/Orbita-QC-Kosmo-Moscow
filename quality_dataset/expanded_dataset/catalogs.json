@@ -5,6 +5,26 @@
     {
       "id": "TYPE-BRACKET-01",
       "name": "Условный кронштейн приборного блока"
+    },
+    {
+      "id": "TYPE-BRACKET-GUSSET",
+      "name": "Условный косыночный кронштейн",
+      "demo_item_id": "ITEM-019"
+    },
+    {
+      "id": "TYPE-BRACKET-CLEVIS",
+      "name": "Условный вилочный кронштейн",
+      "demo_item_id": "ITEM-020"
+    },
+    {
+      "id": "TYPE-BRACKET-L",
+      "name": "Условный L-образный кронштейн",
+      "demo_item_id": "ITEM-025"
+    },
+    {
+      "id": "TYPE-BRACKET-U",
+      "name": "Условный U-образный кронштейн",
+      "demo_item_id": "ITEM-028"
     }
   ],
   "component_types": [
@@ -189,8 +209,12 @@
       "name": "Заусенец"
     },
     {
-      "id": "CHIP",
-      "name": "Скол критической кромки"
+      "id": "CRACK",
+      "name": "Трещина"
+    },
+    {
+      "id": "DISCOLORATION",
+      "name": "Изменение цвета поверхности"
     }
   ],
   "sources": [

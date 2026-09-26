@@ -1,5 +1,5 @@
 export type RoleId = 'controller' | 'master' | 'technologist' | 'leader' | 'administrator';
-export type ModuleId = 'home' | 'quality' | 'production' | 'products' | 'investigation' | 'tasks' | 'analytics' | 'control' | 'models' | 'forecast' | 'mobile' | 'integrations' | 'events' | 'security' | 'platform' | 'guide';
+export type ModuleId = 'home' | 'quality' | 'production' | 'operations' | 'products' | 'investigation' | 'tasks' | 'analytics' | 'control' | 'models' | 'forecast' | 'mobile' | 'integrations' | 'events' | 'security' | 'platform' | 'guide';
 export interface Section { id: string; label: string; purpose: string; fields: string[]; steps: [string, string, string]; optional?: boolean }
 export interface Workspace { id: ModuleId; label: string; caption: string; icon: string; sections: Section[] }
 const section = (id: string, label: string, purpose: string, fields: string[], steps: [string, string, string], optional = false): Section => ({ id, label, purpose, fields, steps, optional });
@@ -17,6 +17,9 @@ export const workspaces: Workspace[] = [
     section('operations', 'Операции', 'Ход выполнения, ожидание и длительности с привязкой к исполнителю и оборудованию.', ['Начало и завершение', 'Оператор и смена', 'Паузы', 'Связанный повторный запуск'], ['Получить факты MES', 'Разобрать задержку', 'Обновить план работ']),
     section('shifts', 'Смены', 'Передача незавершённой работы и открытых действий между сменами.', ['Задание', 'Исполнители', 'Открытые вопросы', 'Сводка передачи'], ['Принять смену', 'Контролировать выполнение', 'Передать незавершённое']),
     section('rework', 'Доработка и карантин', 'Повторная обработка по решению контролёра с обязательной связью с исходным случаем.', ['Карантин', 'Маршрут доработки', 'Повторный запуск', 'Проверка перед выпуском'], ['Получить решение', 'Выполнить обработку', 'Вернуть контролёру']),
+  ] },
+  { id: 'operations', label: 'Пульт участка', caption: 'Станки, операторы, доработка и простои участка', icon: 'production', sections: [
+    section('terminal', 'Пульт участка', 'Двухпанельная очередь доработки, очного досмотра и задержек производства.', ['Очередь ОТК', 'Параметры исправления', 'Подтверждающее фото', 'Передача на повторный контроль'], ['Выбрать направление', 'Зафиксировать действие', 'Передать результат']),
   ] },
   { id: 'products', label: 'Изделия', caption: 'Один паспорт изделия для всех участников процесса', icon: 'products', sections: [
     section('registry', 'Реестр', 'Поиск по серийному номеру, производственному заказу и составу.', ['Номер изделия', 'Заказ ERP', 'Ревизия сборки', 'Текущее состояние'], ['Найти изделие', 'Открыть паспорт', 'Перейти к связанному случаю']),
@@ -100,9 +103,9 @@ export const workspaces: Workspace[] = [
 export interface Role { id: RoleId; name: string; initials: string; title: string; subtitle: string; focus: string; primary: ModuleId[]; secondary: ModuleId[] }
 export const roles: Role[] = [
   { id: 'controller', name: 'Контролёр', initials: 'КК', title: 'Рабочее место контролёра', subtitle: 'Наблюдения, проверки и решения по качеству изделий.', focus: 'Качество и доказательства', primary: ['quality', 'products', 'home'], secondary: ['analytics'] },
-  { id: 'master', name: 'Мастер', initials: 'МУ', title: 'Рабочее место мастера', subtitle: 'Ход производства, незавершённые работы и действия команды.', focus: 'Исполнение и ритм производства', primary: ['home', 'production', 'tasks', 'quality', 'products'], secondary: ['analytics', 'mobile'] },
+  { id: 'master', name: 'Мастер', initials: 'МУ', title: 'Рабочее место мастера', subtitle: 'Ход производства, незавершённые работы и действия команды.', focus: 'Исполнение и ритм производства', primary: ['home', 'operations', 'products'], secondary: ['analytics'] },
   { id: 'technologist', name: 'Технолог', initials: 'ТХ', title: 'Рабочее место технолога', subtitle: 'Причины отклонений, условия контроля и развитие анализа.', focus: 'Причины и улучшения', primary: ['home', 'investigation', 'tasks', 'products'], secondary: ['control', 'models', 'analytics', 'forecast', 'events'] },
-  { id: 'leader', name: 'Руководитель', initials: 'РК', title: 'Пульс качества', subtitle: 'Качество, производственное время и решения, требующие внимания.', focus: 'Результаты и риски', primary: ['home', 'analytics', 'tasks', 'products'], secondary: ['forecast'] },
+  { id: 'leader', name: 'Руководитель', initials: 'РК', title: 'Пульс качества', subtitle: 'Качество, производственное время и решения, требующие внимания.', focus: 'Результаты и риски', primary: ['home', 'analytics', 'production', 'tasks', 'products'], secondary: ['forecast'] },
   { id: 'administrator', name: 'Администратор', initials: 'АД', title: 'Центр управления системой', subtitle: 'Обмен данными, доступ, инфраструктура и защищённость.', focus: 'Надёжность и управление', primary: ['home', 'integrations', 'events', 'platform'], secondary: ['security', 'mobile'] },
 ];
 
@@ -115,6 +118,8 @@ export function canAccess(role: RoleId, module: ModuleId): boolean {
 /** Return role-relevant sections without duplicating the underlying workspace. */
 export function sectionsFor(role: RoleId, module: ModuleId): Section[] {
   const sections = moduleById[module].sections;
+  if (role === 'master' && module === 'operations') return sections.map(s => ({ ...s, label: 'Пульт участка' }));
+  if (role === 'master' && module === 'tasks') return sections.filter(s => s.id === 'mine').map(s => ({ ...s, label: 'Очередь мастера' }));
   if (module === 'quality' && role === 'controller') return sections.filter(s => s.id === 'signals');
   if (module === 'analytics' && role === 'controller') return sections.filter(s => ['quality', 'reports'].includes(s.id));
   return sections;
@@ -137,5 +142,6 @@ export function routeHash(route: Route): string {
   const query = new URLSearchParams();
   if (route.item) query.set('item', route.item);
   if (route.item && route.caseId) query.set('case', route.caseId);
-  return `#/${route.role}/${route.module}${route.section ? `/${route.section}` : ''}${query.size ? `?${query}` : ''}`;
+  const sectionPath = route.module === 'operations' ? '' : route.section ? `/${route.section}` : '';
+  return `#/${route.role}/${route.module}${sectionPath}${query.size ? `?${query}` : ''}`;
 }

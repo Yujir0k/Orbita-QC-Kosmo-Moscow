@@ -672,11 +672,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000079",
+    "delivery_id": "D2-000074",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000074",
+    "delivery_id": "D2-000080",
     "outcome": "accepted"
   },
   {
@@ -684,19 +684,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000081",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000076",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000077",
+    "delivery_id": "D2-000082",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000082",
+    "delivery_id": "D2-000077",
     "outcome": "accepted"
   },
   {
@@ -708,8 +704,52 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000079",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000084",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000085",
     "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000088",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000089",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000090",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000091",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000093",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000092",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000094",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000081",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000095",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000086",
@@ -720,55 +760,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000088",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000090",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000089",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000080",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000085",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000092",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001917",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000095",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000093",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000096",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000094",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000097",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000091",
     "outcome": "accepted"
   },
   {
@@ -776,7 +768,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000098",
+    "delivery_id": "D2-000097",
     "outcome": "accepted"
   },
   {
@@ -784,19 +776,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000098",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000101",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000104",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000102",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000105",
     "outcome": "accepted"
   },
   {
@@ -804,11 +788,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000106",
+    "delivery_id": "D2-000102",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000108",
+    "delivery_id": "D2-000104",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000105",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000106",
     "outcome": "accepted"
   },
   {
@@ -816,23 +808,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000109",
+    "delivery_id": "D2-000108",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001842",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000110",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001907",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000113",
+    "delivery_id": "D2-000109",
     "outcome": "accepted"
   },
   {
@@ -840,11 +824,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000114",
+    "delivery_id": "D2-000112",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000112",
+    "delivery_id": "D2-000113",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000114",
     "outcome": "accepted"
   },
   {
@@ -888,10 +876,6 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000125",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000126",
     "outcome": "accepted"
   },
@@ -900,11 +884,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000129",
+    "delivery_id": "D2-000128",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000130",
+    "delivery_id": "D2-000125",
     "outcome": "accepted"
   },
   {
@@ -912,15 +896,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000128",
+    "delivery_id": "D2-000132",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000134",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000135",
+    "delivery_id": "D2-000130",
     "outcome": "accepted"
   },
   {
@@ -928,15 +908,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000135",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000129",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000134",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000136",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000138",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000132",
     "outcome": "accepted"
   },
   {
@@ -944,15 +928,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000139",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000140",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000143",
+    "delivery_id": "D2-000138",
     "outcome": "accepted"
   },
   {
@@ -960,7 +940,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000144",
+    "delivery_id": "D2-000139",
     "outcome": "accepted"
   },
   {
@@ -968,11 +948,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000145",
+    "delivery_id": "D2-000144",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000147",
+    "delivery_id": "D2-000143",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000145",
     "outcome": "accepted"
   },
   {
@@ -980,7 +964,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000147",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000148",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000155",
     "outcome": "accepted"
   },
   {
@@ -988,19 +980,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000156",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000150",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001868",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000151",
+    "delivery_id": "D2-000157",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000158",
+    "delivery_id": "D2-000151",
     "outcome": "accepted"
   },
   {
@@ -1012,7 +1004,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000153",
+    "delivery_id": "D2-000158",
     "outcome": "accepted"
   },
   {
@@ -1020,15 +1012,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000153",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000154",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000155",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000162",
     "outcome": "accepted"
   },
   {
@@ -1036,19 +1024,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000163",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000156",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000164",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000157",
+    "delivery_id": "D2-000162",
     "outcome": "accepted"
   },
   {
@@ -1056,23 +1036,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000163",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000166",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000167",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000170",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000171",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000172",
     "outcome": "accepted"
   },
   {
@@ -1080,7 +1048,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000167",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000169",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000170",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000171",
     "outcome": "accepted"
   },
   {
@@ -1088,7 +1068,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000173",
+    "delivery_id": "D2-000172",
     "outcome": "accepted"
   },
   {
@@ -1096,15 +1076,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000176",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000177",
+    "delivery_id": "D2-000173",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000180",
+    "delivery_id": "D2-000176",
     "outcome": "accepted"
   },
   {
@@ -1112,15 +1088,27 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000181",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001837",
+    "delivery_id": "D2-001905",
     "outcome": "duplicate"
   },
   {
+    "delivery_id": "D2-000177",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000179",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001911",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000180",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000181",
     "outcome": "accepted"
   },
   {
@@ -1128,11 +1116,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000183",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000191",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000184",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000183",
+    "delivery_id": "D2-000192",
     "outcome": "accepted"
   },
   {
@@ -1144,11 +1140,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000193",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000187",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000188",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000195",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000194",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000196",
     "outcome": "accepted"
   },
   {
@@ -1168,27 +1180,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000191",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000192",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000199",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000193",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000194",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000201",
     "outcome": "accepted"
   },
   {
@@ -1196,19 +1188,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000202",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000195",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000203",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000196",
     "outcome": "accepted"
   },
   {
@@ -1220,11 +1200,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000206",
+    "delivery_id": "D2-000201",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000213",
+    "delivery_id": "D2-000202",
     "outcome": "accepted"
   },
   {
@@ -1232,7 +1212,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000214",
+    "delivery_id": "D2-000206",
     "outcome": "accepted"
   },
   {
@@ -1240,11 +1220,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000215",
+    "delivery_id": "D2-000209",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000209",
+    "delivery_id": "D2-001885",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000212",
     "outcome": "accepted"
   },
   {
@@ -1252,19 +1236,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000217",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001891",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000216",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000218",
+    "delivery_id": "D2-000213",
     "outcome": "accepted"
   },
   {
@@ -1272,7 +1244,27 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000212",
+    "delivery_id": "D2-000214",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001899",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000216",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000215",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000217",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000218",
     "outcome": "accepted"
   },
   {
@@ -1280,15 +1272,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000222",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000220",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000223",
     "outcome": "accepted"
   },
   {
@@ -1296,27 +1280,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000224",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000226",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000225",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000227",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000228",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000231",
+    "delivery_id": "D2-000222",
     "outcome": "accepted"
   },
   {
@@ -1324,7 +1292,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000232",
+    "delivery_id": "D2-000223",
     "outcome": "accepted"
   },
   {
@@ -1332,11 +1300,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000224",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000225",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000232",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000231",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000233",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000235",
+    "delivery_id": "D2-000226",
     "outcome": "accepted"
   },
   {
@@ -1344,12 +1328,16 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000236",
+    "delivery_id": "D2-000235",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001908",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000227",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000236",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000237",
@@ -1364,10 +1352,6 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001872",
-    "outcome": "duplicate"
-  },
-  {
     "delivery_id": "D2-000240",
     "outcome": "accepted"
   },
@@ -1380,11 +1364,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000244",
+    "delivery_id": "D2-000243",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000243",
+    "delivery_id": "D2-000244",
     "outcome": "accepted"
   },
   {
@@ -1396,19 +1380,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001930",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000249",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000247",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000250",
     "outcome": "accepted"
   },
   {
@@ -1416,11 +1388,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000251",
+    "delivery_id": "D2-000250",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000253",
+    "delivery_id": "D2-000249",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000251",
     "outcome": "accepted"
   },
   {
@@ -1428,19 +1404,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001860",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000254",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000255",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000258",
+    "delivery_id": "D2-000253",
     "outcome": "accepted"
   },
   {
@@ -1448,7 +1416,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000259",
+    "delivery_id": "D2-000254",
     "outcome": "accepted"
   },
   {
@@ -1456,11 +1424,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000260",
+    "delivery_id": "D2-000259",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000262",
+    "delivery_id": "D2-000258",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000260",
     "outcome": "accepted"
   },
   {
@@ -1468,15 +1440,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000263",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000264",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000267",
+    "delivery_id": "D2-000262",
     "outcome": "accepted"
   },
   {
@@ -1484,7 +1452,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000268",
+    "delivery_id": "D2-000263",
     "outcome": "accepted"
   },
   {
@@ -1492,7 +1460,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000268",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000267",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000269",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000270",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001900",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000273",
     "outcome": "accepted"
   },
   {
@@ -1500,11 +1488,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001899",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000270",
+    "delivery_id": "D2-000274",
     "outcome": "accepted"
   },
   {
@@ -1512,11 +1496,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000273",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000274",
+    "delivery_id": "D2-000275",
     "outcome": "accepted"
   },
   {
@@ -1524,7 +1504,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000275",
+    "delivery_id": "D2-000276",
     "outcome": "accepted"
   },
   {
@@ -1532,11 +1512,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000276",
+    "delivery_id": "D2-000279",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001950",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000280",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000279",
+    "delivery_id": "D2-000283",
     "outcome": "accepted"
   },
   {
@@ -1544,7 +1532,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000280",
+    "delivery_id": "D2-000284",
     "outcome": "accepted"
   },
   {
@@ -1552,11 +1540,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001923",
+    "delivery_id": "D2-000285",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001909",
     "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-000283",
+    "delivery_id": "D2-000287",
     "outcome": "accepted"
   },
   {
@@ -1564,23 +1556,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000284",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000287",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000285",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000288",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000290",
     "outcome": "accepted"
   },
   {
@@ -1592,7 +1568,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000295",
+    "delivery_id": "D2-000290",
     "outcome": "accepted"
   },
   {
@@ -1600,7 +1576,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000296",
+    "delivery_id": "D2-000291",
     "outcome": "accepted"
   },
   {
@@ -1608,15 +1584,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000297",
+    "delivery_id": "D2-000296",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000291",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000299",
+    "delivery_id": "D2-000295",
     "outcome": "accepted"
   },
   {
@@ -1624,15 +1596,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000300",
-    "outcome": "accepted"
+    "delivery_id": "D2-001912",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000301",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000304",
+    "delivery_id": "D2-000299",
     "outcome": "accepted"
   },
   {
@@ -1640,7 +1612,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000305",
+    "delivery_id": "D2-000300",
     "outcome": "accepted"
   },
   {
@@ -1648,15 +1620,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000306",
+    "delivery_id": "D2-000297",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001856",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000305",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000308",
+    "delivery_id": "D2-000304",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000306",
     "outcome": "accepted"
   },
   {
@@ -1664,11 +1640,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000309",
+    "delivery_id": "D2-000310",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000310",
+    "delivery_id": "D2-000308",
     "outcome": "accepted"
   },
   {
@@ -1676,19 +1652,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000309",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000312",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000320",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000313",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000321",
     "outcome": "accepted"
   },
   {
@@ -1696,11 +1664,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000315",
+    "delivery_id": "D2-000313",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000322",
+    "delivery_id": "D2-000315",
     "outcome": "accepted"
   },
   {
@@ -1712,23 +1680,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000324",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000323",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000325",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000318",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000326",
     "outcome": "accepted"
   },
   {
@@ -1740,11 +1692,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000320",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000328",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000335",
+    "delivery_id": "D2-000321",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000322",
     "outcome": "accepted"
   },
   {
@@ -1752,15 +1712,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000336",
+    "delivery_id": "D2-000323",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000330",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000337",
+    "delivery_id": "D2-000324",
     "outcome": "accepted"
   },
   {
@@ -1768,11 +1724,43 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000330",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000332",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000339",
+    "delivery_id": "D2-000325",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000326",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000333",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001892",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000336",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000334",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000337",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000335",
     "outcome": "accepted"
   },
   {
@@ -1784,11 +1772,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000333",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000334",
+    "delivery_id": "D2-000339",
     "outcome": "accepted"
   },
   {
@@ -1816,10 +1800,6 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000348",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000347",
     "outcome": "accepted"
   },
@@ -1828,12 +1808,16 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000350",
+    "delivery_id": "D2-000348",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001883",
+    "delivery_id": "D2-001956",
     "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000350",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000351",
@@ -1844,15 +1828,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000359",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000353",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000360",
     "outcome": "accepted"
   },
   {
@@ -1868,19 +1844,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000362",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000356",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000363",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000362",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000364",
     "outcome": "accepted"
   },
   {
@@ -1896,7 +1868,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000368",
+    "delivery_id": "D2-000364",
     "outcome": "accepted"
   },
   {
@@ -1904,7 +1876,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000369",
+    "delivery_id": "D2-000359",
     "outcome": "accepted"
   },
   {
@@ -1912,15 +1884,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000360",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000368",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000369",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000370",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000372",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000371",
     "outcome": "accepted"
   },
   {
@@ -1936,15 +1912,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001886",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000376",
+    "delivery_id": "D2-000371",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000383",
+    "delivery_id": "D2-000372",
     "outcome": "accepted"
   },
   {
@@ -1952,7 +1924,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000384",
+    "delivery_id": "D2-000376",
     "outcome": "accepted"
   },
   {
@@ -1960,15 +1932,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000385",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000379",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001879",
     "outcome": "duplicate"
   },
   {
@@ -1976,11 +1940,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000387",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000388",
+    "delivery_id": "D2-000383",
     "outcome": "accepted"
   },
   {
@@ -1988,7 +1948,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000389",
+    "delivery_id": "D2-000384",
     "outcome": "accepted"
   },
   {
@@ -1996,19 +1956,35 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000385",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000387",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001881",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000388",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000389",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000390",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000391",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000386",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000398",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000392",
     "outcome": "accepted"
   },
   {
@@ -2028,19 +2004,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000401",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000395",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000402",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000391",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000401",
+    "delivery_id": "D2-000396",
     "outcome": "accepted"
   },
   {
@@ -2048,7 +2020,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000397",
+    "delivery_id": "D2-000392",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000402",
     "outcome": "accepted"
   },
   {
@@ -2056,11 +2032,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000407",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000396",
+    "delivery_id": "D2-000398",
     "outcome": "accepted"
   },
   {
@@ -2072,6 +2044,10 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000397",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000406",
     "outcome": "accepted"
   },
@@ -2080,16 +2056,8 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001888",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000411",
+    "delivery_id": "D2-000407",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001932",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000410",
@@ -2100,11 +2068,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000413",
+    "delivery_id": "D2-000411",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000416",
+    "delivery_id": "D2-000413",
     "outcome": "accepted"
   },
   {
@@ -2112,15 +2080,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000417",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000415",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000418",
+    "delivery_id": "D2-000416",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000417",
     "outcome": "accepted"
   },
   {
@@ -2128,31 +2096,27 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000419",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000421",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001870",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000422",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001859",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000418",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000423",
+    "delivery_id": "D2-000419",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000424",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000423",
     "outcome": "accepted"
   },
   {
@@ -2168,20 +2132,12 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000429",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001921",
-    "outcome": "duplicate"
-  },
-  {
     "delivery_id": "D2-000428",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001877",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000429",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000430",
@@ -2192,19 +2148,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001896",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000434",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000432",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000435",
+    "delivery_id": "D2-000434",
     "outcome": "accepted"
   },
   {
@@ -2212,11 +2160,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000435",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000436",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000438",
+    "delivery_id": "D2-001969",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000439",
     "outcome": "accepted"
   },
   {
@@ -2224,11 +2180,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000439",
+    "delivery_id": "D2-000440",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000440",
+    "delivery_id": "D2-000438",
     "outcome": "accepted"
   },
   {
@@ -2236,19 +2192,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000442",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000449",
-    "outcome": "accepted"
+    "delivery_id": "D2-001927",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000443",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000450",
+    "delivery_id": "D2-001940",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000442",
     "outcome": "accepted"
   },
   {
@@ -2256,31 +2212,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000451",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000445",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000446",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000453",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000452",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000454",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000447",
     "outcome": "accepted"
   },
   {
@@ -2288,12 +2220,40 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000455",
+    "delivery_id": "D2-000446",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001914",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000449",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000447",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000450",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000452",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000451",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000453",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000454",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000455",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000456",
@@ -2302,10 +2262,6 @@
   {
     "delivery_id": "D2-000457",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001855",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000458",
@@ -2334,6 +2290,10 @@
   {
     "delivery_id": "D2-000464",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001886",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000467",
@@ -2380,10 +2340,6 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000482",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000476",
     "outcome": "accepted"
   },
@@ -2404,15 +2360,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000485",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000479",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000486",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000485",
+    "delivery_id": "D2-000480",
     "outcome": "accepted"
   },
   {
@@ -2420,7 +2376,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000480",
+    "delivery_id": "D2-001953",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000486",
     "outcome": "accepted"
   },
   {
@@ -2440,20 +2400,12 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000497",
+    "delivery_id": "D2-000482",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000491",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000498",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001904",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000492",
@@ -2468,6 +2420,10 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000500",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000494",
     "outcome": "accepted"
   },
@@ -2476,15 +2432,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000500",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000502",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000495",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001949",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000496",
     "outcome": "accepted"
   },
   {
@@ -2492,7 +2448,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000496",
+    "delivery_id": "D2-000502",
     "outcome": "accepted"
   },
   {
@@ -2500,23 +2456,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000497",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000498",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000505",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000506",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000514",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000507",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000515",
     "outcome": "accepted"
   },
   {
@@ -2524,11 +2472,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000506",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000509",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000516",
+    "delivery_id": "D2-000507",
     "outcome": "accepted"
   },
   {
@@ -2536,27 +2488,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000511",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000518",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000517",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000519",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000512",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000520",
+    "delivery_id": "D2-000511",
     "outcome": "accepted"
   },
   {
@@ -2564,7 +2500,63 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000514",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000515",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000516",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000517",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000524",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000518",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000525",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000519",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000526",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000520",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000521",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000528",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001893",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000527",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000529",
     "outcome": "accepted"
   },
   {
@@ -2576,39 +2568,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000526",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000527",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000528",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000524",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000525",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000530",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000529",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000531",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000532",
     "outcome": "accepted"
   },
   {
@@ -2616,11 +2576,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000531",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000534",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000532",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000535",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000537",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000536",
     "outcome": "accepted"
   },
   {
@@ -2632,23 +2608,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000540",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000536",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000537",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000542",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000541",
+    "delivery_id": "D2-000540",
     "outcome": "accepted"
   },
   {
@@ -2656,19 +2620,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001838",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000544",
+    "delivery_id": "D2-000541",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001887",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000545",
+    "delivery_id": "D2-000544",
     "outcome": "accepted"
   },
   {
@@ -2676,7 +2632,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000553",
+    "delivery_id": "D2-000545",
     "outcome": "accepted"
   },
   {
@@ -2684,15 +2640,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000554",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000548",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000555",
     "outcome": "accepted"
   },
   {
@@ -2704,23 +2652,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000557",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000556",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000558",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000551",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000552",
     "outcome": "accepted"
   },
   {
@@ -2728,7 +2660,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000562",
+    "delivery_id": "D2-000552",
     "outcome": "accepted"
   },
   {
@@ -2736,7 +2668,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000563",
+    "delivery_id": "D2-000553",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000554",
     "outcome": "accepted"
   },
   {
@@ -2744,15 +2680,39 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000555",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000556",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000563",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000562",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000564",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000566",
+    "delivery_id": "D2-000557",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000565",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000558",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000566",
     "outcome": "accepted"
   },
   {
@@ -2768,19 +2728,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000569",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000572",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000570",
+    "delivery_id": "D2-000573",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000573",
+    "delivery_id": "D2-000569",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000570",
     "outcome": "accepted"
   },
   {
@@ -2820,11 +2780,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000584",
+    "delivery_id": "D2-000583",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000583",
+    "delivery_id": "D2-000584",
     "outcome": "accepted"
   },
   {
@@ -2833,14 +2793,10 @@
   },
   {
     "delivery_id": "D2-000586",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000587",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000590",
+    "delivery_id": "D2-000587",
     "outcome": "accepted"
   },
   {
@@ -2848,11 +2804,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000589",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000591",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000589",
+    "delivery_id": "D2-000590",
     "outcome": "accepted"
   },
   {
@@ -2860,20 +2820,28 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000593",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-000594",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000593",
+    "delivery_id": "D2-000597",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001934",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000595",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001861",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000598",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000596",
@@ -2884,7 +2852,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000597",
+    "delivery_id": "D2-000601",
     "outcome": "accepted"
   },
   {
@@ -2892,11 +2860,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000598",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000601",
+    "delivery_id": "D2-000602",
     "outcome": "accepted"
   },
   {
@@ -2904,11 +2868,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001915",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000602",
+    "delivery_id": "D2-000606",
     "outcome": "accepted"
   },
   {
@@ -2916,19 +2876,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000605",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000606",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000607",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000614",
+    "delivery_id": "D2-000605",
     "outcome": "accepted"
   },
   {
@@ -2936,7 +2888,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000615",
+    "delivery_id": "D2-000610",
     "outcome": "accepted"
   },
   {
@@ -2944,19 +2896,27 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000616",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000610",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000611",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000618",
+    "delivery_id": "D2-000612",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000615",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000613",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000616",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000614",
     "outcome": "accepted"
   },
   {
@@ -2968,7 +2928,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000612",
+    "delivery_id": "D2-000618",
     "outcome": "accepted"
   },
   {
@@ -2976,27 +2936,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000613",
-    "outcome": "accepted"
+    "delivery_id": "D2-001957",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000621",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000622",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000629",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000623",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000630",
     "outcome": "accepted"
   },
   {
@@ -3004,7 +2948,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000631",
+    "delivery_id": "D2-000622",
     "outcome": "accepted"
   },
   {
@@ -3012,27 +2956,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000623",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000626",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000633",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001882",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000632",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000634",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000627",
     "outcome": "accepted"
   },
   {
@@ -3040,23 +2968,35 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000627",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000629",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000630",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000633",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000631",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000634",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000632",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000635",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001847",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000638",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000636",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000639",
     "outcome": "accepted"
   },
   {
@@ -3064,55 +3004,35 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000636",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000638",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000639",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000640",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000642",
-    "outcome": "accepted"
+    "delivery_id": "D2-001879",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000641",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000643",
-    "outcome": "accepted"
+    "delivery_id": "D2-001920",
+    "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-000644",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000647",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000645",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000648",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000646",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000649",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000651",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000652",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000653",
+    "delivery_id": "D2-000642",
     "outcome": "accepted"
   },
   {
@@ -3120,11 +3040,35 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000656",
+    "delivery_id": "D2-000643",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000657",
+    "delivery_id": "D2-000651",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000644",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000645",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000652",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000646",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000647",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000654",
     "outcome": "accepted"
   },
   {
@@ -3132,19 +3076,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000658",
+    "delivery_id": "D2-000648",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000660",
+    "delivery_id": "D2-000649",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001919",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000656",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000654",
+    "delivery_id": "D2-000653",
     "outcome": "accepted"
   },
   {
@@ -3152,15 +3096,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000660",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000658",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000661",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000662",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000665",
     "outcome": "accepted"
   },
   {
@@ -3168,7 +3112,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000666",
+    "delivery_id": "D2-000657",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000662",
     "outcome": "accepted"
   },
   {
@@ -3176,11 +3124,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000667",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000669",
+    "delivery_id": "D2-000665",
     "outcome": "accepted"
   },
   {
@@ -3188,19 +3132,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001853",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000666",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000669",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000667",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000670",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000671",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000674",
     "outcome": "accepted"
   },
   {
@@ -3208,7 +3152,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000675",
+    "delivery_id": "D2-000671",
     "outcome": "accepted"
   },
   {
@@ -3216,7 +3160,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000676",
+    "delivery_id": "D2-000674",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001889",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000677",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000675",
     "outcome": "accepted"
   },
   {
@@ -3224,7 +3180,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000677",
+    "delivery_id": "D2-000676",
     "outcome": "accepted"
   },
   {
@@ -3232,11 +3188,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000680",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000681",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000681",
+    "delivery_id": "D2-000680",
     "outcome": "accepted"
   },
   {
@@ -3260,11 +3216,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000688",
+    "delivery_id": "D2-000687",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000687",
+    "delivery_id": "D2-000688",
     "outcome": "accepted"
   },
   {
@@ -3276,15 +3232,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000693",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000691",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000694",
     "outcome": "accepted"
   },
   {
@@ -3292,15 +3240,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000695",
+    "delivery_id": "D2-000693",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001912",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000694",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000697",
+    "delivery_id": "D2-000695",
     "outcome": "accepted"
   },
   {
@@ -3312,11 +3260,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000699",
+    "delivery_id": "D2-000697",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000702",
+    "delivery_id": "D2-000699",
     "outcome": "accepted"
   },
   {
@@ -3332,15 +3280,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001905",
-    "outcome": "duplicate"
-  },
-  {
     "delivery_id": "D2-000704",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000706",
+    "delivery_id": "D2-000702",
     "outcome": "accepted"
   },
   {
@@ -3352,11 +3296,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000708",
+    "delivery_id": "D2-000706",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000711",
+    "delivery_id": "D2-000708",
     "outcome": "accepted"
   },
   {
@@ -3376,7 +3320,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000715",
+    "delivery_id": "D2-000711",
     "outcome": "accepted"
   },
   {
@@ -3384,11 +3328,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000717",
+    "delivery_id": "D2-001963",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000716",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000720",
+    "delivery_id": "D2-000715",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000717",
     "outcome": "accepted"
   },
   {
@@ -3408,15 +3360,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001909",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000716",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000724",
+    "delivery_id": "D2-000720",
     "outcome": "accepted"
   },
   {
@@ -3428,15 +3372,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000726",
+    "delivery_id": "D2-000724",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001862",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000729",
+    "delivery_id": "D2-000726",
     "outcome": "accepted"
   },
   {
@@ -3444,11 +3384,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000728",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000729",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000730",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000728",
+    "delivery_id": "D2-000738",
     "outcome": "accepted"
   },
   {
@@ -3456,15 +3404,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000739",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000732",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000733",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001866",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000732",
+    "delivery_id": "D2-000740",
     "outcome": "accepted"
   },
   {
@@ -3473,26 +3425,6 @@
   },
   {
     "delivery_id": "D2-000735",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000738",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000736",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000739",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000737",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000740",
     "outcome": "accepted"
   },
   {
@@ -3505,6 +3437,18 @@
   },
   {
     "delivery_id": "D2-000743",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001935",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000736",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000737",
     "outcome": "accepted"
   },
   {
@@ -3536,10 +3480,6 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001843",
-    "outcome": "duplicate"
-  },
-  {
     "delivery_id": "D2-000750",
     "outcome": "accepted"
   },
@@ -3552,27 +3492,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000754",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001920",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000755",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000763",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000756",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000764",
+    "delivery_id": "D2-000754",
     "outcome": "accepted"
   },
   {
@@ -3580,15 +3504,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000755",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000758",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000765",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000759",
     "outcome": "accepted"
   },
   {
@@ -3596,27 +3516,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000767",
+    "delivery_id": "D2-000759",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000766",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000768",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001871",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000761",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000769",
     "outcome": "accepted"
   },
   {
@@ -3624,11 +3528,47 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000765",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000763",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000766",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000764",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000767",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000769",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000768",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000770",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001968",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-000771",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000774",
     "outcome": "accepted"
   },
   {
@@ -3640,27 +3580,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000776",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000777",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000773",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000774",
+    "delivery_id": "D2-000776",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000779",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001840",
+    "delivery_id": "D2-001878",
     "outcome": "duplicate"
   },
   {
@@ -3668,23 +3596,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000777",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000779",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000780",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000781",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001916",
     "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-000782",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000783",
+    "delivery_id": "D2-000781",
     "outcome": "accepted"
   },
   {
@@ -3692,7 +3616,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000782",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000785",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000783",
     "outcome": "accepted"
   },
   {
@@ -3700,12 +3632,12 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000788",
-    "outcome": "accepted"
+    "delivery_id": "D2-001894",
+    "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001910",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000788",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000787",
@@ -3720,19 +3652,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000793",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000791",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000794",
+    "delivery_id": "D2-000792",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000792",
+    "delivery_id": "D2-000793",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000794",
     "outcome": "accepted"
   },
   {
@@ -3742,10 +3674,6 @@
   {
     "delivery_id": "D2-000797",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001844",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000796",
@@ -3768,59 +3696,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000802",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000810",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000803",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000811",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000804",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000805",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000812",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000806",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000807",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000814",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000813",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000815",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001863",
+    "delivery_id": "D2-001923",
     "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-000808",
+    "delivery_id": "D2-000802",
     "outcome": "accepted"
   },
   {
@@ -3828,23 +3708,63 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001925",
+    "delivery_id": "D2-000803",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000810",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000804",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000811",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000805",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000806",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000813",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000812",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000814",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000807",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000815",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001919",
     "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000808",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000816",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000819",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000817",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000820",
     "outcome": "accepted"
   },
   {
@@ -3856,19 +3776,23 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001913",
+    "delivery_id": "D2-001962",
     "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000823",
-    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000822",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000824",
+    "delivery_id": "D2-000823",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000819",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000820",
     "outcome": "accepted"
   },
   {
@@ -3876,15 +3800,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000828",
+    "delivery_id": "D2-001951",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000824",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000826",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000829",
     "outcome": "accepted"
   },
   {
@@ -3896,7 +3820,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000832",
+    "delivery_id": "D2-000828",
     "outcome": "accepted"
   },
   {
@@ -3904,19 +3828,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000833",
+    "delivery_id": "D2-000829",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001869",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000832",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000834",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000837",
+    "delivery_id": "D2-000833",
     "outcome": "accepted"
   },
   {
@@ -3924,23 +3848,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000838",
+    "delivery_id": "D2-000836",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000836",
-    "outcome": "accepted"
+    "delivery_id": "D2-001931",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000839",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001873",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000841",
+    "delivery_id": "D2-000837",
     "outcome": "accepted"
   },
   {
@@ -3948,7 +3868,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000842",
+    "delivery_id": "D2-000838",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000841",
     "outcome": "accepted"
   },
   {
@@ -3956,7 +3880,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000846",
+    "delivery_id": "D2-000842",
     "outcome": "accepted"
   },
   {
@@ -3964,23 +3888,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000847",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000845",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000846",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000847",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000848",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000850",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000849",
     "outcome": "accepted"
   },
   {
@@ -3996,11 +3916,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000854",
+    "delivery_id": "D2-000849",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000861",
+    "delivery_id": "D2-000850",
     "outcome": "accepted"
   },
   {
@@ -4008,19 +3928,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000862",
+    "delivery_id": "D2-000854",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001924",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000856",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000863",
     "outcome": "accepted"
   },
   {
@@ -4028,11 +3940,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000860",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000858",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000865",
+    "delivery_id": "D2-000861",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001954",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000859",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000862",
     "outcome": "accepted"
   },
   {
@@ -4040,27 +3968,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000866",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000859",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000867",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000860",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001850",
+    "delivery_id": "D2-001890",
     "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-000868",
+    "delivery_id": "D2-000863",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000865",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000866",
     "outcome": "accepted"
   },
   {
@@ -4068,7 +3988,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000876",
+    "delivery_id": "D2-000867",
     "outcome": "accepted"
   },
   {
@@ -4076,7 +3996,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000877",
+    "delivery_id": "D2-000868",
     "outcome": "accepted"
   },
   {
@@ -4084,19 +4004,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000878",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001893",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000872",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001874",
+    "delivery_id": "D2-001916",
     "outcome": "duplicate"
   },
   {
@@ -4104,19 +4012,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000880",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001846",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000879",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000881",
+    "delivery_id": "D2-000872",
     "outcome": "accepted"
   },
   {
@@ -4125,14 +4021,34 @@
   },
   {
     "delivery_id": "D2-000875",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001929",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000876",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000882",
+    "delivery_id": "D2-000879",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000885",
+    "delivery_id": "D2-000877",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000880",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000878",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000881",
     "outcome": "accepted"
   },
   {
@@ -4140,7 +4056,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000886",
+    "delivery_id": "D2-000882",
     "outcome": "accepted"
   },
   {
@@ -4148,19 +4064,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000887",
-    "outcome": "accepted"
+    "delivery_id": "D2-001964",
+    "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-000889",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000890",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000891",
+    "delivery_id": "D2-000885",
     "outcome": "accepted"
   },
   {
@@ -4168,11 +4076,27 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000893",
+    "delivery_id": "D2-000886",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000889",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000887",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000890",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000892",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000893",
     "outcome": "accepted"
   },
   {
@@ -4188,11 +4112,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000898",
+    "delivery_id": "D2-000891",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000897",
+    "delivery_id": "D2-000898",
     "outcome": "accepted"
   },
   {
@@ -4204,15 +4128,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000903",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000901",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000904",
     "outcome": "accepted"
   },
   {
@@ -4220,11 +4136,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000905",
+    "delivery_id": "D2-000897",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000907",
+    "delivery_id": "D2-000904",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000903",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000905",
     "outcome": "accepted"
   },
   {
@@ -4232,15 +4156,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001867",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-000908",
+    "delivery_id": "D2-000907",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000909",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000908",
     "outcome": "accepted"
   },
   {
@@ -4256,15 +4180,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000919",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000913",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000920",
     "outcome": "accepted"
   },
   {
@@ -4280,6 +4196,10 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000922",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000916",
     "outcome": "accepted"
   },
@@ -4288,15 +4208,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000922",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000924",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000917",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001944",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000918",
     "outcome": "accepted"
   },
   {
@@ -4304,7 +4224,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000918",
+    "delivery_id": "D2-000924",
     "outcome": "accepted"
   },
   {
@@ -4312,27 +4232,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000919",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000920",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000927",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000934",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000928",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000935",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000929",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000936",
     "outcome": "accepted"
   },
   {
@@ -4340,19 +4248,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000928",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000931",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000938",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000937",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000939",
+    "delivery_id": "D2-000929",
     "outcome": "accepted"
   },
   {
@@ -4360,19 +4264,31 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000934",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000933",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001926",
-    "outcome": "duplicate"
+    "delivery_id": "D2-000936",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000939",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000937",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000940",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000943",
+    "delivery_id": "D2-000938",
     "outcome": "accepted"
   },
   {
@@ -4380,11 +4296,23 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000944",
+    "delivery_id": "D2-000935",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000943",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001941",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-000942",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000944",
     "outcome": "accepted"
   },
   {
@@ -4392,7 +4320,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000947",
+    "delivery_id": "D2-000948",
     "outcome": "accepted"
   },
   {
@@ -4400,15 +4328,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000948",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000949",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000952",
+    "delivery_id": "D2-000947",
     "outcome": "accepted"
   },
   {
@@ -4416,7 +4340,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000953",
+    "delivery_id": "D2-000952",
     "outcome": "accepted"
   },
   {
@@ -4424,15 +4348,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000953",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000954",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000956",
+    "delivery_id": "D2-000955",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000955",
+    "delivery_id": "D2-000956",
     "outcome": "accepted"
   },
   {
@@ -4444,7 +4372,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000961",
+    "delivery_id": "D2-000965",
     "outcome": "accepted"
   },
   {
@@ -4452,7 +4380,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000962",
+    "delivery_id": "D2-000966",
     "outcome": "accepted"
   },
   {
@@ -4460,27 +4388,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000963",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000965",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000964",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000966",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-000967",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000968",
+    "delivery_id": "D2-000961",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000962",
     "outcome": "accepted"
   },
   {
@@ -4488,19 +4404,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000968",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-000970",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000973",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000974",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000975",
+    "delivery_id": "D2-000963",
     "outcome": "accepted"
   },
   {
@@ -4512,19 +4424,23 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000977",
+    "delivery_id": "D2-000964",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000976",
+    "delivery_id": "D2-000973",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000978",
+    "delivery_id": "D2-000974",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000979",
+    "delivery_id": "D2-000981",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000975",
     "outcome": "accepted"
   },
   {
@@ -4532,7 +4448,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000980",
+    "delivery_id": "D2-000976",
     "outcome": "accepted"
   },
   {
@@ -4540,7 +4456,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000981",
+    "delivery_id": "D2-000977",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000978",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000985",
     "outcome": "accepted"
   },
   {
@@ -4552,16 +4476,24 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000985",
+    "delivery_id": "D2-000979",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000987",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-000980",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-000988",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001903",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000991",
@@ -4574,6 +4506,10 @@
   {
     "delivery_id": "D2-000992",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001942",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-000990",
@@ -4600,19 +4536,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-000998",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-000999",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001000",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-000998",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001001",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-000999",
     "outcome": "accepted"
   },
   {
@@ -4622,10 +4558,6 @@
   {
     "delivery_id": "D2-001004",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001885",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001003",
@@ -4676,19 +4608,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001929",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001018",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001016",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001019",
     "outcome": "accepted"
   },
   {
@@ -4696,15 +4616,23 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001018",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001019",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001020",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001022",
+    "delivery_id": "D2-001021",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001021",
+    "delivery_id": "D2-001022",
     "outcome": "accepted"
   },
   {
@@ -4716,15 +4644,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001027",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001025",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001028",
     "outcome": "accepted"
   },
   {
@@ -4732,11 +4652,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001027",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001029",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001031",
+    "delivery_id": "D2-001028",
     "outcome": "accepted"
   },
   {
@@ -4744,7 +4668,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001031",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001034",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001032",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001035",
     "outcome": "accepted"
   },
   {
@@ -4756,7 +4692,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001034",
+    "delivery_id": "D2-001913",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001038",
     "outcome": "accepted"
   },
   {
@@ -4764,11 +4704,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001035",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001038",
+    "delivery_id": "D2-001039",
     "outcome": "accepted"
   },
   {
@@ -4776,11 +4712,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001039",
+    "delivery_id": "D2-001043",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001041",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001044",
     "outcome": "accepted"
   },
   {
@@ -4792,7 +4732,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001043",
+    "delivery_id": "D2-001047",
     "outcome": "accepted"
   },
   {
@@ -4800,11 +4740,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001044",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001047",
+    "delivery_id": "D2-001048",
     "outcome": "accepted"
   },
   {
@@ -4812,7 +4748,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001048",
+    "delivery_id": "D2-001052",
     "outcome": "accepted"
   },
   {
@@ -4820,19 +4756,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001880",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001053",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001051",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001052",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001053",
     "outcome": "accepted"
   },
   {
@@ -4840,15 +4768,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001057",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001058",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001059",
+    "delivery_id": "D2-001056",
     "outcome": "accepted"
   },
   {
@@ -4856,15 +4776,27 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001056",
+    "delivery_id": "D2-001057",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001901",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001058",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001882",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001061",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001060",
+    "delivery_id": "D2-001059",
     "outcome": "accepted"
   },
   {
@@ -4872,11 +4804,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001063",
+    "delivery_id": "D2-001060",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001064",
+    "delivery_id": "D2-001063",
     "outcome": "accepted"
   },
   {
@@ -4884,7 +4816,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001072",
+    "delivery_id": "D2-001064",
     "outcome": "accepted"
   },
   {
@@ -4892,15 +4824,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001073",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001067",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001074",
     "outcome": "accepted"
   },
   {
@@ -4912,11 +4836,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001076",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001075",
+    "delivery_id": "D2-001070",
     "outcome": "accepted"
   },
   {
@@ -4924,7 +4844,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001070",
+    "delivery_id": "D2-001071",
     "outcome": "accepted"
   },
   {
@@ -4932,7 +4852,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001071",
+    "delivery_id": "D2-001072",
     "outcome": "accepted"
   },
   {
@@ -4940,11 +4860,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001080",
+    "delivery_id": "D2-001073",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001087",
+    "delivery_id": "D2-001074",
     "outcome": "accepted"
   },
   {
@@ -4952,7 +4872,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001088",
+    "delivery_id": "D2-001080",
     "outcome": "accepted"
   },
   {
@@ -4960,11 +4880,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001089",
+    "delivery_id": "D2-001075",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001083",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001076",
     "outcome": "accepted"
   },
   {
@@ -4972,19 +4896,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001091",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001858",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001090",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001092",
+    "delivery_id": "D2-001087",
     "outcome": "accepted"
   },
   {
@@ -4992,7 +4904,31 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001088",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001086",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001891",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001089",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001091",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001090",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001092",
     "outcome": "accepted"
   },
   {
@@ -5018,6 +4954,10 @@
   {
     "delivery_id": "D2-001098",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001910",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001100",
@@ -5048,6 +4988,18 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001108",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001109",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001110",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001106",
     "outcome": "accepted"
   },
@@ -5056,23 +5008,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001109",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001108",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001110",
+    "delivery_id": "D2-001112",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001111",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001112",
     "outcome": "accepted"
   },
   {
@@ -5084,18 +5024,6 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001117",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001118",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001119",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001115",
     "outcome": "accepted"
   },
@@ -5104,19 +5032,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001121",
-    "outcome": "accepted"
+    "delivery_id": "D2-001877",
+    "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001120",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001123",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001126",
+    "delivery_id": "D2-001117",
     "outcome": "accepted"
   },
   {
@@ -5124,7 +5044,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001127",
+    "delivery_id": "D2-001118",
     "outcome": "accepted"
   },
   {
@@ -5132,7 +5052,35 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001119",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001126",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001946",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001120",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001121",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001128",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001127",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001129",
     "outcome": "accepted"
   },
   {
@@ -5148,6 +5096,10 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001123",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001132",
     "outcome": "accepted"
   },
@@ -5156,11 +5108,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001129",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001141",
+    "delivery_id": "D2-001134",
     "outcome": "accepted"
   },
   {
@@ -5168,15 +5116,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001142",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001136",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001143",
     "outcome": "accepted"
   },
   {
@@ -5188,11 +5128,27 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001145",
+    "delivery_id": "D2-001139",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001134",
+    "delivery_id": "D2-001140",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001141",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001907",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001142",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001143",
     "outcome": "accepted"
   },
   {
@@ -5204,23 +5160,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001140",
+    "delivery_id": "D2-001884",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001145",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001147",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001903",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001150",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001139",
     "outcome": "accepted"
   },
   {
@@ -5240,12 +5188,8 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001154",
+    "delivery_id": "D2-001150",
     "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001864",
-    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001153",
@@ -5256,12 +5200,8 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001156",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001878",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001154",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001157",
@@ -5288,11 +5228,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001164",
+    "delivery_id": "D2-001156",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001163",
+    "delivery_id": "D2-001164",
     "outcome": "accepted"
   },
   {
@@ -5304,15 +5244,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001169",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001167",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001170",
     "outcome": "accepted"
   },
   {
@@ -5320,11 +5252,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001171",
+    "delivery_id": "D2-001163",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001173",
+    "delivery_id": "D2-001169",
     "outcome": "accepted"
   },
   {
@@ -5332,15 +5264,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001173",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001174",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001175",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001178",
+    "delivery_id": "D2-001171",
     "outcome": "accepted"
   },
   {
@@ -5348,7 +5280,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001179",
+    "delivery_id": "D2-001175",
     "outcome": "accepted"
   },
   {
@@ -5356,11 +5288,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001180",
+    "delivery_id": "D2-001170",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001182",
+    "delivery_id": "D2-001178",
     "outcome": "accepted"
   },
   {
@@ -5368,15 +5300,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001179",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001182",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001180",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001183",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001184",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001187",
     "outcome": "accepted"
   },
   {
@@ -5384,7 +5320,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001188",
+    "delivery_id": "D2-001184",
     "outcome": "accepted"
   },
   {
@@ -5392,15 +5328,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001189",
+    "delivery_id": "D2-001187",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001892",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001188",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001191",
+    "delivery_id": "D2-001189",
     "outcome": "accepted"
   },
   {
@@ -5408,7 +5344,23 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001197",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001191",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001198",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001192",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001199",
     "outcome": "accepted"
   },
   {
@@ -5420,11 +5372,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001195",
+    "delivery_id": "D2-001201",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001200",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001202",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001195",
     "outcome": "accepted"
   },
   {
@@ -5436,7 +5396,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001197",
+    "delivery_id": "D2-001937",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001206",
     "outcome": "accepted"
   },
   {
@@ -5444,15 +5408,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001198",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001199",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001206",
+    "delivery_id": "D2-001207",
     "outcome": "accepted"
   },
   {
@@ -5460,27 +5416,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001207",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001200",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001201",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001208",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001927",
+    "delivery_id": "D2-001959",
     "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001209",
+    "delivery_id": "D2-001208",
     "outcome": "accepted"
   },
   {
@@ -5488,15 +5428,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001209",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001211",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001212",
-    "outcome": "accepted"
+    "delivery_id": "D2-001908",
+    "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001213",
+    "delivery_id": "D2-001212",
     "outcome": "accepted"
   },
   {
@@ -5504,7 +5448,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001214",
+    "delivery_id": "D2-001213",
     "outcome": "accepted"
   },
   {
@@ -5512,7 +5456,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001214",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001217",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001898",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001219",
     "outcome": "accepted"
   },
   {
@@ -5520,19 +5476,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001219",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001226",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001220",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001227",
     "outcome": "accepted"
   },
   {
@@ -5540,7 +5484,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001228",
+    "delivery_id": "D2-001224",
     "outcome": "accepted"
   },
   {
@@ -5548,11 +5492,31 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001225",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001223",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001230",
+    "delivery_id": "D2-001226",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001880",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001228",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001955",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001227",
     "outcome": "accepted"
   },
   {
@@ -5560,19 +5524,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001231",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001224",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001232",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001225",
+    "delivery_id": "D2-001230",
     "outcome": "accepted"
   },
   {
@@ -5580,11 +5532,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001231",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001234",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001242",
+    "delivery_id": "D2-001232",
     "outcome": "accepted"
   },
   {
@@ -5592,19 +5548,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001243",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001236",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001237",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001244",
+    "delivery_id": "D2-001236",
     "outcome": "accepted"
   },
   {
@@ -5613,6 +5561,26 @@
   },
   {
     "delivery_id": "D2-001239",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001240",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001241",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001242",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001243",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001244",
     "outcome": "accepted"
   },
   {
@@ -5628,19 +5596,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001240",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001241",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001248",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001251",
     "outcome": "accepted"
   },
   {
@@ -5648,19 +5604,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001252",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001250",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001253",
+    "delivery_id": "D2-001251",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001255",
+    "delivery_id": "D2-001252",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001253",
     "outcome": "accepted"
   },
   {
@@ -5672,7 +5628,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001255",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001257",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001965",
     "outcome": "duplicate"
   },
   {
@@ -5700,6 +5664,10 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001876",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001265",
     "outcome": "accepted"
   },
@@ -5716,15 +5684,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001270",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001268",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001271",
     "outcome": "accepted"
   },
   {
@@ -5732,31 +5692,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001272",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001274",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001273",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001275",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001852",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001889",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001276",
+    "delivery_id": "D2-001270",
     "outcome": "accepted"
   },
   {
@@ -5764,7 +5700,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001271",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001278",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001272",
     "outcome": "accepted"
   },
   {
@@ -5772,7 +5716,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001280",
+    "delivery_id": "D2-001273",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001274",
     "outcome": "accepted"
   },
   {
@@ -5780,7 +5728,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001283",
+    "delivery_id": "D2-001280",
     "outcome": "accepted"
   },
   {
@@ -5788,7 +5736,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001275",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001283",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001284",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001276",
     "outcome": "accepted"
   },
   {
@@ -5796,31 +5756,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001288",
-    "outcome": "accepted"
+    "delivery_id": "D2-001896",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001286",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001289",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001287",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001290",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001292",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001291",
     "outcome": "accepted"
   },
   {
@@ -5828,11 +5768,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001287",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001294",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001297",
+    "delivery_id": "D2-001288",
     "outcome": "accepted"
   },
   {
@@ -5840,7 +5784,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001298",
+    "delivery_id": "D2-001289",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001290",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001297",
     "outcome": "accepted"
   },
   {
@@ -5848,15 +5800,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001298",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001291",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001292",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001299",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001301",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001300",
     "outcome": "accepted"
   },
   {
@@ -5864,11 +5820,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001300",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001303",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001306",
+    "delivery_id": "D2-001301",
     "outcome": "accepted"
   },
   {
@@ -5876,7 +5836,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001307",
+    "delivery_id": "D2-001306",
     "outcome": "accepted"
   },
   {
@@ -5884,15 +5844,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001307",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001308",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001310",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001309",
     "outcome": "accepted"
   },
   {
@@ -5900,7 +5856,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001309",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001312",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001310",
     "outcome": "accepted"
   },
   {
@@ -5908,11 +5872,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001314",
+    "delivery_id": "D2-001315",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001315",
+    "delivery_id": "D2-001314",
     "outcome": "accepted"
   },
   {
@@ -5920,11 +5884,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001961",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001317",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001319",
+    "delivery_id": "D2-001320",
     "outcome": "accepted"
   },
   {
@@ -5936,7 +5904,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001324",
+    "delivery_id": "D2-001319",
     "outcome": "accepted"
   },
   {
@@ -5944,7 +5912,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001325",
+    "delivery_id": "D2-001324",
     "outcome": "accepted"
   },
   {
@@ -5952,15 +5920,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001325",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001925",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001326",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001320",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001328",
     "outcome": "accepted"
   },
   {
@@ -5968,35 +5936,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001328",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001329",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001330",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001333",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001331",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001334",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001332",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001335",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001337",
     "outcome": "accepted"
   },
   {
@@ -6004,11 +5948,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001330",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001337",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001331",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001338",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001339",
+    "delivery_id": "D2-001332",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001333",
     "outcome": "accepted"
   },
   {
@@ -6016,11 +5976,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001339",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001341",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001348",
+    "delivery_id": "D2-001334",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001335",
     "outcome": "accepted"
   },
   {
@@ -6028,7 +5996,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001349",
+    "delivery_id": "D2-001345",
     "outcome": "accepted"
   },
   {
@@ -6036,7 +6004,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001350",
+    "delivery_id": "D2-001346",
     "outcome": "accepted"
   },
   {
@@ -6044,11 +6012,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001345",
+    "delivery_id": "D2-001347",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001352",
+    "delivery_id": "D2-001349",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001348",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001350",
     "outcome": "accepted"
   },
   {
@@ -6056,19 +6032,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001352",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001353",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001346",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001354",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001347",
     "outcome": "accepted"
   },
   {
@@ -6080,7 +6052,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001364",
+    "delivery_id": "D2-001358",
     "outcome": "accepted"
   },
   {
@@ -6088,47 +6060,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001365",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001358",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001359",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001366",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001360",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001897",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001361",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001368",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001367",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001369",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001362",
     "outcome": "accepted"
   },
   {
@@ -6136,16 +6068,48 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001370",
+    "delivery_id": "D2-001361",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001848",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001364",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001918",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001362",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001365",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001359",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001367",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001366",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001368",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001369",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001372",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001370",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001373",
@@ -6160,8 +6124,12 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001372",
+    "delivery_id": "D2-001376",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001952",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001375",
@@ -6172,19 +6140,23 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001875",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001378",
-    "outcome": "accepted"
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001379",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001376",
+    "delivery_id": "D2-001382",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001382",
+    "delivery_id": "D2-001380",
     "outcome": "accepted"
   },
   {
@@ -6200,11 +6172,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001386",
-    "outcome": "accepted"
+    "delivery_id": "D2-001897",
+    "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001380",
+    "delivery_id": "D2-001386",
     "outcome": "accepted"
   },
   {
@@ -6220,23 +6192,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001389",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001390",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001397",
-    "outcome": "accepted"
+    "delivery_id": "D2-001883",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001391",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001398",
+    "delivery_id": "D2-001389",
     "outcome": "accepted"
   },
   {
@@ -6244,7 +6208,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001399",
+    "delivery_id": "D2-001390",
     "outcome": "accepted"
   },
   {
@@ -6252,31 +6216,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001394",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001401",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001894",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001400",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001402",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001395",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001403",
+    "delivery_id": "D2-001394",
     "outcome": "accepted"
   },
   {
@@ -6284,19 +6228,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001404",
+    "delivery_id": "D2-001397",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001405",
+    "delivery_id": "D2-001398",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001406",
+    "delivery_id": "D2-001399",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001414",
+    "delivery_id": "D2-001400",
     "outcome": "accepted"
   },
   {
@@ -6304,7 +6248,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001415",
+    "delivery_id": "D2-001401",
     "outcome": "accepted"
   },
   {
@@ -6312,15 +6256,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001402",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001409",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001416",
+    "delivery_id": "D2-001403",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001410",
+    "delivery_id": "D2-001404",
     "outcome": "accepted"
   },
   {
@@ -6328,23 +6276,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001418",
+    "delivery_id": "D2-001412",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001898",
+    "delivery_id": "D2-001917",
     "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001417",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001419",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001412",
+    "delivery_id": "D2-001405",
     "outcome": "accepted"
   },
   {
@@ -6352,7 +6292,23 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001420",
+    "delivery_id": "D2-001414",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001406",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001415",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001967",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001410",
     "outcome": "accepted"
   },
   {
@@ -6360,7 +6316,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001421",
+    "delivery_id": "D2-001417",
     "outcome": "accepted"
   },
   {
@@ -6368,7 +6324,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001422",
+    "delivery_id": "D2-001418",
     "outcome": "accepted"
   },
   {
@@ -6376,7 +6332,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001419",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001420",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001427",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001416",
     "outcome": "accepted"
   },
   {
@@ -6388,15 +6356,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001422",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001429",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001430",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001431",
     "outcome": "accepted"
   },
   {
@@ -6404,7 +6368,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001421",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001430",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001433",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001431",
     "outcome": "accepted"
   },
   {
@@ -6420,6 +6396,10 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001906",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001437",
     "outcome": "accepted"
   },
@@ -6428,27 +6408,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001439",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001440",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001441",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001444",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001445",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001446",
+    "delivery_id": "D2-001439",
     "outcome": "accepted"
   },
   {
@@ -6456,15 +6420,31 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001440",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001443",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001448",
+    "delivery_id": "D2-001445",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001444",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001446",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001447",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001448",
     "outcome": "accepted"
   },
   {
@@ -6473,10 +6453,10 @@
   },
   {
     "delivery_id": "D2-001450",
-    "outcome": "duplicate"
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001451",
+    "delivery_id": "D2-001453",
     "outcome": "accepted"
   },
   {
@@ -6484,15 +6464,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001452",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001455",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001453",
+    "delivery_id": "D2-001451",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001452",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001457",
     "outcome": "accepted"
   },
   {
@@ -6504,10 +6488,6 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001457",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001459",
     "outcome": "accepted"
   },
@@ -6516,15 +6496,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001463",
-    "outcome": "accepted"
+    "delivery_id": "D2-001895",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001461",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001464",
     "outcome": "accepted"
   },
   {
@@ -6532,15 +6508,23 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001463",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001464",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001465",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001467",
+    "delivery_id": "D2-001466",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001466",
+    "delivery_id": "D2-001467",
     "outcome": "accepted"
   },
   {
@@ -6560,23 +6544,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001472",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001475",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001476",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001477",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001473",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001472",
     "outcome": "accepted"
   },
   {
@@ -6584,7 +6556,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001479",
+    "delivery_id": "D2-001475",
     "outcome": "accepted"
   },
   {
@@ -6592,15 +6564,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001476",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001479",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001477",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001480",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001481",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001484",
     "outcome": "accepted"
   },
   {
@@ -6608,7 +6584,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001485",
+    "delivery_id": "D2-001481",
     "outcome": "accepted"
   },
   {
@@ -6616,7 +6592,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001486",
+    "delivery_id": "D2-001484",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001485",
     "outcome": "accepted"
   },
   {
@@ -6624,7 +6604,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001487",
+    "delivery_id": "D2-001486",
     "outcome": "accepted"
   },
   {
@@ -6632,19 +6612,11 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001487",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001490",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001493",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001491",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001494",
     "outcome": "accepted"
   },
   {
@@ -6652,11 +6624,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001495",
+    "delivery_id": "D2-001491",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001497",
+    "delivery_id": "D2-001493",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001494",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001495",
     "outcome": "accepted"
   },
   {
@@ -6664,19 +6644,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001498",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001876",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001499",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001502",
+    "delivery_id": "D2-001497",
     "outcome": "accepted"
   },
   {
@@ -6684,11 +6652,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001503",
+    "delivery_id": "D2-001501",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001501",
+    "delivery_id": "D2-001502",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001498",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001499",
     "outcome": "accepted"
   },
   {
@@ -6696,7 +6672,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001506",
+    "delivery_id": "D2-001503",
     "outcome": "accepted"
   },
   {
@@ -6704,7 +6680,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001506",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001509",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001507",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001510",
     "outcome": "accepted"
   },
   {
@@ -6716,7 +6704,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001509",
+    "delivery_id": "D2-001513",
     "outcome": "accepted"
   },
   {
@@ -6724,11 +6712,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001510",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001513",
+    "delivery_id": "D2-001514",
     "outcome": "accepted"
   },
   {
@@ -6736,7 +6720,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001514",
+    "delivery_id": "D2-001518",
     "outcome": "accepted"
   },
   {
@@ -6744,15 +6728,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001517",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001518",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001519",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001517",
     "outcome": "accepted"
   },
   {
@@ -6760,15 +6740,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001521",
-    "outcome": "accepted"
+    "delivery_id": "D2-001928",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001522",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001524",
+    "delivery_id": "D2-001936",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001521",
     "outcome": "accepted"
   },
   {
@@ -6776,7 +6760,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001526",
+    "delivery_id": "D2-001524",
     "outcome": "accepted"
   },
   {
@@ -6784,11 +6768,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001525",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001528",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001525",
+    "delivery_id": "D2-001526",
     "outcome": "accepted"
   },
   {
@@ -6796,31 +6784,31 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001530",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001531",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001841",
+    "delivery_id": "D2-001902",
     "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001922",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001530",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001532",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001533",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001881",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001895",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001532",
+    "delivery_id": "D2-001536",
     "outcome": "accepted"
   },
   {
@@ -6828,23 +6816,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001535",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001536",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001539",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001537",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001540",
+    "delivery_id": "D2-001535",
     "outcome": "accepted"
   },
   {
@@ -6852,11 +6828,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001541",
+    "delivery_id": "D2-001540",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001543",
+    "delivery_id": "D2-001539",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001541",
     "outcome": "accepted"
   },
   {
@@ -6864,15 +6844,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001544",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001545",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001548",
+    "delivery_id": "D2-001543",
     "outcome": "accepted"
   },
   {
@@ -6880,7 +6856,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001549",
+    "delivery_id": "D2-001544",
     "outcome": "accepted"
   },
   {
@@ -6888,11 +6864,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001550",
+    "delivery_id": "D2-001549",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001552",
+    "delivery_id": "D2-001970",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001548",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001550",
     "outcome": "accepted"
   },
   {
@@ -6900,15 +6884,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001553",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001554",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001557",
+    "delivery_id": "D2-001552",
     "outcome": "accepted"
   },
   {
@@ -6916,7 +6896,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001558",
+    "delivery_id": "D2-001553",
     "outcome": "accepted"
   },
   {
@@ -6924,7 +6904,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001559",
+    "delivery_id": "D2-001558",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001557",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001560",
     "outcome": "accepted"
   },
   {
@@ -6932,15 +6920,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001901",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001560",
+    "delivery_id": "D2-001562",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001562",
+    "delivery_id": "D2-001559",
     "outcome": "accepted"
   },
   {
@@ -6948,15 +6932,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001566",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001564",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001567",
     "outcome": "accepted"
   },
   {
@@ -6964,11 +6940,23 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001914",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001567",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001566",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001568",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001890",
+    "delivery_id": "D2-001569",
     "outcome": "duplicate"
   },
   {
@@ -6976,11 +6964,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001569",
+    "delivery_id": "D2-001573",
     "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001571",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001574",
     "outcome": "accepted"
   },
   {
@@ -6992,7 +6984,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001573",
+    "delivery_id": "D2-001577",
     "outcome": "accepted"
   },
   {
@@ -7000,11 +6992,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001574",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001577",
+    "delivery_id": "D2-001578",
     "outcome": "accepted"
   },
   {
@@ -7012,7 +7000,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001578",
+    "delivery_id": "D2-001582",
     "outcome": "accepted"
   },
   {
@@ -7020,23 +7008,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001583",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001581",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001921",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001584",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001582",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001585",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001583",
     "outcome": "accepted"
   },
   {
@@ -7044,11 +7028,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001884",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001588",
+    "delivery_id": "D2-001585",
     "outcome": "accepted"
   },
   {
@@ -7056,11 +7036,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001589",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001590",
+    "delivery_id": "D2-001588",
     "outcome": "accepted"
   },
   {
@@ -7068,11 +7044,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001589",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001592",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001590",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001593",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001595",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001594",
     "outcome": "accepted"
   },
   {
@@ -7084,23 +7076,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001598",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001594",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001595",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001600",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001599",
+    "delivery_id": "D2-001598",
     "outcome": "accepted"
   },
   {
@@ -7108,19 +7088,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001599",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001938",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001602",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001605",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001603",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001606",
     "outcome": "accepted"
   },
   {
@@ -7128,7 +7104,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001607",
+    "delivery_id": "D2-001603",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001605",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001606",
     "outcome": "accepted"
   },
   {
@@ -7136,23 +7120,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001875",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001607",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001610",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001611",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001839",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001612",
     "outcome": "accepted"
   },
   {
@@ -7160,39 +7132,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001620",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001614",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001621",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001615",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001622",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001857",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001616",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001617",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001624",
+    "delivery_id": "D2-001611",
     "outcome": "accepted"
   },
   {
@@ -7200,19 +7140,55 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001612",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001614",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001615",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001618",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001616",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001619",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001617",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001620",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001622",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001924",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001621",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001623",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001625",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001626",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001619",
+    "delivery_id": "D2-001624",
     "outcome": "accepted"
   },
   {
@@ -7220,11 +7196,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001928",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001618",
+    "delivery_id": "D2-001625",
     "outcome": "accepted"
   },
   {
@@ -7232,11 +7204,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001629",
+    "delivery_id": "D2-001626",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001630",
+    "delivery_id": "D2-001629",
     "outcome": "accepted"
   },
   {
@@ -7244,15 +7216,19 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001630",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001632",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001634",
+    "delivery_id": "D2-001633",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001633",
+    "delivery_id": "D2-001634",
     "outcome": "accepted"
   },
   {
@@ -7264,15 +7240,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001906",
-    "outcome": "duplicate"
-  },
-  {
     "delivery_id": "D2-001639",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001637",
     "outcome": "accepted"
   },
   {
@@ -7280,19 +7248,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001638",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001641",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001643",
+    "delivery_id": "D2-001637",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001642",
+    "delivery_id": "D2-001638",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001643",
     "outcome": "accepted"
   },
   {
@@ -7304,11 +7272,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001648",
+    "delivery_id": "D2-001642",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001646",
+    "delivery_id": "D2-001648",
     "outcome": "accepted"
   },
   {
@@ -7328,6 +7296,10 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001646",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001651",
     "outcome": "accepted"
   },
@@ -7340,19 +7312,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001657",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001655",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001658",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001865",
+    "delivery_id": "D2-001932",
     "outcome": "duplicate"
   },
   {
@@ -7360,15 +7324,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001947",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001657",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001658",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001659",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001661",
+    "delivery_id": "D2-001660",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001660",
+    "delivery_id": "D2-001661",
     "outcome": "accepted"
   },
   {
@@ -7380,15 +7356,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001666",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001664",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001667",
     "outcome": "accepted"
   },
   {
@@ -7396,11 +7364,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001666",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001668",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001670",
+    "delivery_id": "D2-001667",
     "outcome": "accepted"
   },
   {
@@ -7408,8 +7380,24 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001670",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001673",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001671",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001674",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001960",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001672",
@@ -7420,7 +7408,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001673",
+    "delivery_id": "D2-001677",
     "outcome": "accepted"
   },
   {
@@ -7428,11 +7416,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001674",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001677",
+    "delivery_id": "D2-001678",
     "outcome": "accepted"
   },
   {
@@ -7440,7 +7424,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001678",
+    "delivery_id": "D2-001933",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001682",
     "outcome": "accepted"
   },
   {
@@ -7448,15 +7436,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001681",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001682",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001683",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001681",
     "outcome": "accepted"
   },
   {
@@ -7464,7 +7448,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001692",
+    "delivery_id": "D2-001686",
     "outcome": "accepted"
   },
   {
@@ -7472,19 +7456,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001693",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001686",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001687",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001694",
     "outcome": "accepted"
   },
   {
@@ -7492,19 +7464,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001691",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001689",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001696",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001695",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001697",
+    "delivery_id": "D2-001692",
     "outcome": "accepted"
   },
   {
@@ -7512,23 +7480,39 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001698",
+    "delivery_id": "D2-001693",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001691",
+    "delivery_id": "D2-001695",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001699",
+    "delivery_id": "D2-001694",
     "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001696",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001697",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001958",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001915",
+    "outcome": "duplicate"
   },
   {
     "delivery_id": "D2-001700",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001707",
+    "delivery_id": "D2-001698",
     "outcome": "accepted"
   },
   {
@@ -7536,7 +7520,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001708",
+    "delivery_id": "D2-001699",
     "outcome": "accepted"
   },
   {
@@ -7544,27 +7528,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001709",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001703",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001704",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001711",
-    "outcome": "accepted"
+    "delivery_id": "D2-001939",
+    "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001710",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001712",
+    "delivery_id": "D2-001703",
     "outcome": "accepted"
   },
   {
@@ -7572,11 +7544,35 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001706",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001709",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001707",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001710",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001708",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001711",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001713",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001706",
+    "delivery_id": "D2-001712",
     "outcome": "accepted"
   },
   {
@@ -7588,7 +7584,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001722",
+    "delivery_id": "D2-001718",
     "outcome": "accepted"
   },
   {
@@ -7596,7 +7592,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001723",
+    "delivery_id": "D2-001719",
     "outcome": "accepted"
   },
   {
@@ -7604,39 +7600,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001724",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001854",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001718",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001719",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001726",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001725",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001727",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001720",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001728",
+    "delivery_id": "D2-001722",
     "outcome": "accepted"
   },
   {
@@ -7644,7 +7612,43 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001723",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001724",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001725",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001726",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001727",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001734",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001728",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001735",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001729",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001736",
     "outcome": "accepted"
   },
   {
@@ -7653,26 +7657,6 @@
   },
   {
     "delivery_id": "D2-001731",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001734",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001735",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001736",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001732",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001733",
     "outcome": "accepted"
   },
   {
@@ -7688,8 +7672,8 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001849",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001732",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001740",
@@ -7700,39 +7684,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001733",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001742",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001902",
-    "outcome": "duplicate"
-  },
-  {
     "delivery_id": "D2-001743",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001744",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001745",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001747",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001746",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001748",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001749",
     "outcome": "accepted"
   },
   {
@@ -7740,11 +7700,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001744",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001751",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001758",
+    "delivery_id": "D2-001745",
     "outcome": "accepted"
   },
   {
@@ -7752,15 +7716,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001759",
+    "delivery_id": "D2-001746",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001753",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001760",
+    "delivery_id": "D2-001747",
     "outcome": "accepted"
   },
   {
@@ -7768,19 +7728,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001753",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001755",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001762",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001761",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001763",
+    "delivery_id": "D2-001748",
     "outcome": "accepted"
   },
   {
@@ -7788,15 +7744,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001764",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001757",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001765",
+    "delivery_id": "D2-001749",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001758",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001759",
     "outcome": "accepted"
   },
   {
@@ -7804,23 +7764,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001760",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001767",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001851",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001770",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001771",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001772",
+    "delivery_id": "D2-001761",
     "outcome": "accepted"
   },
   {
@@ -7828,15 +7780,47 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001762",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001763",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001770",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001769",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001774",
+    "delivery_id": "D2-001771",
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001764",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001772",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001765",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001888",
+    "outcome": "duplicate"
+  },
+  {
     "delivery_id": "D2-001773",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001774",
     "outcome": "accepted"
   },
   {
@@ -7848,11 +7832,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001779",
+    "delivery_id": "D2-001777",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001777",
+    "delivery_id": "D2-001887",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001778",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001779",
     "outcome": "accepted"
   },
   {
@@ -7860,7 +7852,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001778",
+    "delivery_id": "D2-001782",
     "outcome": "accepted"
   },
   {
@@ -7872,23 +7864,15 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001782",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001784",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001785",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001922",
+    "delivery_id": "D2-001943",
     "outcome": "duplicate"
   },
   {
-    "delivery_id": "D2-001788",
+    "delivery_id": "D2-001785",
     "outcome": "accepted"
   },
   {
@@ -7896,35 +7880,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001789",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001787",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001790",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001792",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001845",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001900",
-    "outcome": "duplicate"
-  },
-  {
-    "delivery_id": "D2-001791",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001793",
     "outcome": "accepted"
   },
   {
@@ -7932,7 +7888,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001788",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001795",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001789",
     "outcome": "accepted"
   },
   {
@@ -7940,15 +7904,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001803",
+    "delivery_id": "D2-001790",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001797",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001804",
+    "delivery_id": "D2-001791",
     "outcome": "accepted"
   },
   {
@@ -7956,7 +7916,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001805",
+    "delivery_id": "D2-001797",
     "outcome": "accepted"
   },
   {
@@ -7964,19 +7924,15 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001792",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001800",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001807",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001806",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001808",
+    "delivery_id": "D2-001793",
     "outcome": "accepted"
   },
   {
@@ -7984,11 +7940,31 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001809",
+    "delivery_id": "D2-001802",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001802",
+    "delivery_id": "D2-001803",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001806",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001807",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001808",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001804",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001805",
     "outcome": "accepted"
   },
   {
@@ -7996,11 +7972,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001811",
+    "delivery_id": "D2-001930",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001948",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001809",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001818",
+    "delivery_id": "D2-001811",
     "outcome": "accepted"
   },
   {
@@ -8008,7 +7992,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001819",
+    "delivery_id": "D2-001815",
     "outcome": "accepted"
   },
   {
@@ -8016,7 +8000,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001820",
+    "delivery_id": "D2-001816",
     "outcome": "accepted"
   },
   {
@@ -8024,11 +8008,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001815",
+    "delivery_id": "D2-001817",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001822",
+    "delivery_id": "D2-001819",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001818",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001820",
     "outcome": "accepted"
   },
   {
@@ -8036,23 +8028,11 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001823",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001816",
-    "outcome": "accepted"
-  },
-  {
-    "delivery_id": "D2-001817",
-    "outcome": "accepted"
-  },
-  {
     "delivery_id": "D2-001824",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001827",
+    "delivery_id": "D2-001822",
     "outcome": "accepted"
   },
   {
@@ -8060,7 +8040,7 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001828",
+    "delivery_id": "D2-001823",
     "outcome": "accepted"
   },
   {
@@ -8068,11 +8048,19 @@
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001829",
+    "delivery_id": "D2-001926",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001828",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001831",
+    "delivery_id": "D2-001827",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001829",
     "outcome": "accepted"
   },
   {
@@ -8080,19 +8068,27 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001831",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001832",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001931",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001833",
+    "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001833",
-    "outcome": "duplicate"
+    "delivery_id": "D2-001840",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "D2-001834",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001841",
     "outcome": "accepted"
   },
   {
@@ -8100,12 +8096,168 @@
     "outcome": "accepted"
   },
   {
+    "delivery_id": "D2-001842",
+    "outcome": "accepted"
+  },
+  {
     "delivery_id": "D2-001836",
     "outcome": "accepted"
   },
   {
-    "delivery_id": "D2-001911",
+    "delivery_id": "D2-001837",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001844",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001843",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001845",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001918",
     "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001838",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001846",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001945",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001847",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001839",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001848",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001849",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001856",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001850",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001857",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001851",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001858",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001852",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001853",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001860",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001859",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001861",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001854",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001855",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001862",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001904",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001865",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001863",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001866",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001864",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001867",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001869",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001868",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001870",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001871",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001872",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001966",
+    "outcome": "duplicate"
+  },
+  {
+    "delivery_id": "D2-001873",
+    "outcome": "accepted"
+  },
+  {
+    "delivery_id": "D2-001874",
+    "outcome": "accepted"
   },
   {
     "delivery_id": "BAD-001",

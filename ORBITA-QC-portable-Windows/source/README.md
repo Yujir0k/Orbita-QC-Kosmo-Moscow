@@ -12,7 +12,7 @@ pnpm test
 pnpm build:portable
 ```
 
-`data:sync` читает `../../quality_dataset/expanded_dataset`: 180 изделий, справочники, индекс 8 фото и **только** `events/source_deliveries.jsonl`. Скрипт создаёт `src/demo-data.json`, реальные изображения в `public/media/` и копии внешнего и ошибочного потоков в `public/demo/`. План контроля и проектные интеграционные профили хранятся отдельно в `src/config.json`. Старый набор из 12 изделий не импортируется повторно. Файлы `expected/*` и `interactions/scripted_actions.jsonl` не являются входом приложения.
+`data:sync` читает `../../quality_dataset/expanded_dataset`: 180 изделий, справочники, индекс 18 фото и **только** `events/source_deliveries.jsonl`. Скрипт создаёт `src/demo-data.json`, реальные изображения в `public/media/` и копии внешнего и ошибочного потоков в `public/demo/`. План контроля и проектные интеграционные профили хранятся отдельно в `src/config.json`. Старый набор из 12 изделий не импортируется повторно. Файлы `expected/*` и `interactions/scripted_actions.jsonl` не являются входом приложения.
 
 `pnpm build:portable` выполняет строгую проверку типов, Vite-сборку и переносит `dist/` в `../site/`. Для обновления итогового архива из этой папки запустите `python scripts/package-windows.py`: скрипт создаст `../../ORBITA-QC-workspaces-Windows.zip` с переносимым приложением и расширенным набором данных. Для запуска готовой версии используйте `../START.cmd`.
 

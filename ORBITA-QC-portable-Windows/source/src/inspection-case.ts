@@ -1,8 +1,17 @@
-import { cases, catalogs, eventsFor, items, mediaIndex, mediaUrl, type Case, type MediaAsset, type QualityEvent } from './domain';
+import { cases, catalogs, eventsFor, items, mediaIndex, mediaUrl, type Case, type MediaAsset, type MediaSlot, type QualityEvent } from './domain';
 import { controllerCaseData } from './controller-case';
+import { controllerEvidenceFrom } from './controller-evidence';
 
-export type DefectStatus = 'NEW_SIGNAL' | 'UNDER_REVIEW' | 'SENT_TO_REWORK' | 'REWORK_VERIFICATION' | 'CONFIRMED_DEFECT' | 'FALSE_POSITIVE' | 'ACCEPTED_AFTER_REWORK';
+export type DefectStatus = 'NEW_SIGNAL' | 'UNDER_REVIEW' | 'SENT_TO_REWORK' | 'REWORK_VERIFICATION' | 'CONFIRMED_DEFECT' | 'FALSE_POSITIVE' | 'ACCEPTED_WITHIN_SPEC' | 'ACCEPTED_AFTER_REWORK';
 export type ObservationQuality = 'OPTIMAL' | 'GLARE_DETECTED' | 'BLURRED' | 'LIMITED' | 'NO_IMAGE';
+
+export interface InspectionFrame {
+  url?: string;
+  hash?: string;
+  absenceReason?: MediaSlot['absence_reason'];
+  capturedAt?: string;
+  checkpoint?: string;
+}
 
 export interface InspectionCase {
   id: string;
@@ -18,6 +27,8 @@ export interface InspectionCase {
   urgency: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
   createdAt: string;
   visualEvidence: {
+    before: InspectionFrame;
+    after: InspectionFrame;
     beforeImageUrl?: string;
     currentImageUrl?: string;
     hasImage: boolean;
@@ -84,16 +95,24 @@ export function inspectionCaseFrom(record: Case): InspectionCase {
   const afterMaster = !!master && (!latestItemDecision || Date.parse(master.occurred_at) > Date.parse(latestItemDecision.occurred_at));
   const currentAsset = afterMaster ? mediaIndex.find(asset => master.data.evidence_refs?.includes(asset.asset_id)) : data.image;
   const beforeAsset = afterMaster ? data.image : undefined;
-  const machine = own.filter(event => event.event_type === 'machine_state' && (!observation.operation_run_id || event.operation_run_id === observation.operation_run_id)).at(-1);
-  const operation = own.filter(event => event.event_type === 'operation_started' && (!observation.operation_run_id || event.operation_run_id === observation.operation_run_id)).at(-1);
+  const beforeSlot = observation.data.media_evidence?.before_operation;
+  const afterSlot = observation.data.media_evidence?.after_operation;
+  const previousInspection = own.find(event => event.event_id === observation.data.comparison?.previous_inspection_event_id)
+    ?? own.filter(event => event.event_type === 'inspection_result' && Date.parse(event.occurred_at) < Date.parse(observation.occurred_at)).at(-1);
+  const beforeImageUrl = beforeAsset ? mediaUrl(beforeAsset) : beforeSlot?.status === 'AVAILABLE' ? beforeSlot.url ?? undefined : undefined;
+  const currentImageUrl = afterMaster ? currentAsset ? mediaUrl(currentAsset) : undefined
+    : afterSlot ? afterSlot.status === 'AVAILABLE' ? afterSlot.url ?? undefined : undefined : currentAsset ? mediaUrl(currentAsset) : undefined;
+  const { machine, operation } = controllerEvidenceFrom(record, own, !!currentAsset);
   const technologist = own.filter(event => event.event_type === 'technical_disposition' || event.event_type === 'cause_review').at(-1);
   const measurement = own.filter(event => event.event_type === 'manual_measurement').at(-1);
   const currentQuality = afterMaster ? master.data.observation_quality : observation.data.observation_quality;
-  const quality: ObservationQuality = !currentAsset ? 'NO_IMAGE' : currentQuality === 'poor' ? /блик|glare/i.test(currentAsset.description) ? 'GLARE_DETECTED' : /размыт|blur/i.test(currentAsset.description) ? 'BLURRED' : 'LIMITED' : 'OPTIMAL';
-  const status: DefectStatus = afterMaster ? master.data.action_type === 'rework_completed' ? 'REWORK_VERIFICATION' : 'UNDER_REVIEW' : decision?.data.decision === 'rejected' ? 'FALSE_POSITIVE' : decision?.data.decision === 'release_after_rework' ? 'ACCEPTED_AFTER_REWORK' : decision?.data.decision === 'confirmed' ? decision.data.disposition === 'rework' ? 'SENT_TO_REWORK' : 'CONFIRMED_DEFECT' : decision ? 'UNDER_REVIEW' : 'NEW_SIGNAL';
+  const quality: ObservationQuality = !currentImageUrl ? 'NO_IMAGE' : currentQuality === 'good' ? 'OPTIMAL' : /блик|glare/i.test(currentAsset?.description ?? '') ? 'GLARE_DETECTED' : /размыт|blur/i.test(currentAsset?.description ?? '') ? 'BLURRED' : 'LIMITED';
+  const freshObservation = decision && Date.parse(record.observations.at(-1)!.occurred_at) > Date.parse(decision.occurred_at);
+  const status: DefectStatus = freshObservation ? 'NEW_SIGNAL' : afterMaster ? master.data.action_type === 'rework_completed' ? 'REWORK_VERIFICATION' : 'UNDER_REVIEW' : decision?.data.decision === 'rejected' ? 'FALSE_POSITIVE' : decision?.data.decision === 'accepted_within_spec' ? 'ACCEPTED_WITHIN_SPEC' : decision?.data.decision === 'release_after_rework' ? 'ACCEPTED_AFTER_REWORK' : decision?.data.decision === 'confirmed' ? decision.data.disposition === 'rework' ? 'SENT_TO_REWORK' : 'CONFIRMED_DEFECT' : decision ? 'UNDER_REVIEW' : 'NEW_SIGNAL';
   const assetWithHash = currentAsset as (MediaAsset & { sha256?: string }) | undefined;
   const capture = observation.data.capture_context ?? {};
-  const missingImageReason = stringValue(capture.missing_image_reason);
+  const missingImageReason = observation.data.media_evidence?.after_operation.status === 'MISSING'
+    ? observation.data.media_evidence.after_operation.absence_reason : stringValue(capture.missing_image_reason);
   return {
     id: record.id,
     itemId: record.item,
@@ -107,9 +126,23 @@ export function inspectionCaseFrom(record: Case): InspectionCase {
     urgency: record.priority >= 120 ? 'CRITICAL' : record.priority >= 70 ? 'HIGH' : record.priority >= 40 ? 'MEDIUM' : 'LOW',
     createdAt: record.observations[0].occurred_at,
     visualEvidence: {
-      beforeImageUrl: beforeAsset ? mediaUrl(beforeAsset) : undefined,
-      currentImageUrl: currentAsset ? mediaUrl(currentAsset) : undefined,
-      hasImage: !!currentAsset,
+      before: {
+        url: beforeImageUrl,
+        hash: beforeAsset?.sha256 ?? beforeSlot?.sha256_hash,
+        absenceReason: beforeSlot?.absence_reason,
+        capturedAt: beforeAsset ? observation.occurred_at : previousInspection?.occurred_at,
+        checkpoint: beforeAsset ? observation.data.inspection_point_id ?? observation.station_id : previousInspection?.data.inspection_point_id ?? previousInspection?.station_id,
+      },
+      after: {
+        url: currentImageUrl,
+        hash: afterMaster ? currentAsset?.sha256 : afterSlot?.sha256_hash ?? assetWithHash?.sha256,
+        absenceReason: afterMaster ? undefined : afterSlot?.absence_reason,
+        capturedAt: afterMaster ? master.occurred_at : observation.occurred_at,
+        checkpoint: afterMaster ? master.station_id : observation.data.inspection_point_id ?? observation.station_id,
+      },
+      beforeImageUrl,
+      currentImageUrl,
+      hasImage: !!currentImageUrl,
       missingImageReason,
       quality,
       aiConfidence: typeof observation.data.confidence === 'number' ? Math.round(observation.data.confidence * 100) : undefined,
@@ -119,13 +152,13 @@ export function inspectionCaseFrom(record: Case): InspectionCase {
         viewAngle: stringValue(capture.view_id),
         lightingProfile: stringValue(capture.lighting_recipe_id),
         calibrationProfile: stringValue(capture.calibration_profile_version),
-        imageHash: assetWithHash?.sha256,
+        imageHash: afterMaster ? assetWithHash?.sha256 : afterSlot?.sha256_hash ?? assetWithHash?.sha256,
       },
     },
     machineContext: {
       stationId: observation.station_id,
       operatorId: operation?.actor_id,
-      machineId: machine?.equipment_id,
+      machineId: machine?.equipment_id ?? operation?.equipment_id,
       machineWarnings: machine?.data.state === 'warning' ? [`${stringValue(machine.data.alarm_code) ?? 'Предупреждение станка'} · ${machine.occurred_at}`] : [],
     },
     technologistFinding: technologist ? {

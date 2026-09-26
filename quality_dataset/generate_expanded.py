@@ -41,16 +41,66 @@ def item_id(number: int) -> str:
     return f'ITEM-{number:03d}'
 
 
+def item_type(number: int) -> str:
+    return {19: 'TYPE-BRACKET-GUSSET', 20: 'TYPE-BRACKET-CLEVIS',
+            25: 'TYPE-BRACKET-L', 28: 'TYPE-BRACKET-U'}.get(number, 'TYPE-BRACKET-01')
+
+
+def synthetic_dimensions(number: int, defect: str) -> dict[str, Any]:
+    """Return explicit fictional 2D CV estimates, never certified part measurements."""
+    fixed = {19: (1.4, 0.12), 20: (1.9, 0.35), 21: (3.6, 0.18)}
+    default = {
+        'SCRATCH': (round(1.6 + number % 7 * 0.34, 2), round(0.10 + number % 3 * 0.02, 2)),
+        'BURR': (round(0.9 + number % 5 * 0.27, 2), round(0.24 + number % 4 * 0.04, 2)),
+        'DENT': (round(2.2 + number % 4 * 0.45, 2), round(1.1 + number % 3 * 0.22, 2)),
+        'CRACK': (round(1.0 + number % 4 * 0.38, 2), round(0.05 + number % 2 * 0.02, 2)),
+        'DISCOLORATION': (round(2.0 + number % 3 * 0.55, 2), round(1.2 + number % 3 * 0.25, 2)),
+    }
+    length, width = fixed.get(number, default[defect])
+    return {
+        'length_mm': length,
+        'width_mm': width,
+        'depth_estimated_mm': None,
+        'defect_class': defect,
+        'dimension_source': 'synthetic_calibrated_2d_cv_estimate',
+        'dimension_uncertainty_mm': 0.2,
+    }
+
+
+def synthetic_kd_spec(number: int, severity: str) -> dict[str, Any]:
+    """Choose a fictional drawing rule for the inspected surface zone."""
+    zone = ('ZONE_A_CRITICAL' if severity == 'critical' or number == 21 else
+            'ZONE_B_MATING' if number in {13, 14, 20, 28} else 'ZONE_C_NON_CRITICAL')
+    return {
+        'surface_zone_class': zone,
+        'max_allowable_defect_length_mm': {'ZONE_A_CRITICAL': 0.0, 'ZONE_B_MATING': 1.0,
+                                           'ZONE_C_NON_CRITICAL': 3.0}[zone],
+        'standard_ref': f'КД-ДЕМО-{item_type(number)}-REV-A',
+        'source_kind': 'synthetic_demo_assumption',
+        'applies_to': 'SCRATCH',
+    }
+
+
 def media_index() -> list[dict[str, Any]]:
     entries = [
+        ('M013-CV-BEFORE', 13, 'item-013-cv-before-machine.png', 'fixed_camera', 'before_machine', 'Та же деталь до операции: правая поверхность без риски.'),
         ('M013-CV-DEFECT', 13, 'item-013-cv-scratch.png', 'fixed_camera', 'before_rework', 'Поверхностная риска у правого отверстия; первичный кадр камеры.'),
         ('M013-MASTER-CLEAR', 13, 'item-013-master-clear.png', 'master_phone', 'after_rework', 'Та же деталь после разрешённой доработки; поверхность очищена.'),
+        ('M014-CV-BEFORE', 14, 'item-014-cv-before-machine.png', 'fixed_camera', 'before_machine', 'Та же кромка до операции: заусенца нет.'),
         ('M014-CV-BURR', 14, 'item-014-cv-burr.png', 'fixed_camera', 'before_rework', 'Заусенец на внешней правой кромке.'),
         ('M014-MASTER-STILL', 14, 'item-014-master-burr-remains.png', 'master_phone', 'after_first_rework', 'Первый проход не убрал заусенец; повторный контроль не допускает изделие.'),
         ('M014-MASTER-CLEAR', 14, 'item-014-master-clear.png', 'master_phone', 'after_second_rework', 'После второго прохода кромка очищена.'),
         ('M015-MASTER-DENT', 15, 'item-015-master-dent.png', 'master_phone', 'additional_check', 'Первое пригодное фото: повреждена критическая наружная кромка.'),
         ('M016-CV-GLARE', 16, 'item-016-cv-glare.png', 'fixed_camera', 'ambiguous_observation', 'Блик похож на царапину; вывод модели требует проверки.'),
         ('M016-MASTER-CLEAR', 16, 'item-016-master-clear.png', 'master_phone', 'additional_check', 'После изменения освещения видно, что повреждения нет.'),
+        ('M019-CV-BEFORE', 19, 'item-019-cv-incoming-scratch.png', 'fixed_camera', 'before_machine', 'Риска на передней левой полке уже присутствует при входном контроле.'),
+        ('M019-CV-AFTER', 19, 'item-019-cv-after-machine-scratch.png', 'fixed_camera', 'after_machine', 'Та же риска на той же детали после станка; нового повреждения нет.'),
+        ('M020-CV-BEFORE', 20, 'item-020-cv-before-machine.png', 'fixed_camera', 'before_machine', 'Входной кадр отдельной детали перед станком; видимые поверхности без признаков.'),
+        ('M025-CV-BURR', 25, 'item-025-cv-burr.png', 'fixed_camera', 'after_machine', 'Другой тип детали: заусенец на передней кромке L-образного кронштейна.'),
+        ('M025-MASTER-CLEAR', 25, 'item-025-master-clear.png', 'master_phone', 'after_rework', 'Та же L-образная деталь с очищенной кромкой.'),
+        ('M028-CV-SCRATCH', 28, 'item-028-cv-scratch.png', 'fixed_camera', 'after_machine', 'U-образный кронштейн: риска на левой плоской полке.'),
+        ('M028-MASTER-CLEAR', 28, 'item-028-master-clear.png', 'master_phone', 'after_rework', 'Та же левая полка после согласованной доработки.'),
+        ('M029-CV-BURR', 29, 'item-029-cv-burr.png', 'fixed_camera', 'after_machine', 'Отдельная деталь: заусенец на верхней правой кромке.'),
     ]
     result = []
     for asset_id, number, filename, capture_source, stage, description in entries:
@@ -72,8 +122,9 @@ def media_index() -> list[dict[str, Any]]:
 
 
 class Builder:
-    def __init__(self, deliveries: list[dict[str, Any]]) -> None:
+    def __init__(self, deliveries: list[dict[str, Any]], media: list[dict[str, Any]]) -> None:
         self.deliveries = copy.deepcopy(deliveries)
+        self.media_by_id = {asset['asset_id']: asset for asset in media}
         self.event_counter = 0
         self.delivery_counter = 0
         self.events_by_id = {d['message']['event_id']: d['message'] for d in deliveries}
@@ -125,11 +176,12 @@ class Builder:
             'occurred_at': iso(occurred),
             'source_id': source_id,
             'item_id': item_id(number),
-            'item_type_id': 'TYPE-BRACKET-01',
+            'item_type_id': item_type(number),
             'line_id': self.line(number),
             'station_id': self.station(number, station_kind),
             'shift_id': 'SHIFT-A' if 8 <= occurred.hour < 16 else 'SHIFT-B',
             'data': data,
+            'item_state': self.item_state(number, event_type, station_kind, data, equipment_id),
         }
         if operation_run_id:
             message['operation_run_id'] = operation_run_id
@@ -146,6 +198,48 @@ class Builder:
             'message': message,
         })
         return event_id
+
+    def item_state(self, number: int, event_type: str, station_kind: str,
+                   data: dict[str, Any], equipment_id: str | None) -> dict[str, str]:
+        """Snapshot physical routing at event time; never infer a later state from future events."""
+        station = self.station(number, station_kind)
+        previous = [event for event in self.events_by_id.values()
+                    if event['item_id'] == item_id(number) and event.get('item_state')]
+        earlier_state = max(previous, key=lambda event: event['occurred_at'])['item_state'] if previous else None
+        if event_type in {'operation_started', 'machine_state', 'operation_paused'}:
+            fixture = data.get('fixture_id') or 'FIX-01'
+            return {'physical_location': f'{equipment_id or station}: зажата в приспособлении {fixture}',
+                    'line_lock_status': 'HELD_AT_STATION'}
+        if event_type == 'quality_decision':
+            if data.get('disposition') == 'release':
+                return {'physical_location': 'Передана на следующую операцию маршрута',
+                        'line_lock_status': 'ROUTED_FORWARD'}
+            return {'physical_location': f'{station}: зона удержания ОТК',
+                    'line_lock_status': 'HELD_AT_STATION'}
+        if event_type == 'inspection_result' and data.get('inspection_result') != 'no_signs_detected':
+            return {'physical_location': f'{station}: ожидает решения ОТК',
+                    'line_lock_status': 'HELD_AT_STATION'}
+        if event_type == 'inspection_result' and data.get('inspection_point_id') == 'CP-FINAL':
+            return {'physical_location': 'Передана на следующий этап после финального контроля',
+                    'line_lock_status': 'ROUTED_FORWARD'}
+        if event_type in {'technical_disposition', 'controller_check', 'manual_measurement'} or event_type == 'master_action' and data.get('action_type') == 'inspection_support':
+            return {'physical_location': f'{self.station(number, "qc")}: удержана до решения ОТК',
+                    'line_lock_status': 'HELD_AT_STATION'}
+        if event_type == 'inspection_result' and data.get('method') == 'manual_verification':
+            return {'physical_location': f'{self.station(number, "qc")}: ожидает решения после повторного контроля',
+                    'line_lock_status': 'HELD_AT_STATION'}
+        if event_type == 'cause_review' and earlier_state:
+            return dict(earlier_state)
+        return {'physical_location': f'{station}: межоперационный буфер',
+                'line_lock_status': 'IN_BUFFER'}
+
+    def media_slot(self, asset_id: str | None, absence_reason: str) -> dict[str, str | None]:
+        if asset_id:
+            asset = self.media_by_id[asset_id]
+            return {'url': f'/media/{Path(asset["path_from_quality_dataset"]).name}',
+                    'sha256_hash': asset['sha256'], 'status': 'AVAILABLE', 'absence_reason': 'NONE'}
+        return {'url': None, 'sha256_hash': '', 'status': 'MISSING',
+                'absence_reason': absence_reason}
 
     def repeat(self, event_id: str, minutes_after: int = 2) -> None:
         self.delivery_counter += 1
@@ -188,30 +282,91 @@ class Builder:
     ) -> str:
         station = 'in' if point == 'CP-IN' else 'assembly' if point == 'CP-FINAL' else 'mill'
         source = 'QC-UI' if method == 'manual_verification' else 'VISION-IN' if station == 'in' else 'VISION-ASM' if station == 'assembly' else 'VISION-MILL'
+        region = ({13: 'outer_right_face', 14: 'outer_right_edge', 15: 'outer_left_edge',
+                   16: 'outer_right_face', 19: 'front_left_flange', 20: 'inner_slot_edge',
+                   21: 'outer_right_face', 25: 'front_outer_edge', 28: 'left_outer_face',
+                   29: 'right_upper_edge'}.get(number, 'body_outer_A' if defect == 'SCRATCH' else 'edge_B'))
+        descriptions = {
+            'SCRATCH': 'Линейный след на обработанной поверхности; глубина по обычному кадру не определяется.',
+            'BURR': 'Выступающий металлический край после обработки; требуется проверить кромку очно.',
+            'DENT': 'Локальное изменение формы наружной кромки; оценить допустимость по документации.',
+            'CHIP': 'Скол на наружной кромке; оценить критичность и возможность восстановления.',
+            'CRACK': 'Тонкая линия разрыва поверхности; оценить критичность и возможность восстановления.',
+            'DISCOLORATION': 'Локальное отличие цвета поверхности; необходима проверка природы следа.',
+        }
+        features = {
+            'SCRATCH': 'узкая линейная неоднородность отражения на поверхности',
+            'BURR': 'локальный выступ за проектный контур видимой кромки',
+            'DENT': 'локальное вдавливание с изменением видимого контура',
+            'CHIP': 'разрыв ровной линии кромки и отсутствие части материала',
+            'CRACK': 'тонкая непрерывная линия разрыва на видимой поверхности',
+            'DISCOLORATION': 'локальная область изменения отражения и цвета',
+        }
+        dimensions = synthetic_dimensions(number, defect) if defect else {}
+        if dimensions and method == 'manual_verification':
+            dimensions['dimension_source'] = 'synthetic_manual_scale_estimate'
+            dimensions['dimension_uncertainty_mm'] = 0.5
         defects = [] if defect is None else [{
             'finding_id': finding_id,
             'defect_type_id': defect,
             'component_id': f'COMP-{number:03d}-BODY',
-            'region': 'outer_right_face' if number in (13, 16) else 'outer_right_edge' if number == 14 else 'outer_left_edge' if number == 15 else 'edge_B',
+            'region': region,
             'severity': severity,
+            'description': descriptions[defect],
+            'observed_feature': features[defect],
+            **dimensions,
         }]
+        earlier = [message for message in self.events_by_id.values()
+                   if message['item_id'] == item_id(number) and message['event_type'] == 'inspection_result'
+                   and message['data'].get('inspection_point_id') != 'CP-FINAL']
+        previous = max(earlier, key=lambda message: message['occurred_at']) if earlier else None
+        previous_result = previous['data']['inspection_result'] if previous else None
+        comparison = ('Ранее признаков не было; интервал появления ограничен двумя контрольными точками, причина не установлена.'
+                      if previous_result == 'no_signs_detected' and result == 'signs_detected' else
+                      'Тот же признак уже был виден до этой операции; относить его возникновение к текущему станку нельзя.'
+                      if previous_result == 'signs_detected' and result == 'signs_detected' else
+                      'Ранее оценка была невозможна; момент появления признака неизвестен.'
+                      if previous_result == 'unable_to_assess' and result == 'signs_detected' else
+                      'Повторная проверка той же зоны после операции.' if previous else
+                      'Первый контроль изделия в текущей истории.')
         data = {
             'inspection_point_id': point,
             'inspection_result': result,
             'observation_quality': quality,
             'confidence': confidence,
             'defects': defects,
+            'kd_spec': synthetic_kd_spec(number, severity),
             'method': method,
             'evidence_refs': media or [],
+            'observation_summary': descriptions[defect] if defect else 'Обозримые зоны без обнаруженных признаков.' if result == 'no_signs_detected' else 'Наблюдение не позволяет сделать вывод о состоянии поверхности.',
+            'comparison': {'previous_inspection_event_id': previous['event_id'] if previous else None,
+                           'previous_result': previous_result, 'summary': comparison},
+            'next_verification': 'Очный осмотр зоны до подтверждения без кадра.' if defect and not media else
+                                 'Проверить признак на кадре и при необходимости очно.' if defect else
+                                 'Повторить контроль в пригодных условиях.' if result == 'unable_to_assess' else None,
             'triage_priority': 'critical' if severity == 'critical' else 'high' if severity == 'high' else 'medium' if defect else 'routine',
             'capture_context': {
                 'camera_id': None if method == 'manual_verification' else f'CAM-{self.line(number)}-{point}',
                 'view_id': 'front_face' if point != 'CP-FINAL' else 'assembly_front',
                 'lighting_recipe_id': None if method == 'manual_verification' else 'LED-COOL-01',
                 'calibration_profile_version': None if method == 'manual_verification' else 'CAL-DEMO-1',
-                'missing_image_reason': missing_reason,
+                'missing_image_reason': missing_reason or ('no_camera_at_station' if method == 'external_analyzer' and not media else None),
             },
         }
+        if point != 'CP-IN':
+            before_asset = next((ref for ref in (previous['data'].get('evidence_refs', []) if previous else [])
+                                 if ref in self.media_by_id), None)
+            after_asset = next((ref for ref in (media or []) if ref in self.media_by_id), None) if method == 'external_analyzer' else None
+            previous_method = previous['data'].get('method') if previous else None
+            before_reason = ('NO_CAMERA_AT_STATION' if previous_method == 'manual_verification' or
+                             previous is None or previous['data'].get('capture_context', {}).get('missing_image_reason') != 'classified_restricted'
+                             else 'CLASSIFIED_RESTRICTED')
+            after_reason = ('LOST_IN_TRANSIT' if missing_reason == 'camera_frame_lost_during_transfer' else
+                            'CLASSIFIED_RESTRICTED' if missing_reason == 'classified_restricted' else 'NO_CAMERA_AT_STATION')
+            data['media_evidence'] = {
+                'before_operation': self.media_slot(before_asset, before_reason),
+                'after_operation': self.media_slot(after_asset, after_reason),
+            }
         return self.emit(number, minute, 'inspection_result', source, station, data,
                          operation_run_id=run, actor_id='QC-02' if method == 'manual_verification' else None,
                          delivery_delay=delay)
@@ -265,6 +420,24 @@ class Builder:
             'author_role': 'quality_controller',
         }, actor_id='QC-02')
 
+    def controller_check(self, number: int, minute: int, observation_id: str, defect: str) -> str:
+        observations = {
+            'SCRATCH': 'При очном осмотре под рассеянным светом видна риска в зоне сигнала; требуется решение о допустимой доработке.',
+            'BURR': 'При очном осмотре виден выступающий край в указанной зоне; кромка требует доработки.',
+            'DENT': 'При очном осмотре подтверждена деформация кромки; обычный снимок не определяет допуск.',
+            'CHIP': 'При очном осмотре подтверждено отсутствие материала на кромке; требуется решение технолога.',
+            'CRACK': 'При очном осмотре подтверждена линия разрыва поверхности; требуется решение технолога.',
+        }
+        return self.emit(number, minute, 'controller_check', 'QC-UI', 'qc', {
+            'case_id': f'{item_id(number)}-{defect}-F1',
+            'inspection_result': 'signs_detected',
+            'method': 'direct_visual_inspection',
+            'reason': observations[defect],
+            'observation_event_id': observation_id,
+            'photo_available': False,
+            'measurement_claimed': False,
+        }, actor_id='QC-02')
+
     def master(self, number: int, minute: int, action: str, result: str, basis: list[str], media: list[str] | None = None) -> str:
         return self.emit(number, minute, 'master_action', 'MASTER-UI', 'mill', {
             'action_type': action,
@@ -300,9 +473,12 @@ class Builder:
 
     def standard_start(self, number: int, *, incoming: str = 'no_signs_detected', machine_warning: bool = False) -> tuple[str, str, str]:
         self.receive(number)
+        incoming_media = {13: ['M013-CV-BEFORE'], 14: ['M014-CV-BEFORE'],
+                          20: ['M020-CV-BEFORE']}.get(number, [])
         incoming_id = self.inspection(number, 2, 'CP-IN', incoming,
                                       quality='poor' if incoming == 'unable_to_assess' else 'good',
                                       confidence=None if incoming == 'unable_to_assess' else 0.98,
+                                      media=incoming_media,
                                       missing_reason='camera_frame_unavailable' if incoming == 'unable_to_assess' else None)
         _, _, run = self.operation(number, 'milling', 5, 20)
         machine_id = self.machine(number, 12, run, warning=machine_warning)
@@ -331,12 +507,12 @@ class Builder:
                            'Повторный осмотр без признака; замер 5,12 мм в рамках учебного допуска.',
                            [confirmed, authorized, completed, measured, clear])
         self.finish_normal(number, 54)
-        self.demo_refs[item_id(number)] = {'detected': detected, 'confirmed': confirmed, 'master_photo': completed,
+        self.demo_refs[item_id(number)] = {'before_machine': incoming, 'detected': detected, 'confirmed': confirmed, 'master_photo': completed,
                                            'recheck': clear, 'released': released, 'measurement': measured}
 
     def demo_014(self) -> None:
         number = 14
-        _, run, machine = self.standard_start(number, machine_warning=True)
+        incoming, run, machine = self.standard_start(number, machine_warning=True)
         detected = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected', defect='BURR',
                                    severity='medium', confidence=0.91, media=['M014-CV-BURR'], run=run)
         confirmed = self.qc(number, 25, [f'{detected}#F1'], 'confirmed', 'rework',
@@ -359,7 +535,7 @@ class Builder:
         released = self.qc(number, 61, [f'{detected}#F1'], 'release_after_rework', 'release',
                            'После второго прохода заусенец не обнаружен при повторной проверке.', [second_master, clear])
         self.finish_normal(number, 65)
-        self.demo_refs[item_id(number)] = {'detected': detected, 'confirmed': confirmed, 'first_master': first_master,
+        self.demo_refs[item_id(number)] = {'before_machine': incoming, 'detected': detected, 'confirmed': confirmed, 'first_master': first_master,
                                            'failed_recheck': still, 'second_master': second_master,
                                            'successful_recheck': clear, 'released': released}
 
@@ -404,8 +580,9 @@ class Builder:
         _, run, machine = self.standard_start(number, machine_warning=True)
         detected = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected', defect='BURR',
                                    severity='medium', confidence=0.85, run=run)
+        check = self.controller_check(number, 24, detected, 'BURR')
         confirmed = self.qc(number, 25, [f'{detected}#F1'], 'confirmed', 'rework',
-                            'Заусенец подтверждён по сигналу и очному осмотру; фото источник не передал.', [detected])
+                            'Заусенец подтверждён очным осмотром зоны; фото источник не передал.', [detected, check])
         _, rework_finished, rework = self.operation(number, 'edge_rework', 30, 39, attempt=2, previous=run)
         master = self.master(number, 40, 'rework_completed', 'edge_cleaned', [confirmed, rework_finished])
         clear = self.inspection(number, 42, 'CP-POST-MILL', 'no_signs_detected', method='manual_verification', run=rework)
@@ -423,9 +600,58 @@ class Builder:
         detected = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected', defect='SCRATCH',
                                    severity='medium', confidence=0.82, run=run)
         self.repeat(detected, 4)
+        check = self.controller_check(number, 67, detected, 'SCRATCH')
         confirmed = self.qc(number, 68, [f'{detected}#F1'], 'confirmed', 'rework',
-                            'Поздний входной контроль восстановил порядок; дубль не создал второй дефект.', [incoming, detected])
+                            'Риска подтверждена очным осмотром; поздний входной контроль восстановил порядок, дубль не создал второй дефект.', [incoming, detected, check])
         self.demo_refs[item_id(number)] = {'incoming_late': incoming, 'detected': detected, 'confirmed': confirmed}
+
+    def demo_019(self) -> None:
+        """A visual mark exists before machining and remains unchanged afterward."""
+        number = 19
+        self.receive(number)
+        incoming = self.inspection(number, 2, 'CP-IN', 'signs_detected', defect='SCRATCH',
+                                   severity='low', confidence=0.91, media=['M019-CV-BEFORE'])
+        first_decision = self.qc(number, 4, [f'{incoming}#F1'], 'accepted_within_spec', 'release',
+                                 'Риска видна до станка; учебный лимит КД для зоны C не превышен. На обработку допускается.',
+                                 [incoming])
+        _, _, run = self.operation(number, 'milling', 5, 20)
+        self.machine(number, 12, run)
+        after = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected', defect='SCRATCH',
+                                severity='low', confidence=0.92, media=['M019-CV-AFTER'], run=run)
+        final_decision = self.qc(number, 25, [f'{after}#F1'], 'accepted_within_spec', 'release',
+                                 'Та же риска видна на входном кадре; после станка размер не вырос в пределах учебной оценки CV. Вину оператора не выводим.',
+                                 [incoming, first_decision, after])
+        self.finish_normal(number)
+        self.demo_refs[item_id(number)] = {'before_machine': incoming, 'incoming_decision': first_decision,
+                                           'after_machine': after, 'final_decision': final_decision}
+
+    def demo_020(self) -> None:
+        """The pre-machine image is available while the post-machine frame is lost in transit."""
+        number = 20
+        incoming, run, _ = self.standard_start(number)
+        detected = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected', defect='BURR',
+                                   severity='high', confidence=0.88, run=run,
+                                   missing_reason='camera_frame_lost_during_transfer')
+        held = self.qc(number, 25, [f'{detected}#F1'], 'additional_check', 'hold',
+                       'Послеоперационный кадр потерян при передаче. Изделие удержано для очной проверки кромки.',
+                       [incoming, detected])
+        self.demo_refs[item_id(number)] = {'before_machine': incoming, 'after_signal': detected, 'held': held}
+
+    def demo_021(self) -> None:
+        """Only structured CV and fictional drawing data leave the restricted image contour."""
+        number = 21
+        self.receive(number)
+        incoming = self.inspection(number, 2, 'CP-IN', 'no_signs_detected',
+                                   missing_reason='classified_restricted')
+        _, _, run = self.operation(number, 'milling', 5, 20)
+        self.machine(number, 12, run)
+        detected = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected', defect='SCRATCH',
+                                   severity='high', confidence=0.90, run=run,
+                                   missing_reason='classified_restricted')
+        held = self.qc(number, 25, [f'{detected}#F1'], 'additional_check', 'hold',
+                       'Сырые изображения закрыты для внешнего интерфейса; доступны метрики CV и учебная КД. Нужна очная проверка внутри контура.',
+                       [incoming, detected])
+        self.demo_refs[item_id(number)] = {'incoming': incoming, 'restricted_signal': detected, 'held': held}
 
     def background(self, number: int, category: str) -> None:
         incoming_result = 'unable_to_assess' if category == 'uncertain' else 'no_signs_detected'
@@ -455,11 +681,13 @@ class Builder:
             self.finish_normal(number, 36)
             return
         if category == 'critical_hold':
+            defect = 'DENT' if number % 2 else 'CRACK'
             detected = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected',
-                                       defect='DENT' if number % 2 else 'CHIP',
+                                       defect=defect,
                                        severity='critical', confidence=0.93, run=run)
+            check = self.controller_check(number, 24, detected, defect)
             confirmed = self.qc(number, 25, [f'{detected}#F1'], 'confirmed', 'quarantine',
-                                'Повреждение критической зоны требует заключения технолога.', [detected])
+                                'Очный осмотр подтвердил повреждение критической зоны; требуется заключение технолога.', [detected, check])
             refused = self.tech(number, 30, 'rework_not_allowed',
                                 'В учебном маршруте нет допустимого способа восстановить критическую зону.', [confirmed])
             self.qc(number, 34, [f'{detected}#F1'], 'scrap_approved', 'scrap',
@@ -467,10 +695,15 @@ class Builder:
             return
         defect = 'SCRATCH' if number % 4 == 0 else 'BURR'
         severity = 'high' if defect == 'SCRATCH' and number % 7 == 0 else 'medium'
+        cv_media = {25: ['M025-CV-BURR'], 28: ['M028-CV-SCRATCH'], 29: ['M029-CV-BURR']}.get(number, [])
         detected = self.inspection(number, 22, 'CP-POST-MILL', 'signs_detected', defect=defect,
-                                   severity=severity, confidence=0.87 + (number % 8) / 100, run=run)
+                                   severity=severity, confidence=0.87 + (number % 8) / 100,
+                                   media=cv_media, run=run)
+        check = None if cv_media else self.controller_check(number, 24, detected, defect)
         confirmed = self.qc(number, 25, [f'{detected}#F1'], 'confirmed', 'rework',
-                            'Признак подтверждён; назначена контролируемая доработка.', [detected])
+                            'Признак подтверждён по кадру и производственной истории.' if cv_media else
+                            'Признак подтверждён очным осмотром зоны; назначена контролируемая доработка.',
+                            [detected] + ([check] if check else []))
         if category == 'equipment_hypothesis':
             self.emit(number, 26, 'cause_review', 'TECH-UI', 'qc', {
                 'finding_refs': [f'{detected}#F1'], 'cause_type': 'equipment_deviation', 'status': 'hypothesis',
@@ -483,11 +716,14 @@ class Builder:
                                             [confirmed], max_stock_removal_mm=0.15)
         rework_kind = 'surface_rework' if defect == 'SCRATCH' else 'edge_rework'
         _, rework_finished, rework = self.operation(number, rework_kind, 30, 40, attempt=2, previous=run)
-        master = self.master(number, 41, 'rework_completed', 'operator_reports_complete', [authorization_basis, rework_finished])
+        repaired_media = {25: ['M025-MASTER-CLEAR'], 28: ['M028-MASTER-CLEAR']}.get(number, [])
+        master = self.master(number, 41, 'rework_completed', 'operator_reports_complete',
+                             [authorization_basis, rework_finished], repaired_media)
         basis = [master]
         if defect == 'SCRATCH':
             basis.append(self.measurement(number, 43, rework, 5.05 + (number % 7) / 100))
-        clear = self.inspection(number, 45, 'CP-POST-MILL', 'no_signs_detected', method='manual_verification', run=rework)
+        clear = self.inspection(number, 45, 'CP-POST-MILL', 'no_signs_detected',
+                                method='manual_verification', media=repaired_media, run=rework)
         basis.append(clear)
         self.qc(number, 48, [f'{detected}#F1'], 'release_after_rework', 'release',
                 'Повторная проверка после доработки без признака.', basis)
@@ -497,12 +733,21 @@ class Builder:
 def build_catalogs(original: dict[str, Any]) -> dict[str, Any]:
     catalogs = copy.deepcopy(original)
     catalogs['dataset_version'] = '2.0'
+    catalogs['item_types'].extend([
+        {'id': 'TYPE-BRACKET-GUSSET', 'name': 'Условный косыночный кронштейн', 'demo_item_id': 'ITEM-019'},
+        {'id': 'TYPE-BRACKET-CLEVIS', 'name': 'Условный вилочный кронштейн', 'demo_item_id': 'ITEM-020'},
+        {'id': 'TYPE-BRACKET-L', 'name': 'Условный L-образный кронштейн', 'demo_item_id': 'ITEM-025'},
+        {'id': 'TYPE-BRACKET-U', 'name': 'Условный U-образный кронштейн', 'demo_item_id': 'ITEM-028'},
+    ])
     catalogs['lines'].append({'id': 'LINE-02', 'name': 'Вторая учебная линия'})
     for stem, name in [('ST-IN', 'Входной контроль'), ('ST-MILL', 'Механическая обработка'),
                        ('ST-ASSEMBLY', 'Сборка'), ('ST-QC', 'Рассмотрение качества')]:
         catalogs['stations'].append({'id': stem + '-02', 'name': f'{name}, линия 2'})
     catalogs['operations'].append({'id': 'OP-REWORK', 'name': 'Контролируемая доработка', 'station_id': 'ST-MILL'})
-    catalogs['defect_types'].append({'id': 'CHIP', 'name': 'Скол критической кромки'})
+    catalogs['defect_types'].extend([
+        {'id': 'CRACK', 'name': 'Трещина'},
+        {'id': 'DISCOLORATION', 'name': 'Изменение цвета поверхности'},
+    ])
     catalogs['operators'].extend([
         {'id': 'OP-03', 'shift_id': 'SHIFT-A'}, {'id': 'OP-04', 'shift_id': 'SHIFT-A'},
         {'id': 'OP-05', 'shift_id': 'SHIFT-B'}, {'id': 'OP-06', 'shift_id': 'SHIFT-B'},
@@ -522,7 +767,7 @@ def build_items(original: list[dict[str, Any]], builder: Builder) -> list[dict[s
     for number in range(13, 181):
         items.append({
             'id': item_id(number),
-            'item_type_id': 'TYPE-BRACKET-01',
+            'item_type_id': item_type(number),
             'assembly_revision': 'A',
             'work_order_id': builder.work_order(number),
             'line_id': builder.line(number),
@@ -626,15 +871,22 @@ def main() -> None:
     legacy.main()
     old = legacy.OUT
     original_deliveries = [json.loads(line) for line in (old / 'events/deliveries.jsonl').read_text(encoding='utf-8').splitlines()]
-    builder = Builder(original_deliveries)
+    media = media_index()
+    builder = Builder(original_deliveries, media)
     for number, method in [(13, builder.demo_013), (14, builder.demo_014), (15, builder.demo_015),
-                           (16, builder.demo_016), (17, builder.demo_017), (18, builder.demo_018)]:
+                           (16, builder.demo_016), (17, builder.demo_017), (18, builder.demo_018),
+                           (19, builder.demo_019), (20, builder.demo_020), (21, builder.demo_021)]:
         method()
-    categories = (['normal'] * 108 + ['rework_success'] * 36 + ['false_positive'] * 8 +
+    categories = (['normal'] * 105 + ['rework_success'] * 36 + ['false_positive'] * 8 +
                   ['uncertain'] * 5 + ['critical_hold'] * 3 + ['equipment_hypothesis'] * 2)
     random.Random(2026).shuffle(categories)
-    category_by_item = {item_id(number): category for number, category in zip(range(19, 181), categories, strict=True)}
-    for number in range(19, 181):
+    category_by_item = {'ITEM-019': 'incoming_defect', 'ITEM-020': 'lost_after_photo',
+                        'ITEM-021': 'classified_restricted'}
+    category_by_item.update({item_id(number): category for number, category in zip(range(22, 181), categories, strict=True)})
+    if category_by_item['ITEM-049'] != 'critical_hold':
+        displaced = next(key for key, value in category_by_item.items() if value == 'critical_hold')
+        category_by_item[displaced], category_by_item['ITEM-049'] = category_by_item['ITEM-049'], 'critical_hold'
+    for number in range(22, 181):
         builder.background(number, category_by_item[item_id(number)])
     extra_duplicate_ids = [event_id for event_id, message in builder.events_by_id.items()
                            if event_id.startswith('E2-') and message['source_id'] not in HUMAN_SOURCES and message['item_id'] not in builder.demo_refs]
@@ -647,7 +899,6 @@ def main() -> None:
     actions = [record for record in ordered if record['message']['source_id'] in HUMAN_SOURCES]
     old_items = json.loads((old / 'items.json').read_text(encoding='utf-8'))
     items = build_items(old_items, builder)
-    media = media_index()
     negatives = negative_cases(builder)
     ingest = sorted(ordered + [entry['delivery'] for entry in negatives], key=lambda value: (value['deliver_at'], value['delivery_id']))
     write_json('manifest.json', {
@@ -656,7 +907,7 @@ def main() -> None:
         'duplicate_delivery_count': len(ordered) - len(unique_ids), 'invalid_delivery_count': len(negatives),
         'source_delivery_count': len(source), 'scripted_human_action_count': len(actions),
         'media_asset_count': len(media), 'demo_item_ids': list(builder.demo_refs),
-        'background_mix': dict(Counter(categories)), 'rng_seed': 2026,
+        'background_mix': dict(Counter(category_by_item.values())), 'rng_seed': 2026,
         'time_zone': 'UTC+03:00', 'no_real_personal_or_production_data': True,
         'note': 'Synthetic photos are illustrative evidence, not instrument readings. Legacy 12 cases are retained.',
     })
@@ -674,6 +925,17 @@ def main() -> None:
             {'item_id': 'ITEM-017', 'scenario': 'Предупреждение станка — гипотеза, не установленная причина.'},
             {'item_id': 'ITEM-018', 'scenario': 'Поздний входной контроль и повторная доставка одного CV-сигнала.'},
             {'item_id': 'ITEM-007', 'scenario': 'Два дефекта в одном сигнале, один бракованный экземпляр.'},
+        ],
+        'additional_visual': [
+            {'item_id': 'ITEM-025', 'scenario': 'Другой тип детали: L-образный кронштейн с заусенцем, затем чёткое фото очищенной кромки.'},
+            {'item_id': 'ITEM-028', 'scenario': 'U-образный кронштейн с поверхностной риской, затем фото после доработки.'},
+            {'item_id': 'ITEM-029', 'scenario': 'Ракурс второй камеры: ещё один дефект на отличающейся детали.'},
+        ],
+        'structured_evidence': [
+            {'item_id': 'ITEM-013', 'scenario': 'Оба кадра доступны: новая риска появляется только после станка.'},
+            {'item_id': 'ITEM-019', 'scenario': 'Риска есть до станка и после него: появление не связано с текущей операцией.'},
+            {'item_id': 'ITEM-020', 'scenario': 'Входной кадр доступен, послеоперационный потерян при передаче edge-агента.'},
+            {'item_id': 'ITEM-021', 'scenario': 'Оба сырых кадра закрыты для внешнего интерфейса; остаются геометрия CV и учебная КД.'},
         ],
         'event_refs': builder.demo_refs,
         'truth_source': 'expected/demo_timeline.json; not fed into core ingestion',

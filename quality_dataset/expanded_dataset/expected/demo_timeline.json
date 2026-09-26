@@ -1,6 +1,12 @@
 [
   {
     "item_id": "ITEM-013",
+    "step": "before_machine",
+    "event_id": "E2-000002",
+    "occurred_at": "2026-02-18T08:02:00+03:00"
+  },
+  {
+    "item_id": "ITEM-013",
     "step": "detected",
     "event_id": "E2-000006",
     "occurred_at": "2026-02-18T08:22:00+03:00"
@@ -34,6 +40,12 @@
     "step": "measurement",
     "event_id": "E2-000012",
     "occurred_at": "2026-02-18T08:46:00+03:00"
+  },
+  {
+    "item_id": "ITEM-014",
+    "step": "before_machine",
+    "event_id": "E2-000019",
+    "occurred_at": "2026-02-18T08:42:00+03:00"
   },
   {
     "item_id": "ITEM-014",
@@ -164,31 +176,91 @@
   {
     "item_id": "ITEM-017",
     "step": "confirmed",
-    "event_id": "E2-000070",
+    "event_id": "E2-000071",
     "occurred_at": "2026-02-18T11:05:00+03:00"
   },
   {
     "item_id": "ITEM-017",
     "step": "recheck",
-    "event_id": "E2-000074",
+    "event_id": "E2-000075",
     "occurred_at": "2026-02-18T11:22:00+03:00"
   },
   {
     "item_id": "ITEM-018",
     "step": "incoming_late",
-    "event_id": "E2-000080",
+    "event_id": "E2-000081",
     "occurred_at": "2026-02-18T11:22:00+03:00"
   },
   {
     "item_id": "ITEM-018",
     "step": "detected",
-    "event_id": "E2-000083",
+    "event_id": "E2-000084",
     "occurred_at": "2026-02-18T11:42:00+03:00"
   },
   {
     "item_id": "ITEM-018",
     "step": "confirmed",
-    "event_id": "E2-000084",
+    "event_id": "E2-000086",
     "occurred_at": "2026-02-18T12:28:00+03:00"
+  },
+  {
+    "item_id": "ITEM-019",
+    "step": "before_machine",
+    "event_id": "E2-000088",
+    "occurred_at": "2026-02-18T12:02:00+03:00"
+  },
+  {
+    "item_id": "ITEM-019",
+    "step": "incoming_decision",
+    "event_id": "E2-000089",
+    "occurred_at": "2026-02-18T12:04:00+03:00"
+  },
+  {
+    "item_id": "ITEM-019",
+    "step": "after_machine",
+    "event_id": "E2-000093",
+    "occurred_at": "2026-02-18T12:22:00+03:00"
+  },
+  {
+    "item_id": "ITEM-019",
+    "step": "final_decision",
+    "event_id": "E2-000094",
+    "occurred_at": "2026-02-18T12:25:00+03:00"
+  },
+  {
+    "item_id": "ITEM-020",
+    "step": "before_machine",
+    "event_id": "E2-000099",
+    "occurred_at": "2026-02-18T12:42:00+03:00"
+  },
+  {
+    "item_id": "ITEM-020",
+    "step": "after_signal",
+    "event_id": "E2-000103",
+    "occurred_at": "2026-02-18T13:02:00+03:00"
+  },
+  {
+    "item_id": "ITEM-020",
+    "step": "held",
+    "event_id": "E2-000104",
+    "occurred_at": "2026-02-18T13:05:00+03:00"
+  },
+  {
+    "item_id": "ITEM-021",
+    "step": "incoming",
+    "event_id": "E2-000106",
+    "occurred_at": "2026-02-18T13:22:00+03:00"
+  },
+  {
+    "item_id": "ITEM-021",
+    "step": "restricted_signal",
+    "event_id": "E2-000110",
+    "occurred_at": "2026-02-18T13:42:00+03:00"
+  },
+  {
+    "item_id": "ITEM-021",
+    "step": "held",
+    "event_id": "E2-000111",
+    "occurred_at": "2026-02-18T13:45:00+03:00"
   }
 ]

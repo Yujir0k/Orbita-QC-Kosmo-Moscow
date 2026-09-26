@@ -1,5 +1,16 @@
 [
   {
+    "asset_id": "M013-CV-BEFORE",
+    "item_id": "ITEM-013",
+    "path_from_quality_dataset": "media/item-013-cv-before-machine.png",
+    "sha256": "acaf6810d0733e80d670a4bd4ded6aaa34ce3791facda7be1ed1af3153ae1748",
+    "capture_source": "fixed_camera",
+    "stage": "before_machine",
+    "description": "Та же деталь до операции: правая поверхность без риски.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
     "asset_id": "M013-CV-DEFECT",
     "item_id": "ITEM-013",
     "path_from_quality_dataset": "media/item-013-cv-scratch.png",
@@ -18,6 +29,17 @@
     "capture_source": "master_phone",
     "stage": "after_rework",
     "description": "Та же деталь после разрешённой доработки; поверхность очищена.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M014-CV-BEFORE",
+    "item_id": "ITEM-014",
+    "path_from_quality_dataset": "media/item-014-cv-before-machine.png",
+    "sha256": "19e90b12b2a2e74e07448f8a6bfc28ae868e64200c80df4b8dd75141d7a88094",
+    "capture_source": "fixed_camera",
+    "stage": "before_machine",
+    "description": "Та же кромка до операции: заусенца нет.",
     "synthetic_generated_image": true,
     "not_a_measurement_or_authentic_production_record": true
   },
@@ -84,6 +106,94 @@
     "capture_source": "master_phone",
     "stage": "additional_check",
     "description": "После изменения освещения видно, что повреждения нет.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M019-CV-BEFORE",
+    "item_id": "ITEM-019",
+    "path_from_quality_dataset": "media/item-019-cv-incoming-scratch.png",
+    "sha256": "68dbe41a67dbd267132732e91c9206e79ac07d26d977cea77caa4c648042fbdc",
+    "capture_source": "fixed_camera",
+    "stage": "before_machine",
+    "description": "Риска на передней левой полке уже присутствует при входном контроле.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M019-CV-AFTER",
+    "item_id": "ITEM-019",
+    "path_from_quality_dataset": "media/item-019-cv-after-machine-scratch.png",
+    "sha256": "0e0a4a3dc4c6a182671129c27edffd9f072d503eb9d4be0790484ba621a90043",
+    "capture_source": "fixed_camera",
+    "stage": "after_machine",
+    "description": "Та же риска на той же детали после станка; нового повреждения нет.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M020-CV-BEFORE",
+    "item_id": "ITEM-020",
+    "path_from_quality_dataset": "media/item-020-cv-before-machine.png",
+    "sha256": "84d2a24815a665a29ff67cae6e2da4f74da8132c187675fa73a174ef4590922a",
+    "capture_source": "fixed_camera",
+    "stage": "before_machine",
+    "description": "Входной кадр отдельной детали перед станком; видимые поверхности без признаков.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M025-CV-BURR",
+    "item_id": "ITEM-025",
+    "path_from_quality_dataset": "media/item-025-cv-burr.png",
+    "sha256": "681260268800dbb058be9b0e5f3782ca88c408d21ee18a6dc5c3be16e9af9739",
+    "capture_source": "fixed_camera",
+    "stage": "after_machine",
+    "description": "Другой тип детали: заусенец на передней кромке L-образного кронштейна.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M025-MASTER-CLEAR",
+    "item_id": "ITEM-025",
+    "path_from_quality_dataset": "media/item-025-master-clear.png",
+    "sha256": "4d939574bcc021c55a6b8e52b381d08e40e354309fa650bc345584c5a9259a3a",
+    "capture_source": "master_phone",
+    "stage": "after_rework",
+    "description": "Та же L-образная деталь с очищенной кромкой.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M028-CV-SCRATCH",
+    "item_id": "ITEM-028",
+    "path_from_quality_dataset": "media/item-028-cv-scratch.png",
+    "sha256": "b31ad4719e21da3b49712a0050469223dca882c952cf58f1ece56cb19a5d8a2d",
+    "capture_source": "fixed_camera",
+    "stage": "after_machine",
+    "description": "U-образный кронштейн: риска на левой плоской полке.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M028-MASTER-CLEAR",
+    "item_id": "ITEM-028",
+    "path_from_quality_dataset": "media/item-028-master-clear.png",
+    "sha256": "23bad16b09efe8560986c5517e4a9ee2d7a430a524b51c9bd7c3be0b19ff7d36",
+    "capture_source": "master_phone",
+    "stage": "after_rework",
+    "description": "Та же левая полка после согласованной доработки.",
+    "synthetic_generated_image": true,
+    "not_a_measurement_or_authentic_production_record": true
+  },
+  {
+    "asset_id": "M029-CV-BURR",
+    "item_id": "ITEM-029",
+    "path_from_quality_dataset": "media/item-029-cv-burr.png",
+    "sha256": "7f17db19691d59ff105af63ec2f7101c16ca2480ead6d62d2c019c21a13b0aed",
+    "capture_source": "fixed_camera",
+    "stage": "after_machine",
+    "description": "Отдельная деталь: заусенец на верхней правой кромке.",
     "synthetic_generated_image": true,
     "not_a_measurement_or_authentic_production_record": true
   }

@@ -445,7 +445,7 @@
   },
   {
     "id": "ITEM-019",
-    "item_type_id": "TYPE-BRACKET-01",
+    "item_type_id": "TYPE-BRACKET-GUSSET",
     "assembly_revision": "A",
     "work_order_id": "WO-C01",
     "line_id": "LINE-01",
@@ -471,7 +471,7 @@
   },
   {
     "id": "ITEM-020",
-    "item_type_id": "TYPE-BRACKET-01",
+    "item_type_id": "TYPE-BRACKET-CLEVIS",
     "assembly_revision": "A",
     "work_order_id": "WO-C01",
     "line_id": "LINE-02",
@@ -601,7 +601,7 @@
   },
   {
     "id": "ITEM-025",
-    "item_type_id": "TYPE-BRACKET-01",
+    "item_type_id": "TYPE-BRACKET-L",
     "assembly_revision": "A",
     "work_order_id": "WO-C01",
     "line_id": "LINE-01",
@@ -679,7 +679,7 @@
   },
   {
     "id": "ITEM-028",
-    "item_type_id": "TYPE-BRACKET-01",
+    "item_type_id": "TYPE-BRACKET-U",
     "assembly_revision": "A",
     "work_order_id": "WO-C01",
     "line_id": "LINE-02",

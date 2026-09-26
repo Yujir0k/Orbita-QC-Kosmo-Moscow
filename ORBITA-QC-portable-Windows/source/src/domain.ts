@@ -1,9 +1,15 @@
 import demo from './demo-data.json';
 import type { RoleId } from './navigation';
 
-export interface Finding { finding_id: string; defect_type_id: string; component_id: string; region: string; severity: string }
+export interface Finding { finding_id: string; defect_type_id: string; component_id: string; region: string; severity: string; description?: string; observed_feature?: string; length_mm?: number; width_mm?: number; depth_estimated_mm?: number | null; defect_class?: 'SCRATCH' | 'CRACK' | 'BURR' | 'DENT' | 'DISCOLORATION'; dimension_source?: string; dimension_uncertainty_mm?: number }
+export interface MediaSlot { url: string | null; sha256_hash: string; status: 'AVAILABLE' | 'MISSING'; absence_reason: 'LOST_IN_TRANSIT' | 'CLASSIFIED_RESTRICTED' | 'NO_CAMERA_AT_STATION' | 'NONE' }
+export interface MediaEvidence { before_operation: MediaSlot; after_operation: MediaSlot }
+export interface KdSpec { surface_zone_class: 'ZONE_A_CRITICAL' | 'ZONE_B_MATING' | 'ZONE_C_NON_CRITICAL'; max_allowable_defect_length_mm: number; standard_ref: string; source_kind?: string; applies_to?: string }
+export interface ItemState { physical_location: string; line_lock_status: 'HELD_AT_STATION' | 'IN_BUFFER' | 'ROUTED_FORWARD' }
 export interface EventData {
   inspection_result?: string; observation_quality?: string; confidence?: number | null; defects?: Finding[];
+  media_evidence?: MediaEvidence; kd_spec?: KdSpec;
+  observation_summary?: string; comparison?: { previous_inspection_event_id?: string | null; previous_result?: string | null; summary?: string }; next_verification?: string | null;
   inspection_point_id?: string; method?: string; finding_refs?: string[]; decision?: string; disposition?: string;
   reason?: string; cause_type?: string; status?: string; basis_event_ids?: string[]; evidence_event_ids?: string[];
   evidence_refs?: string[]; triage_priority?: string; capture_context?: Record<string, unknown>;
@@ -12,7 +18,7 @@ export interface EventData {
   measurement?: { value: number; unit: string; lower_limit?: number }; executor_id?: string; comment?: string;
   [key: string]: unknown;
 }
-export interface QualityEvent { event_id: string; event_type: string; schema_version: string; occurred_at: string; source_id: string; item_id: string; item_type_id: string; line_id: string; station_id: string; shift_id: string; operation_run_id?: string; actor_id?: string; equipment_id?: string; analyzer_version?: string; data: EventData }
+export interface QualityEvent { event_id: string; event_type: string; schema_version: string; occurred_at: string; source_id: string; item_id: string; item_type_id: string; line_id: string; station_id: string; shift_id: string; operation_run_id?: string; actor_id?: string; equipment_id?: string; analyzer_version?: string; item_state?: ItemState; data: EventData }
 export interface Delivery { delivery_id: string; deliver_at: string; message: QualityEvent }
 export interface Product { id: string; item_type_id: string; work_order_id: string; assembly_revision: string; components: { id: string; component_type_id: string }[] }
 export interface MediaAsset { asset_id: string; item_id: string; path_from_quality_dataset: string; capture_source: string; stage: string; description: string; sha256?: string }
@@ -31,10 +37,10 @@ export const sourceDeliveries = dataset.source;
 const sourceById = new Map(sourceDeliveries.map(row => [row.delivery_id, row]));
 const itemById = new Map(items.map(item => [item.id, item]));
 const mediaById = new Map(mediaIndex.map(asset => [asset.asset_id, asset]));
-export const defectNames: Record<string, string> = { DENT: 'Вмятина', SCRATCH: 'Царапина', BURR: 'Заусенец', CHIP: 'Скол', UNASSESSABLE: 'Нужна доппроверка' };
+export const defectNames: Record<string, string> = { DENT: 'Вмятина', SCRATCH: 'Царапина', BURR: 'Заусенец', CHIP: 'Скол', CRACK: 'Трещина', DISCOLORATION: 'Изменение цвета', UNASSESSABLE: 'Нужна доппроверка' };
 export const stationNames: Record<string, string> = Object.fromEntries(catalogs.stations.map(s => [s.id, s.name]));
-export const eventNames: Record<string, string> = { item_received: 'Поступление изделия', inspection_result: 'Наблюдение контроля', operation_started: 'Начало операции', operation_finished: 'Завершение операции', operation_paused: 'Пауза операции', quality_decision: 'Решение контролёра', cause_review: 'Заключение технолога', technical_disposition: 'Допустимость доработки', master_action: 'Работа мастера', manual_measurement: 'Ручной замер', machine_state: 'Состояние оборудования', operator_action: 'Наблюдение действия' };
-export const decisionNames: Record<string, string> = { confirmed: 'Подтверждено', rejected: 'Признак отклонён', release_after_rework: 'Выпуск после контроля', additional_check: 'Доппроверка', scrap_approved: 'Списание', recheck: 'Повторная проверка' };
+export const eventNames: Record<string, string> = { item_received: 'Поступление изделия', inspection_result: 'Наблюдение контроля', operation_started: 'Начало операции', operation_finished: 'Завершение операции', operation_paused: 'Пауза операции', quality_decision: 'Решение контролёра', controller_check: 'Очная проверка контролёра', cause_review: 'Заключение технолога', technical_disposition: 'Допустимость доработки', master_action: 'Работа мастера', manual_measurement: 'Ручной замер', machine_state: 'Состояние оборудования', operator_action: 'Наблюдение действия' };
+export const decisionNames: Record<string, string> = { confirmed: 'Подтверждено', rejected: 'Признак отклонён', accepted_within_spec: 'Видимый след в пределах КД', release_after_rework: 'Выпуск после контроля', additional_check: 'Доппроверка', scrap_approved: 'Списание', recheck: 'Повторная проверка' };
 export const resultNames: Record<string, string> = { signs_detected: 'Есть признаки', no_signs_detected: 'Признаков не выявлено', unable_to_assess: 'Оценить невозможно' };
 export const time = (value: string): string => new Date(value).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' });
 const validDate = (value: unknown): value is string => typeof value === 'string' && !Number.isNaN(Date.parse(value));
@@ -66,10 +72,17 @@ export function validateDelivery(raw: unknown): string | null {
     if (d.confidence != null && (typeof d.confidence !== 'number' || d.confidence < 0 || d.confidence > 1)) return 'Уверенность вне диапазона 0–1';
     if (e.schema_version === '2.0' && (!textField(d.triage_priority) || !d.capture_context || typeof d.capture_context !== 'object')) return 'Нет полей результата версии 2.0';
     for (const finding of d.defects) if (!textField(finding.finding_id) || !textField(finding.defect_type_id) || !item.components.some(c => c.id === finding.component_id)) return 'Некорректная ссылка на признак или компонент';
+    for (const finding of d.defects) if (finding.defect_class !== undefined && (!['SCRATCH', 'CRACK', 'BURR', 'DENT', 'DISCOLORATION'].includes(finding.defect_class) || typeof finding.length_mm !== 'number' || finding.length_mm <= 0 || typeof finding.width_mm !== 'number' || finding.width_mm <= 0 || finding.depth_estimated_mm != null && (typeof finding.depth_estimated_mm !== 'number' || finding.depth_estimated_mm < 0))) return 'Некорректная геометрия признака';
+    if (d.kd_spec && (!['ZONE_A_CRITICAL', 'ZONE_B_MATING', 'ZONE_C_NON_CRITICAL'].includes(d.kd_spec.surface_zone_class) || !Number.isFinite(d.kd_spec.max_allowable_defect_length_mm) || d.kd_spec.max_allowable_defect_length_mm < 0 || !textField(d.kd_spec.standard_ref))) return 'Некорректный критерий КД';
+    if (d.media_evidence) for (const slot of [d.media_evidence.before_operation, d.media_evidence.after_operation]) {
+      if (!slot || slot.status === 'AVAILABLE' && (!textField(slot.url) || !/^[0-9a-f]{64}$/.test(slot.sha256_hash) || slot.absence_reason !== 'NONE') || slot.status === 'MISSING' && (slot.url !== null || slot.sha256_hash !== '' || !['LOST_IN_TRANSIT', 'CLASSIFIED_RESTRICTED', 'NO_CAMERA_AT_STATION'].includes(slot.absence_reason)) || !['AVAILABLE', 'MISSING'].includes(slot.status)) return 'Некорректный слот изображения';
+    }
   }
+  if (e.item_state && (!textField(e.item_state.physical_location) || !['HELD_AT_STATION', 'IN_BUFFER', 'ROUTED_FORWARD'].includes(e.item_state.line_lock_status))) return 'Некорректное физическое состояние изделия';
   if (['operation_started', 'operation_finished', 'operation_paused'].includes(e.event_type!) && !textField(e.operation_run_id)) return 'Нет operation_run_id';
   if (e.event_type === 'manual_measurement' && !textField(e.operation_run_id) && !textField(e.data.case_id)) return 'Замер не привязан к операции или случаю качества';
-  if (['quality_decision', 'master_action', 'technical_disposition', 'manual_measurement'].includes(e.event_type!) && !textField(e.actor_id)) return 'Нет actor_id';
+  if (e.event_type === 'controller_check' && (!textField(e.data.case_id) || !['signs_detected', 'no_signs_detected'].includes(e.data.inspection_result ?? '') || !textField(e.data.reason))) return 'Неполная очная проверка';
+  if (['quality_decision', 'controller_check', 'master_action', 'technical_disposition', 'manual_measurement'].includes(e.event_type!) && !textField(e.actor_id)) return 'Нет actor_id';
   if (e.data.evidence_refs && (!Array.isArray(e.data.evidence_refs) || e.data.evidence_refs.some(ref => !mediaById.has(ref) || mediaById.get(ref)?.item_id !== e.item_id))) return 'Неизвестное или чужое медиа';
   return null;
 }
@@ -160,6 +173,7 @@ function allowed(row: Delivery): boolean {
   if (item === 'ITEM-015') return hasDecision(item, 'additional_check');
   if (item === 'ITEM-016') return hasDecision(item, 'rejected');
   if (item === 'ITEM-017') return e.data.operation_id === 'OP-REWORK' ? countDisposition(item, 'rework') > 0 : hasDecision(item, 'release_after_rework');
+  if (item === 'ITEM-019') return e.station_id.startsWith('ST-ASSEMBLY') ? events.filter(x => x.item_id === item && x.event_type === 'quality_decision' && x.data.decision === 'accepted_within_spec').length >= 2 : hasDecision(item, 'accepted_within_spec');
   return events.some(x => x.item_id === item && x.event_type === 'quality_decision');
 }
 /** Deliver one currently eligible external message. */
@@ -231,7 +245,7 @@ export function projectCases(input: QualityEvent[]): Case[] {
     const severityLabel = { critical: 'критическая', high: 'высокая', medium: 'средняя', low: 'низкая', requires_review: 'требует ручной оценки' }[severity] ?? severity;
     const why = [severity === 'critical' ? 'Критический признак' : 'Предварительная тяжесть: ' + severityLabel, held ? 'изделие удержано' : '', current.type === 'UNASSESSABLE' ? 'оценка невозможна' : '', poor ? 'качество кадра ограничено' : '', lowConfidence ? 'низкая уверенность CV: нужна проверка' : '', machineWarning ? 'есть предупреждение станка, причина не доказана' : '', repeat ? 'признак остался после доработки' : '', waiting >= 4 ? 'длительное ожидание' : ''].filter(Boolean).join(' · ');
     const assessed = current.type === 'UNASSESSABLE' && input.some(e => e.item_id === current.item && e.event_type === 'inspection_result' && e.data.method === 'manual_verification');
-    return { ...current, decisions, review, confirmed: current.type !== 'UNASSESSABLE' && decisions.some(e => e.data.decision === 'confirmed'), status: assessed ? 'Доппроверка выполнена' : last ? decisionNames[last] ?? last : current.status, tone: assessed ? 'blue' : last === 'confirmed' || last === 'scrap_approved' ? 'red' : last === 'rejected' || last === 'release_after_rework' ? 'green' : 'amber', priority, why };
+    return { ...current, decisions, review, confirmed: current.type !== 'UNASSESSABLE' && decisions.some(e => e.data.decision === 'confirmed'), status: assessed ? 'Доппроверка выполнена' : last ? decisionNames[last] ?? last : current.status, tone: assessed ? 'blue' : last === 'confirmed' || last === 'scrap_approved' ? 'red' : last === 'rejected' || last === 'accepted_within_spec' || last === 'release_after_rework' ? 'green' : 'amber', priority, why };
   });
 }
 export interface Operation { id: string; item: string; name: string; actor?: string; shift: string; start: string; end?: string; duration?: number; rework: boolean; paused: boolean; station: string }
@@ -254,7 +268,7 @@ export function projectTasks(input: QualityEvent[]): Task[] {
     const casePriority = Math.max(...cases.filter(c => c.item === item).map(c => c.priority), 30);
     const why = cases.find(c => c.item === item)?.why ?? 'Нужна проверка';
     const add = (role: RoleId, title: string, event: QualityEvent, description: string) => result.push({ id: `TASK-${role}-${item}`, title, item, role, event, done: false, description, priority: casePriority, why });
-    if (!lastDecision || (lastMaster && (!lastDecision || Date.parse(lastMaster.occurred_at) > Date.parse(lastDecision.occurred_at)))) add('controller', lastMaster ? 'Провести повторный контроль' : anomaly.data.inspection_result === 'unable_to_assess' ? 'Назначить доппроверку' : 'Рассмотреть признак CV', lastMaster ?? anomaly, why);
+    if (!lastDecision || (lastMaster?.data.action_type !== 'scrap_to_isolator' && lastMaster && (!lastDecision || Date.parse(lastMaster.occurred_at) > Date.parse(lastDecision.occurred_at)))) add('controller', lastMaster ? 'Провести повторный контроль' : anomaly.data.inspection_result === 'unable_to_assess' ? 'Назначить доппроверку' : 'Рассмотреть признак CV', lastMaster ?? anomaly, why);
     if (lastDecision && ['rework', 'hold', 'quarantine'].includes(lastDecision.data.disposition ?? '') && (!lastMaster || Date.parse(lastMaster.occurred_at) < Date.parse(lastDecision.occurred_at))) add('master', lastDecision.data.disposition === 'rework' ? 'Выполнить доработку и передать контроль' : lastDecision.data.disposition === 'hold' ? 'Организовать очную проверку' : 'Организовать карантин', lastDecision, 'Решение контролёра. Работа мастера не означает выпуск.');
     if (item === 'ITEM-013' && lastDecision?.data.decision === 'confirmed' && !own.some(e => e.event_type === 'technical_disposition')) add('technologist', 'Оценить нестандартную доработку', lastDecision, 'Нужна оценка допустимости до снятия материала.');
     if (item === 'ITEM-015' && lastDecision?.data.disposition === 'quarantine' && !own.some(e => e.event_type === 'technical_disposition')) add('technologist', 'Оценить ремонтопригодность', lastDecision, 'Критическая кромка: проверьте маршрут.');
@@ -271,6 +285,7 @@ export function productStatus(id: string): { label: string; tone: 'red' | 'amber
   if (decision?.data.disposition === 'hold') return { label: 'Удержано для доппроверки', tone: 'amber' };
   if (decision?.data.disposition === 'rework') {
     const master = own.filter(e => e.event_type === 'master_action').at(-1);
+    if (master?.data.action_type === 'scrap_to_isolator' && Date.parse(master.occurred_at) > Date.parse(decision.occurred_at)) return { label: 'Изолятор брака', tone: 'red' };
     if (master && Date.parse(master.occurred_at) > Date.parse(decision.occurred_at)) return { label: 'Ожидает повторного контроля', tone: 'amber' };
     if (id === 'ITEM-013' && !own.some(e => e.event_type === 'technical_disposition' && e.data.disposition === 'rework_allowed')) return { label: 'Удержано: заключение технолога', tone: 'amber' };
     return { label: 'Удержано: доработка', tone: 'amber' };
@@ -287,27 +302,44 @@ export function describeEvent(event: QualityEvent): string {
   return [event.operation_run_id, event.actor_id, event.equipment_id].filter(Boolean).join(' · ') || 'Событие производственного процесса';
 }
 
-export type WorkflowAction = 'confirm' | 'confirm_hold' | 'additional' | 'reject' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
+export type WorkflowAction = 'confirm' | 'confirm_hold' | 'additional' | 'reject' | 'accepted_within_spec' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'master_scrap' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
+export interface MasterReworkDetails { method: string; operator: string; durationMinutes: number; actualSizeMm: number; paperInspection: boolean }
 /** Record a role action as a new auditable event, then unlock only its next source stage. */
-export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string, measurement?: { value: number; instrumentId: string; calibrationConfirmed: boolean }): string {
+export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string, measurement?: { value: number; instrumentId: string; calibrationConfirmed: boolean }, missingPhotoConfirmation?: { observationEventId: string; acknowledged: true }, masterDetails?: MasterReworkDetails): string {
   const own = eventsFor(item); const latest = own.at(-1); if (!latest) throw new Error('Изделие ещё не поступило');
   if (!reason.trim()) throw new Error('Укажите основание');
-  const allowedRole = action.startsWith('tech') || action === 'hypothesis' || action === 'cause_confirm' ? 'technologist' : action === 'master_complete' ? 'master' : 'controller';
+  const allowedRole = action.startsWith('tech') || action === 'hypothesis' || action === 'cause_confirm' ? 'technologist' : action === 'master_complete' || action === 'master_scrap' ? 'master' : 'controller';
   if (role !== allowedRole) throw new Error('Действие недоступно для этой роли');
   const lastDecision = own.filter(e => e.event_type === 'quality_decision').at(-1);
   const lastMaster = own.filter(e => e.event_type === 'master_action').at(-1);
+  const selectedCase = cases.find(entry => entry.item === item && (caseId ? entry.id === caseId : true));
+  const observation = selectedCase?.observations.at(-1);
+  const masterPhoto = lastMaster && observation && Date.parse(lastMaster.occurred_at) > Date.parse(observation.occurred_at) && mediaIndex.some(asset => lastMaster.data.evidence_refs?.includes(asset.asset_id));
+  const missingPhoto = observation?.data.media_evidence?.after_operation.status === 'MISSING' && !masterPhoto;
+  const confirming = action === 'confirm' || action === 'confirm_hold';
+  const acknowledged = missingPhotoConfirmation?.acknowledged === true && missingPhotoConfirmation.observationEventId === observation?.event_id;
+  if (confirming && missingPhoto && !acknowledged) throw new Error('Подтвердите личную ответственность за решение без фотоматериала');
+  if (confirming && missingPhoto && !executor.trim()) throw new Error('Укажите контролёра, принимающего ответственность');
   const afterDecision = !!lastMaster && !!lastDecision && Date.parse(lastMaster.occurred_at) > Date.parse(lastDecision.occurred_at);
-  if (action === 'master_complete' && (!lastDecision || !['rework', 'hold', 'quarantine'].includes(lastDecision.data.disposition ?? '') || afterDecision)) throw new Error('Нет открытого задания мастеру');
+  if (['master_complete', 'master_scrap'].includes(action) && (!lastDecision || !['rework', 'hold', 'quarantine'].includes(lastDecision.data.disposition ?? '') || afterDecision)) throw new Error('Нет открытого задания мастеру');
+  if (action === 'master_scrap' && lastDecision?.data.disposition !== 'rework') throw new Error('Списание доступно только для детали на доработке');
+  if (action === 'master_complete' && masterDetails && (!masterDetails.method.trim() || !masterDetails.operator.trim() || !Number.isFinite(masterDetails.durationMinutes) || masterDetails.durationMinutes <= 0 || !Number.isFinite(masterDetails.actualSizeMm) || masterDetails.actualSizeMm < 0 || !includePhoto && !masterDetails.paperInspection)) throw new Error('Заполните параметры исправления и подтвердите осмотр без фото');
   if (action === 'master_complete' && item === 'ITEM-013' && !own.some(e => e.event_type === 'technical_disposition' && e.data.disposition === 'rework_allowed')) throw new Error('Сначала нужно заключение технолога');
   if (action === 'tech_allow' && item === 'ITEM-013' && lastDecision?.data.disposition !== 'rework') throw new Error('Сначала контролёр должен направить изделие на доработку');
   if (action === 'tech_deny' && item === 'ITEM-015' && lastDecision?.data.disposition !== 'quarantine') throw new Error('Сначала подтвердите дефект и карантин');
-  if (action === 'confirm' && item === 'ITEM-015' && !lastMaster) throw new Error('Сначала нужна очная проверка с фото');
+  if (action === 'confirm' && item === 'ITEM-015' && !lastMaster && !(acknowledged && selectedCase?.type !== 'UNASSESSABLE') && !own.some(e => e.event_type === 'controller_check' && e.data.case_id === caseId && e.data.inspection_result === 'signs_detected')) throw new Error('Сначала нужна очная проверка с подтверждением признака');
   if (action === 'scrap' && !own.some(e => e.event_type === 'technical_disposition' && e.data.disposition === 'rework_not_allowed')) throw new Error('Нужно заключение о невозможности доработки');
   if (['release', 'recheck_fail'].includes(action) && !afterDecision) throw new Error('Сначала мастер должен завершить работу и передать изделие');
   if (['release', 'recheck_fail'].includes(action) && lastMaster?.data.action_type !== 'rework_completed') throw new Error('Очная проверка мастера не является завершённой доработкой');
   if (action === 'release' && item === 'ITEM-013' && (!measurement || !Number.isFinite(measurement.value) || measurement.value < 5 || !measurement.instrumentId.trim() || !measurement.calibrationConfirmed)) throw new Error('Нужен фактический ручной замер: стенка не менее 5,0 мм, идентификатор поверенного прибора');
   if (action === 'release' && item === 'ITEM-014' && own.filter(e => e.event_type === 'master_action').length === 1) throw new Error('После первого прохода заусенец остаётся: требуется новый круг');
   if (action === 'reject' && item === 'ITEM-016' && !afterDecision) throw new Error('Сначала нужна доппроверка при другом освещении');
+  if (action === 'accepted_within_spec') {
+    const selected = cases.find(entry => entry.id === caseId && entry.item === item);
+    const finding = selected?.observations.at(-1)?.data.defects?.find(row => row.defect_type_id === selected.type);
+    const spec = selected?.observations.at(-1)?.data.kd_spec;
+    if (!selected || selected.type !== 'SCRATCH' || spec?.source_kind !== 'synthetic_demo_assumption' || typeof finding?.length_mm !== 'number' || finding.length_mm > spec.max_allowable_defect_length_mm) throw new Error('Учебное принятие в пределах КД доступно только для измеренного сигнала риска в пределах указанного лимита');
+  }
   const first = own.find(e => e.event_type === 'inspection_result' && e.data.inspection_result === 'signs_detected');
   let refs = first?.data.defects?.map(f => `${first.event_id}#${f.finding_id}`) ?? [];
   if (!refs.length) refs = cases.find(entry => entry.item === item && entry.type === 'UNASSESSABLE')?.refs ?? [];
@@ -318,26 +350,33 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
   }
   const make = (event_type: string, data: EventData, extra: Partial<QualityEvent> = {}) => {
     const lastTime = Math.max(...eventsFor(item).map(e => Date.parse(e.occurred_at)));
-    const event: QualityEvent = { event_id: `UI-${crypto.randomUUID()}`, event_type, schema_version: '2.0', occurred_at: new Date(lastTime + 60000).toISOString(), source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id, station_id: latest.station_id, shift_id: latest.shift_id, actor_id: executor.trim() || role.toUpperCase(), data, ...extra };
+    const previousState = [...eventsFor(item)].reverse().find(e => e.item_state)?.item_state;
+    const itemState: ItemState = event_type === 'quality_decision' ? data.disposition === 'release'
+      ? { physical_location: 'Передана на следующую операцию маршрута', line_lock_status: 'ROUTED_FORWARD' }
+      : { physical_location: `${latest.station_id}: зона удержания ОТК`, line_lock_status: 'HELD_AT_STATION' }
+      : event_type === 'master_action' ? { physical_location: `${latest.station_id}: межоперационный буфер`, line_lock_status: 'IN_BUFFER' }
+      : previousState ?? { physical_location: `${latest.station_id}: зона контроля`, line_lock_status: 'HELD_AT_STATION' };
+    const event: QualityEvent = { event_id: `UI-${crypto.randomUUID()}`, event_type, schema_version: '2.0', occurred_at: new Date(lastTime + 60000).toISOString(), source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id, station_id: latest.station_id, shift_id: latest.shift_id, actor_id: executor.trim() || role.toUpperCase(), item_state: itemState, data, ...extra };
     const row: Delivery = { delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event };
     const outcome = accept(row); if (outcome.kind === 'error') throw new Error(outcome.reason); events.sort(sortEvents);
     return event;
   };
-  if (action === 'confirm' || action === 'confirm_hold' || action === 'additional' || action === 'reject' || action === 'scrap') {
+  if (action === 'confirm' || action === 'confirm_hold' || action === 'additional' || action === 'reject' || action === 'accepted_within_spec' || action === 'scrap') {
     if (action === 'confirm' && item === 'ITEM-015' && own.some(e => e.event_type === 'master_action') && !first) {
       const check = make('inspection_result', { inspection_point_id: 'CP-POST-MILL', inspection_result: 'signs_detected', observation_quality: 'good', confidence: null, defects: [{ finding_id: 'F1', defect_type_id: 'DENT', component_id: itemById.get(item)!.components.find(c => c.component_type_id === 'BODY')!.id, region: 'outer_left_edge', severity: 'critical' }], method: 'manual_verification', evidence_refs: ['M015-MASTER-DENT'], triage_priority: 'critical', capture_context: { source: 'manual_verification' } });
       refs = [`${check.event_id}#F1`];
     }
     if (action === 'reject' && item === 'ITEM-016' && own.some(e => e.event_type === 'master_action')) make('inspection_result', { inspection_point_id: 'CP-POST-MILL', inspection_result: 'no_signs_detected', observation_quality: 'good', confidence: null, defects: [], method: 'manual_verification', evidence_refs: ['M016-MASTER-CLEAR'], triage_priority: 'routine', capture_context: { source: 'manual_verification' } });
-    const decision = action === 'confirm' || action === 'confirm_hold' ? 'confirmed' : action === 'additional' ? 'additional_check' : action === 'reject' ? 'rejected' : 'scrap_approved';
-    const disposition = action === 'confirm_hold' ? 'hold' : action === 'confirm' ? item === 'ITEM-015' ? 'quarantine' : 'rework' : action === 'additional' ? 'hold' : action === 'reject' ? 'release' : 'scrap';
-    make('quality_decision', { decision, disposition, finding_refs: refs, reason });
+    const decision = action === 'confirm' || action === 'confirm_hold' ? 'confirmed' : action === 'additional' ? 'additional_check' : action === 'reject' ? 'rejected' : action === 'accepted_within_spec' ? 'accepted_within_spec' : 'scrap_approved';
+    const disposition = action === 'confirm_hold' ? 'hold' : action === 'confirm' ? item === 'ITEM-015' ? 'quarantine' : 'rework' : action === 'additional' ? 'hold' : action === 'reject' || action === 'accepted_within_spec' ? 'release' : 'scrap';
+    make('quality_decision', { decision, disposition, finding_refs: refs, reason, ...(confirming && acknowledged ? { missing_photo_acknowledgement: { acknowledged: true, observation_event_id: observation!.event_id, absence_reason: observation!.data.media_evidence?.after_operation.absence_reason ?? 'NOT_PROVIDED', actor_id: executor.trim(), basis: 'telemetry_and_kd', acknowledged_at: new Date().toISOString() } } : {}) });
   } else if (action === 'tech_allow' || action === 'tech_deny') make('technical_disposition', { disposition: action === 'tech_allow' ? 'rework_allowed' : 'rework_not_allowed', basis_event_ids: own.filter(e => e.event_type === 'quality_decision').map(e => e.event_id), reason });
   else if (action === 'hypothesis' || action === 'cause_confirm') make('cause_review', { status: action === 'cause_confirm' ? 'confirmed' : 'hypothesis', finding_refs: refs, reason });
-  else if (action === 'master_complete') {
+  else if (action === 'master_complete' || action === 'master_scrap') {
     const count = own.filter(e => e.event_type === 'master_action').length;
-    const asset = includePhoto ? item === 'ITEM-013' ? 'M013-MASTER-CLEAR' : item === 'ITEM-014' ? count ? 'M014-MASTER-CLEAR' : 'M014-MASTER-STILL' : item === 'ITEM-015' ? 'M015-MASTER-DENT' : item === 'ITEM-016' ? 'M016-MASTER-CLEAR' : undefined : undefined;
-    make('master_action', { action_type: own.some(e => e.data.disposition === 'rework') ? 'rework_completed' : 'inspection_support', evidence_refs: asset ? [asset] : [], observation_quality: asset ? 'good' : undefined, executor_id: executor, comment: reason, reason });
+    const asset = action === 'master_complete' && includePhoto ? item === 'ITEM-013' ? 'M013-MASTER-CLEAR' : item === 'ITEM-014' ? count ? 'M014-MASTER-CLEAR' : 'M014-MASTER-STILL' : item === 'ITEM-015' ? 'M015-MASTER-DENT' : item === 'ITEM-016' ? 'M016-MASTER-CLEAR' : item === 'ITEM-025' ? 'M025-MASTER-CLEAR' : item === 'ITEM-028' ? 'M028-MASTER-CLEAR' : undefined : undefined;
+    const photoUploadedAt = asset ? new Date(Math.max(...own.map(e => Date.parse(e.occurred_at))) + 60000).toISOString() : undefined;
+    make('master_action', { action_type: action === 'master_scrap' ? 'scrap_to_isolator' : own.some(e => e.data.disposition === 'rework') ? 'rework_completed' : 'inspection_support', workflow_status: action === 'master_scrap' ? 'SCRAP_ISOLATOR' : 'REVISION_READY', evidence_refs: asset ? [asset] : [], photo_uploaded_at: photoUploadedAt, observation_quality: asset ? 'good' : undefined, executor_id: masterDetails?.operator ?? executor, rework_method: masterDetails?.method, duration_minutes: masterDetails?.durationMinutes, actual_size_mm: masterDetails?.actualSizeMm, paper_inspection: masterDetails?.paperInspection ?? false, comment: reason, reason });
   } else if (action === 'recheck_fail' || action === 'release') {
     const run = own.filter(e => e.event_type === 'operation_started').at(-1)?.operation_run_id;
     if (action === 'release' && item === 'ITEM-013' && measurement) make('manual_measurement', { feature_id: 'WALL-NEAR-RIGHT-HOLE', measured_value: measurement.value, unit: 'mm', lower_limit: 5, instrument_id: measurement.instrumentId.trim(), calibration_status: measurement.calibrationConfirmed ? 'operator_confirmed' : 'unconfirmed', result: 'within_assumed_limit', is_camera_measurement: false, reason: `Ручной замер: ${measurement.value} мм при минимуме 5,0 мм. Прибор ${measurement.instrumentId.trim()}.` }, { operation_run_id: run });
@@ -348,12 +387,24 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
   advanceItem(item); save(); return action;
 }
 
+/** Prepare the synthetic workshop shift once, while preserving decisions already made in the demo. */
+export function prepareMasterShift(): void {
+  for (const item of ['ITEM-013', 'ITEM-014', 'ITEM-025']) {
+    if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'confirm', 'Учебное направление подтверждённой детали на доработку по F2', 'QC-02');
+  }
+  if (eventsFor('ITEM-013').some(event => event.data.disposition === 'rework') && !eventsFor('ITEM-013').some(event => event.event_type === 'technical_disposition')) performAction('ITEM-013', 'technologist', 'tech_allow', 'Учебное разрешение на ограниченную доработку после проверки допуска', 'TECH-01');
+  for (const item of ['ITEM-015', 'ITEM-016']) {
+    if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'additional', 'Учебный вызов мастера на очный досмотр по F4', 'QC-02');
+  }
+}
+
 /** Record a controller's instrument reading without treating it as a CV result or quality decision. */
-export function recordManualMeasurement(item: string, caseId: string, parameter: string, value: number, instrumentId: string, executor: string, calibrationConfirmed: boolean): string {
+export function recordManualMeasurement(item: string, caseId: string, parameter: string, value: number, instrumentId: string, executor: string, calibrationConfirmed: boolean, criteria?: { lower?: number; upper?: number; document: string }): string {
   const selected = cases.find(entry => entry.id === caseId && entry.item === item);
   if (!selected) throw new Error('Случай контроля не найден');
   if (!parameter.trim() || !Number.isFinite(value) || value < 0 || !instrumentId.trim() || !executor.trim()) throw new Error('Укажите параметр, значение, прибор и контролёра');
   if (!calibrationConfirmed) throw new Error('Подтвердите поверку прибора');
+  if (criteria && (!criteria.document.trim() || criteria.lower === undefined && criteria.upper === undefined || criteria.lower !== undefined && !Number.isFinite(criteria.lower) || criteria.upper !== undefined && !Number.isFinite(criteria.upper) || criteria.lower !== undefined && criteria.upper !== undefined && criteria.lower > criteria.upper)) throw new Error('Укажите документ и корректные границы допуска для этого параметра');
   const own = eventsFor(item);
   const latest = own.at(-1);
   const observation = selected.observations.at(-1);
@@ -363,11 +414,48 @@ export function recordManualMeasurement(item: string, caseId: string, parameter:
   const event: QualityEvent = {
     event_id: `UI-${crypto.randomUUID()}`, event_type: 'manual_measurement', schema_version: '2.0', occurred_at: occurredAt,
     source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id,
-    station_id: observation?.station_id ?? latest.station_id, shift_id: observation?.shift_id ?? latest.shift_id, operation_run_id: run, actor_id: executor.trim(),
-    data: { case_id: caseId, basis_event_ids: observation ? [observation.event_id] : [], feature_id: parameter.trim(), measured_value: value, unit: 'mm', instrument_id: instrumentId.trim(), calibration_status: 'operator_confirmed', is_camera_measurement: false },
+    station_id: observation?.station_id ?? latest.station_id, shift_id: observation?.shift_id ?? latest.shift_id, operation_run_id: run, actor_id: executor.trim(), item_state: latest.item_state,
+    data: { case_id: caseId, basis_event_ids: observation ? [observation.event_id] : [], feature_id: parameter.trim(), measured_value: value, unit: 'mm', instrument_id: instrumentId.trim(), calibration_status: 'operator_confirmed', is_camera_measurement: false, ...(criteria ? { lower_limit: criteria.lower, upper_limit: criteria.upper, criteria_document: criteria.document.trim(), criteria_source: 'controller_entered' } : {}) },
   };
   const outcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event });
   if (outcome.kind === 'error') throw new Error(outcome.reason);
+  events.sort(sortEvents);
+  save();
+  return event.event_id;
+}
+
+/** Save an independent physical check for a case before confirming or rejecting a signal without a usable frame. */
+export function recordControllerCheck(item: string, caseId: string, result: 'signs_detected' | 'no_signs_detected', reason: string, executor: string, identified?: { defectTypeId: string; region: string; componentId: string }): string {
+  const selected = cases.find(entry => entry.id === caseId && entry.item === item);
+  if (!selected) throw new Error('Случай контроля не найден');
+  if (reason.trim().length < 5 || !executor.trim()) throw new Error('Укажите результат очной проверки, описание и контролёра');
+  if (selected.type === 'UNASSESSABLE' && result === 'signs_detected' && (!identified || !Object.hasOwn(defectNames, identified.defectTypeId) || identified.defectTypeId === 'UNASSESSABLE' || !identified.region.trim() || !itemById.get(item)?.components.some(component => component.id === identified.componentId))) throw new Error('Укажите тип, зону и компонент обнаруженного признака');
+  const own = eventsFor(item);
+  const latest = own.at(-1);
+  const observation = selected.observations.at(-1);
+  if (!latest || !observation) throw new Error('Исходное наблюдение не найдено');
+  const occurredAt = new Date(Math.max(...own.map(event => Date.parse(event.occurred_at))) + 60000).toISOString();
+  const event: QualityEvent = {
+    event_id: `UI-${crypto.randomUUID()}`, event_type: 'controller_check', schema_version: '2.0', occurred_at: occurredAt,
+    source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id,
+    station_id: observation.station_id, shift_id: observation.shift_id, operation_run_id: observation.operation_run_id, item_state: latest.item_state,
+    actor_id: executor.trim(), data: { case_id: caseId, observation_event_id: observation.event_id, inspection_result: result, finding_refs: selected.refs, basis_event_ids: [observation.event_id], reason: reason.trim() },
+  };
+  const outcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event });
+  if (outcome.kind === 'error') throw new Error(outcome.reason);
+  if (selected.type === 'UNASSESSABLE' && result === 'signs_detected' && identified) {
+    const classified: QualityEvent = {
+      ...event, event_id: `UI-${crypto.randomUUID()}`, event_type: 'inspection_result', occurred_at: new Date(Date.parse(occurredAt) + 60000).toISOString(),
+      data: {
+        inspection_point_id: observation.data.inspection_point_id ?? observation.station_id, inspection_result: 'signs_detected',
+        observation_quality: 'good', confidence: null, defects: [{ finding_id: 'F1', defect_type_id: identified.defectTypeId, component_id: identified.componentId, region: identified.region, severity: 'requires_review' }],
+        method: 'manual_verification', evidence_refs: [], triage_priority: 'requires_review',
+        basis_event_ids: [event.event_id], capture_context: { source: 'manual_verification', note: reason.trim() },
+      },
+    };
+    const classifiedOutcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: classified });
+    if (classifiedOutcome.kind === 'error') throw new Error(classifiedOutcome.reason);
+  }
   events.sort(sortEvents);
   save();
   return event.event_id;

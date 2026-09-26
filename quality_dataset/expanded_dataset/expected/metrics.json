@@ -1,25 +1,25 @@
 {
   "counts": {
     "items": 180,
-    "deliveries_received": 2027,
-    "unique_events": 1919,
-    "duplicate_deliveries": 108,
+    "deliveries_received": 2065,
+    "unique_events": 1955,
+    "duplicate_deliveries": 110,
     "invalid_deliveries_quarantined": 30,
     "late_deliveries_over_10_minutes": 73,
-    "cv_signs_detected": 62,
-    "cv_no_signs_detected": 452,
+    "cv_signs_detected": 66,
+    "cv_no_signs_detected": 446,
     "cv_unable_to_assess": 14,
     "confirmed_defect_cases_ever": 53,
     "items_with_confirmed_defect_ever": 52,
     "quality_decisions_confirmed": 53,
     "quality_decisions_rejected": 10,
-    "additional_check_decisions": 15,
+    "additional_check_decisions": 17,
     "release_after_rework_decisions": 42,
     "scrap_approved_decisions": 4,
     "rework_operation_runs": 43,
     "manual_measurements": 10,
-    "inspections_with_attached_image": 8,
-    "events_with_explicit_missing_optional_fields": 92
+    "inspections_with_attached_image": 17,
+    "events_with_explicit_missing_optional_fields": 86
   },
   "definitions": {
     "cv_signs_detected": "Автоматический сигнал о признаке, а не доказанный брак.",
