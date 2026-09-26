@@ -1,0 +1,11 @@
+{
+  "items": { "ITEM-007": "MES-UNIT-007" },
+  "itemTypes": { "TYPE-BRACKET-01": "MES-TYPE-BRACKET-01" },
+  "lines": { "LINE-01": "MES-LINE-01" },
+  "stations": { "ST-MILL": "MES-ST-MILL" },
+  "shifts": { "SHIFT-B": "MES-SHIFT-B" },
+  "runs": { "RUN-007-MILLING-1": "MES-RUN-007-1" },
+  "operations": { "OP-MILL": "MES-OP-MILL" },
+  "actors": { "OP-02": "MES-OPERATOR-02" },
+  "equipment": { "EQ-CNC-01": "MES-CNC-01" }
+}

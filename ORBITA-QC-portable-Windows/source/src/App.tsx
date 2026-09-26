@@ -4,6 +4,7 @@ import { canAccess, moduleById, parseRoute, roleById, roles, routeHash, sections
 import { getVersion, subscribe, tasks, type Scope } from './domain';
 import { WorkspaceView, type Navigate } from './views';
 import { Modal, ProductDrawer, SearchDialog } from './dialogs';
+import { startPlantSync } from './plant-sync';
 
 export default function App() {
   useSyncExternalStore(subscribe, getVersion);
@@ -16,6 +17,7 @@ export default function App() {
   const role = roleById[route.role]; const workspace = moduleById[route.module]; const sections = sectionsFor(route.role, route.module);
   const roleMenuRef = useRef<HTMLDivElement>(null);
   useEffect(() => { const listener = () => { setRoute(parseRoute(window.location.hash)); setMobileMenu(false); }; window.addEventListener('hashchange', listener); return () => window.removeEventListener('hashchange', listener); }, []);
+  useEffect(() => startPlantSync(), []);
   useEffect(() => { document.title = `${route.module === 'home' ? role.title : workspace.label} · ОРБИТА.QC`; }, [role.title, route.module, workspace.label]);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [route.role, route.module, route.section]);
   useEffect(() => { const listener = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOverlay(current => current === 'search' ? null : 'search'); } if (e.key === 'Escape') { setRoleMenu(false); setMobileMenu(false); } }; window.addEventListener('keydown', listener); return () => window.removeEventListener('keydown', listener); }, []);

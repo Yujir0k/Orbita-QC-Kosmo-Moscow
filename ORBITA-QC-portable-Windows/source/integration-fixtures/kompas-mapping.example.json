@@ -1,0 +1,9 @@
+{
+  "assemblies": { "ASM-BRACKET-01": "KOMPAS-ASM-BRACKET-01" },
+  "itemTypes": { "TYPE-BRACKET-01": "KOMPAS-TYPE-BRACKET-01" },
+  "components": {
+    "BODY": "KOMPAS-BODY",
+    "INSERT": "KOMPAS-INSERT",
+    "FASTENER": "KOMPAS-FASTENER"
+  }
+}

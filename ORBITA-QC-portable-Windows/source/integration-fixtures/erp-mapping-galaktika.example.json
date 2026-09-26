@@ -1,0 +1,12 @@
+{
+  "orders": { "WO-B": "GAL-DOC-WO-B" },
+  "itemTypes": { "TYPE-BRACKET-01": "GAL-SKU-BRACKET-01" },
+  "items": {
+    "ITEM-007": "GAL-UNIT-007",
+    "ITEM-008": "GAL-UNIT-008",
+    "ITEM-009": "GAL-UNIT-009",
+    "ITEM-010": "GAL-UNIT-010",
+    "ITEM-011": "GAL-UNIT-011",
+    "ITEM-012": "GAL-UNIT-012"
+  }
+}

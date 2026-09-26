@@ -288,3 +288,15 @@ table .badge { font-size: 10px; }
 .comparison-media figcaption strong { color: #e1edf4; font-size: 12px; }
 .comparison-media figcaption p { margin: 0; line-height: 1.5; }
 .line-section { margin-bottom: 18px; }
+.integration-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 18px 0; }
+.integration-kpi { padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); display: grid; gap: 8px; }
+.integration-kpi span { color: #9fb1bf; font-size: 12px; }
+.integration-kpi strong { color: #e8f3f8; font-size: 30px; }
+.integration-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 18px 0; }
+.integration-form label { display: grid; gap: 6px; min-width: 220px; flex: 1; color: #a7b9c7; font-size: 12px; }
+.integration-form select { width: 100%; background: #172733; color: #e5eff7; border: 1px solid #395066; border-radius: 7px; padding: 10px; }
+.integration-form .upload-button { flex: 0 0 auto; min-width: 0; color: #e5eff7; }
+.assembly-entry { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+.assembly-entry strong { min-width: 220px; }
+.assembly-entry small { color: #9fb1bf; flex: 1; }
+@media(max-width:700px) { .integration-metrics { grid-template-columns: 1fr; } .integration-form { align-items: stretch; } .integration-form .button { width: 100%; } }

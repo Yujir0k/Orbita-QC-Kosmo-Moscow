@@ -3,9 +3,12 @@ import { readFile, stat } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createIntegration } from './integration.mjs'
+import { createPlantIntegrations } from './plant-integrations.mjs'
 
 const host = '127.0.0.1'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'site')
+const directory = path.dirname(root)
 const requestedPort = Number(process.env.ORBITA_PORT || 5173)
 
 if (!Number.isInteger(requestedPort) || requestedPort < 1 || requestedPort > 65525) {
@@ -28,17 +31,20 @@ const mimeTypes = {
   '.woff2': 'font/woff2',
 }
 
+let port = requestedPort
+const integration = await createIntegration({ directory, getBaseUrl: () => `http://${host}:${port}` })
+const plant = await createPlantIntegrations({ directory, importAssembly: integration.importAssembly })
 const server = http.createServer(async (request, response) => {
-  if (request.method !== 'GET' && request.method !== 'HEAD') {
-    response.writeHead(405, { Allow: 'GET, HEAD' }).end()
+  let pathname
+  try { pathname = decodeURIComponent(new URL(request.url, `http://${host}/`).pathname) }
+  catch { response.writeHead(400).end('Bad request'); return }
+  if (pathname.startsWith('/api/')) {
+    if (pathname.startsWith('/api/plant/')) await plant.handle(request, response, pathname)
+    else await integration.handle(request, response, pathname)
     return
   }
-
-  let pathname
-  try {
-    pathname = decodeURIComponent(new URL(request.url, `http://${host}/`).pathname)
-  } catch {
-    response.writeHead(400).end('Bad request')
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    response.writeHead(405, { Allow: 'GET, HEAD' }).end()
     return
   }
 
@@ -79,7 +85,6 @@ const server = http.createServer(async (request, response) => {
   }
 })
 
-let port = requestedPort
 server.on('error', error => {
   if (error.code === 'EADDRINUSE' && port < requestedPort + 10) {
     port += 1

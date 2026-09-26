@@ -1,0 +1,26 @@
+[
+  {
+    "assembly_id": "ASM-BRACKET-01",
+    "item_type_id": "TYPE-BRACKET-01",
+    "revision": "A",
+    "geometry_included": false,
+    "components": [
+      {
+        "component_type_id": "BODY",
+        "quantity": 1,
+        "parent": "ASM-BRACKET-01"
+      },
+      {
+        "component_type_id": "INSERT",
+        "quantity": 1,
+        "parent": "ASM-BRACKET-01"
+      },
+      {
+        "component_type_id": "FASTENER",
+        "quantity": 2,
+        "parent": "ASM-BRACKET-01"
+      }
+    ],
+    "note": "Условная структура сборки; прямой импорт через API КОМПАС-3D проектируется отдельно."
+  }
+]
