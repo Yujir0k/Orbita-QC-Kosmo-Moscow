@@ -142,7 +142,6 @@ function NoPhotoEvidence({ record, source, history, caseData }: { record: Inspec
         {previousInspection && <div className="qc-fact-row"><span>Предыдущий контроль · {time(previousInspection.occurred_at)}</span><strong>{resultNames[incoming ?? ''] ?? incoming}</strong></div>}
         <div className="qc-fact-row"><span>Качество наблюдения</span><strong>{observation.data.observation_quality === 'good' ? 'Обзор достаточный по метаданным CV' : observation.data.observation_quality === 'poor' ? 'Обзор ограничен' : 'Оценка не передана'}</strong></div>
         {typeof capture.camera_id === 'string' && <div className="qc-fact-row"><span>Камера / ракурс</span><strong>{capture.camera_id}{typeof capture.view_id === 'string' ? ` · ${capture.view_id}` : ''}</strong></div>}
-        <p className="qc-fact-caution">{source.type === 'UNASSESSABLE' ? 'Источник сообщил, что оценка невозможна. Нужен повторный кадр или очный контроль.' : 'Уверенность CV и категория тяжести — сигнал для проверки, а не измеренный размер или подтверждение брака.'}</p>
       </article>
       <article className="qc-instrument-card">
         <div className="qc-fact-card-head"><h3>02 · Операция и оборудование</h3><span className="qc-fact-source">MES / станок</span></div>
@@ -164,11 +163,10 @@ function NoPhotoEvidence({ record, source, history, caseData }: { record: Inspec
           {machine.data.state === 'warning' && <p className="qc-fact-alert">{machineAlertText(machine)}</p>}
         </div>}
         <div className="qc-event-timeline"><h4>События этого запуска</h4>{runEvents.length ? <ol>{runEvents.map(event => <li key={event.event_id}><time>{time(event.occurred_at).split(', ').at(-1)}</time><span>{event.event_type === 'machine_state' ? `Станок: ${event.data.state === 'warning' ? 'предупреждение' : event.data.state === 'running' ? 'работает' : event.data.state ?? 'состояние'}` : eventNames[event.event_type] ?? event.event_type}</span></li>)}</ol> : <p>Лог запуска не поступил.</p>}</div>
-        {machine && <p className="qc-fact-caution">Нагрузка и наработка показывают состояние процесса. Без предела или заключения они не доказывают причину дефекта.</p>}
       </article>
       <article className="qc-instrument-card">
         <div className="qc-fact-card-head"><h3>03 · Замер и готовность решения</h3><span className="qc-fact-source">КД / ОТК</span></div>
-        {measurement && typeof measured === 'number' ? <div className="qc-fact-measure"><strong>{measured} {typeof measurement.data.unit === 'string' ? measurement.data.unit : 'мм'}</strong><span>{String(measurement.data.feature_id ?? 'Контролируемый параметр')}</span>{typeof lower === 'number' || typeof upper === 'number' ? <p className={outsideLimit ? 'qc-fact-alert' : 'qc-fact-ok'}>{outsideLimit ? 'Вне зарегистрированного допуска' : 'В пределах зарегистрированного допуска'} · {typeof lower === 'number' ? `от ${lower}` : ''}{typeof upper === 'number' ? ` до ${upper}` : ''}</p> : <p className="qc-fact-caution">Пределы по КД не переданы — соответствие размеру не установлено.</p>}{typeof measurement.data.instrument_id === 'string' && <small>Прибор {measurement.data.instrument_id} · {measurement.actor_id}</small>}</div> : <div className="qc-fact-empty"><strong>Размер детали не измерен</strong><p>Показание прибора для этого случая в исходном потоке не поступило.</p></div>}
+        {measurement && typeof measured === 'number' ? <div className="qc-fact-measure"><strong>{measured} {typeof measurement.data.unit === 'string' ? measurement.data.unit : 'мм'}</strong><span>{String(measurement.data.feature_id ?? 'Контролируемый параметр')}</span>{typeof lower === 'number' || typeof upper === 'number' ? <p className={outsideLimit ? 'qc-fact-alert' : 'qc-fact-ok'}>{outsideLimit ? 'Вне зарегистрированного допуска' : 'В пределах зарегистрированного допуска'} · {typeof lower === 'number' ? `от ${lower}` : ''}{typeof upper === 'number' ? ` до ${upper}` : ''}</p> : <p className="qc-measure-status">Допуск по КД не передан</p>}{typeof measurement.data.instrument_id === 'string' && <small>Прибор {measurement.data.instrument_id} · {measurement.actor_id}</small>}</div> : <div className="qc-fact-empty"><strong>Размер детали не измерен</strong><p>Показание прибора для этого случая в исходном потоке не поступило.</p></div>}
         {!measurement && <button className="qc-add-measurement" type="button" onClick={() => setManualOpen(open => !open)}>+ Внести ручной замер с прибора</button>}
         {manualOpen && <form className="qc-manual-form" onSubmit={submitMeasurement}>
           <label>Параметр по КД<input required value={parameter} onChange={event => setParameter(event.target.value)} placeholder="Например, толщина стенки"/></label>
@@ -187,7 +185,6 @@ function NoPhotoEvidence({ record, source, history, caseData }: { record: Inspec
           {typeof received?.data.route_revision === 'string' && <div><span>Ревизия маршрута</span><strong>{received.data.route_revision}</strong></div>}
         </div>
         {disposition && <p className="qc-fact-tech"><strong>Заключение технолога:</strong> {disposition.description ?? 'Статус передан без текста заключения'}</p>}
-        <div className="qc-fact-gaps"><h4>Чего нет в пакете данных</h4><ul>{evidence.missing.map(gap => <li key={gap}>{gap}</li>)}</ul></div>
       </article>
     </div>
   </section>;
@@ -468,11 +465,9 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
     window.addEventListener('keydown', listener);
     return () => window.removeEventListener('keydown', listener);
   }, [filtered, openCase, sourceCase?.id]);
-  const priorityLabel = view ? { CRITICAL: 'Критично', HIGH: 'Высокий приоритет', MEDIUM: 'Средний приоритет', LOW: 'Низкий приоритет' }[view.urgency] : '';
   return <div className="controller-cockpit qc-cockpit">
     <header className="qc-header">
       <div className="qc-identity"><strong className="mono">{view?.itemId ?? 'Выберите изделие'}</strong>{view && <><span>·</span><strong className="mono">{view.workOrder}</strong><span className="qc-part-name">({view.partName.replace(/^Условный\s+/, '')})</span></>}</div>
-      {view && sourceCase && <span className={['qc-defect-badge', view.urgency.toLowerCase()].join(' ')}>{defectNames[sourceCase.type] ?? sourceCase.type} · {priorityLabel}</span>}
       <div className="qc-header-right">
         <span className={['qc-hash-status', hashState].join(' ')}><Icon name={hashState === 'valid' ? 'check' : 'help'} size={15}/>{!hasAnyPhotos ? 'Кадр не поступил' : hashState === 'valid' ? 'Хеш кадра валиден' : hashState === 'checking' ? 'Проверка хеша' : hashState === 'invalid' ? 'Хеш не совпал' : 'Хеш не передан'}</span>
         <button ref={drawerTrigger} className="qc-drawer-trigger" onClick={() => setDrawerOpen(true)} disabled={!view}><Icon name="help" size={17}/>Досье и телеметрия <kbd>D</kbd></button>
@@ -489,7 +484,7 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
         </button>) : <p className="qc-empty-queue">В этом фильтре нет открытых заявок.</p>}</div>
       </aside>
       {view && sourceCase && data ? <main className={['qc-workbench', !hasAnyPhotos && 'no-photos'].filter(Boolean).join(' ')}>
-        {hasAnyPhotos ? <div className="qc-upper"><EvidenceViewer key={view.id} record={view} hashState={hashState}/></div> : <div className="qc-optical-notice" role="status"><Icon name="help" size={16}/>Кадр наблюдения не поступил. Ни CV, ни телеметрия станка не заменяют очную проверку и замер детали.</div>}
+        {hasAnyPhotos && <div className="qc-upper"><EvidenceViewer key={view.id} record={view} hashState={hashState}/></div>}
         <div className="qc-lower">{hasAnyPhotos ? <InspectionInstruments key={view.id} record={view} history={own}/> : <NoPhotoEvidence key={view.id} record={view} source={sourceCase} history={own} caseData={data}/>}<DecisionPanel key={view.id + '-' + view.iteration} record={view} source={sourceCase} hashState={hashState}/></div>
       </main> : <div className="qc-no-selection">Выберите заявку в очереди</div>}
     </div>
