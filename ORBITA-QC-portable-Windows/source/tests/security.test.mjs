@@ -39,6 +39,8 @@ test('security bus authenticates, checks CSRF, role and item scope before mutati
   assert.equal(qc.status, 200)
   assert.match(qc.cookie, /^orbita_session=/)
   assert.equal((await request('/api/integrations/state', { cookie: qc.cookie })).status, 403)
+  assert.equal((await request('/api/mobile/state', { cookie: qc.cookie })).status, 403)
+  assert.equal((await request('/api/mobile/events', { cookie: qc.cookie })).status, 200)
   assert.equal((await request('/api/plant/mes/decisions', { method: 'POST', cookie: qc.cookie, body: {} })).status, 403)
   assert.equal((await request('/api/plant/mes/decisions', { method: 'POST', cookie: qc.cookie, csrf: qc.csrf, origin: 'http://evil.example', body: {} })).status, 403)
   const denied = await request('/api/security/actions', { method: 'POST', cookie: qc.cookie, csrf: qc.csrf, body: { itemId: 'ITEM-1', action: 'master_complete', reason: 'Нужна проверка исполнителя' } })

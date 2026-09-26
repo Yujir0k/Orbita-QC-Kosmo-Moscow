@@ -1,4 +1,4 @@
-import { actionDeliveries, performAction, reconcileSecureEvents, restoreDemoState, snapshotDemoState, type Delivery, type WorkflowAction } from './domain';
+import { actionDeliveries, performAction, reconcileMobileEvents, reconcileSecureEvents, restoreDemoState, snapshotDemoState, type Delivery, type WorkflowAction } from './domain';
 import type { RoleId } from './navigation';
 
 export type SecuritySession = { authenticated: true; user: { id: string; role: RoleId; lineIds: string[] }; csrfToken: string };
@@ -51,6 +51,12 @@ export async function logoutSecurity(): Promise<void> {
 export async function synchronizeSecureHistory(): Promise<void> {
   const result = await json<{ deliveries: Delivery[] }>('/api/security/events');
   reconcileSecureEvents(result.deliveries);
+  await synchronizeMobileHistory();
+}
+
+export async function synchronizeMobileHistory(): Promise<void> {
+  const result = await json<{ deliveries: Delivery[] }>('/api/mobile/events');
+  reconcileMobileEvents(result.deliveries);
 }
 
 /** A human action is displayed only after the server authorizes and durably audits it. */

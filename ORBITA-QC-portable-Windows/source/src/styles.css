@@ -307,6 +307,22 @@ table .badge { font-size: 10px; }
 .security-login-card form { display: grid; gap: 16px; margin: 25px 0; }
 .security-login-card label { display: grid; gap: 7px; font-size: 13px; color: #c9d9e2; }
 .security-login-card input, .security-login-card select { width: 100%; padding: 11px; border: 1px solid #547082; border-radius: 8px; background: #101f2a; color: #edf7fa; }
+.mobileops-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+.mobileops-controls label { display: grid; gap: 6px; min-width: 160px; color: #a8c1d2; font-size: 10px; }
+.mobileops-controls select { padding: 9px 11px; border: 1px solid #3d5565; border-radius: 6px; background: #14232d; color: #e2edf3; }
+.mobileops-controls p { color: #9cb2c0; font-size: 10px; margin: 0; }
+.mobileops-assignee { display: grid; gap: 3px; font-size: 10px; color: #a8c1d2; }
+.mobileops-assignee strong { font-size: 12px; color: #e2edf3; }
+.mobileops-assignee small { font-size: 9px; }
+.mobileops-robot { display: flex; align-items: center; gap: 15px; padding: 14px 0; border-top: 1px solid #304350; }
+.mobileops-robot>div { display: grid; gap: 5px; margin-right: auto; }
+.mobileops-robot strong { font-size: 12px; }
+.mobileops-robot small { color: #98b1bf; font-size: 10px; }
+.mobileops-summary { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 22px; }
+.mobileops-summary>div { display: grid; gap: 3px; min-width: 140px; padding: 18px; border: 1px solid #354b5b; border-radius: 7px; }
+.mobileops-summary strong { font-size: 29px; }
+.mobileops-summary span { color: #a8c1d2; font-size: 10px; }
+@media(max-width:760px) { .mobileops-robot { flex-wrap: wrap; }.mobileops-robot .button { width: 100%; justify-content: center; } }
 .security-login-card .button { justify-content: center; }
 .security-error { color: #ffb6a7 !important; }
 .security-audit-toolbar { display: flex; align-items: center; gap: 14px; margin: 18px 0; flex-wrap: wrap; }

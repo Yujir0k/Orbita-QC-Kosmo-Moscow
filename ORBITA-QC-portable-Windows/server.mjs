@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { createIntegration } from './integration.mjs'
 import { createPlantIntegrations } from './plant-integrations.mjs'
 import { createSecurity } from './security.mjs'
+import { createMobileOps } from './mobileops.mjs'
 
 const host = '127.0.0.1'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'site')
@@ -36,6 +37,7 @@ let port = requestedPort
 const security = await createSecurity({ directory })
 const integration = await createIntegration({ directory, getBaseUrl: () => `http://${host}:${port}`, storage: security.store, internalToken: security.internalToken })
 const plant = await createPlantIntegrations({ directory, importAssembly: integration.importAssembly, storage: security.store, authorizeDecision: security.validateMesDecision })
+const mobile = await createMobileOps({ directory, storage: security.store, audit: security.audit })
 const server = http.createServer(async (request, response) => {
   response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
   response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
@@ -49,7 +51,8 @@ const server = http.createServer(async (request, response) => {
     try {
       const principal = await security.guard(request, response, pathname)
       if (!principal) return
-      if (pathname.startsWith('/api/plant/')) await plant.handle(request, response, pathname, principal)
+      if (pathname.startsWith('/api/mobile/')) await mobile.handle(request, response, pathname, principal)
+      else if (pathname.startsWith('/api/plant/')) await plant.handle(request, response, pathname, principal)
       else await integration.handle(request, response, pathname)
     } catch (error) {
       console.error('Security bus failure:', error)

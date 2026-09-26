@@ -37,6 +37,21 @@ test('browser projection discards local human actions without a matching server 
   domain.resetDemo();
 });
 
+test('mobile observations appear from server receipts and disappear when their receipt is absent', () => {
+  domain.resetDemo();
+  const source = domain.eventsFor('ITEM-013').find(event => event.event_type === 'inspection_result');
+  const event = structuredClone(source);
+  event.event_id = 'MOBILE-TEST-1';
+  event.source_id = 'MOBILE-EMU';
+  event.data.capture_context = { source: 'mobile_robot_simulator', mission_id: 'TEST-1', synthetic: true };
+  const row = { delivery_id: 'MOBILE-DLV-TEST-1', deliver_at: new Date().toISOString(), message: event };
+  domain.reconcileMobileEvents([row]);
+  assert.equal(domain.eventsFor('ITEM-013').some(value => value.event_id === event.event_id), true);
+  domain.reconcileMobileEvents([]);
+  assert.equal(domain.eventsFor('ITEM-013').some(value => value.event_id === event.event_id), false);
+  domain.resetDemo();
+});
+
 test('Routes remain role-specific and all modules belong to a role', () => {
   for (const workspace of nav.workspaces) assert.ok(nav.roles.some(role => nav.canAccess(role.id, workspace.id)), workspace.id);
   assert.equal(nav.parseRoute('#/controller/security/crypto').module, 'home');

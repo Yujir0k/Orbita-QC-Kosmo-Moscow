@@ -77,6 +77,11 @@ function permission(pathname, method) {
   if (method === 'POST' && pathname === '/api/plant/mes/decisions') return ['controller']
   if (method === 'POST' && /^\/api\/plant\/mes\/retry\/[^/]+$/.test(pathname)) return ['administrator']
   if (method === 'POST' && pathname === '/api/plant/cad/pull') return ['administrator']
+  if (method === 'GET' && pathname === '/api/mobile/events') return demoRoles
+  if (method === 'GET' && pathname === '/api/mobile/state') return ['master', 'administrator']
+  if (method === 'POST' && pathname === '/api/mobile/missions') return ['master', 'administrator']
+  if (method === 'POST' && /^\/api\/mobile\/missions\/[^/]+\/simulate$/.test(pathname)) return ['master', 'administrator']
+  if (method === 'POST' && /^\/api\/mobile\/robots\/[^/]+\/link$/.test(pathname)) return ['master', 'administrator']
   return []
 }
 
@@ -251,6 +256,10 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
     if (!allowed.length) { send(response, 404, { error: 'Неизвестный маршрут API' }); return null }
     const session = await requireSession(request, response, allowed)
     if (!session) return null
+    if (pathname === '/api/mobile/events' || pathname === '/api/mobile/state') {
+      try { await audit.verify() }
+      catch { send(response, 503, { error: 'Журнал аудита недоступен; состояние MobileOps не выдаётся' }); return null }
+    }
     if (request.method !== 'GET') {
       try { await audit.verify(); await audit.append({ type: 'api.request', at: new Date(now()).toISOString(), actor: session.user.id, role: session.user.role, path: pathname }) }
       catch { send(response, 503, { error: 'Журнал аудита недоступен; операция остановлена' }); return null }

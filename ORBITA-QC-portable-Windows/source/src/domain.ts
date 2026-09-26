@@ -134,6 +134,14 @@ export function reconcileSecureEvents(approved: Delivery[]) {
   for (const item of new Set(approved.map(row => row.message.item_id))) advanceItem(item);
   save();
 }
+/** Rebuild robot observations from the server, never trusting a browser-only copy. */
+export function reconcileMobileEvents(received: Delivery[]) {
+  state.other = state.other.filter(row => row.message?.source_id !== 'MOBILE-EMU');
+  refresh();
+  for (const row of received) accept(row, false);
+  events.sort(sortEvents);
+  save();
+}
 export const actionDeliveries = (actionId: string): Delivery[] => deliveries.filter(row => row.message.data.security_action_id === actionId);
 const sortEvents = (a: QualityEvent, b: QualityEvent) => Date.parse(a.occurred_at) - Date.parse(b.occurred_at) || a.event_id.localeCompare(b.event_id);
 function refresh() {
