@@ -16,7 +16,7 @@ WriteSecret 'openssl.cnf' "[req]`ndistinguished_name=dn`n[dn]`n"
 $env:OPENSSL_CONF = Join-Path $secretRoot 'openssl.cnf'
 Push-Location $secretRoot
 try {
-    & $OpenSsl req -x509 -newkey rsa:3072 -nodes -keyout ca.key -out ca.crt -days 365 -subj '/CN=ORBITA Local Development CA' 2>$null
+    & $OpenSsl req -x509 -newkey rsa:3072 -nodes -keyout ca.key -out ca.crt -days 365 -subj '/CN=ORBITA Local Development CA' -addext 'basicConstraints=critical,CA:TRUE' -addext 'keyUsage=critical,keyCertSign,cRLSign' 2>$null
     if ($LASTEXITCODE -ne 0) { throw 'CA generation failed' }
     foreach ($service in @('api','db','emulator','web')) {
         $san = switch ($service) { 'db' {'DNS:db,DNS:media-db'} 'web' {'DNS:localhost,IP:127.0.0.1'} default {"DNS:$service"} }

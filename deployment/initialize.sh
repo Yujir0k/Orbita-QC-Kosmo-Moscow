@@ -17,7 +17,7 @@ for role in controller master technologist leader administrator; do
 done
 printf ']\n' >> .secrets/users.json
 cd .secrets
-openssl req -x509 -newkey rsa:3072 -nodes -keyout ca.key -out ca.crt -days 365 -subj '/CN=ORBITA Local Development CA'
+openssl req -x509 -newkey rsa:3072 -nodes -keyout ca.key -out ca.crt -days 365 -subj '/CN=ORBITA Local Development CA' -addext 'basicConstraints=critical,CA:TRUE' -addext 'keyUsage=critical,keyCertSign,cRLSign'
 for service in api db emulator web; do
   case "$service" in
     db) san='DNS:db,DNS:media-db';;
