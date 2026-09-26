@@ -1419,3 +1419,7 @@ body:has(.qc-cockpit) { background: #0b0f17; color: #e2e8f0; }
 .registry-open { min-height: 42px; gap: 8px; padding: 10px 14px; border-radius: 8px; border-color: rgba(255,255,255,.15); background: #1e293b; color: #e2e8f0; font-size: 14px; }
 .registry-open:hover { background: #334155; }
 @media (max-width: 760px) { .registry-overview { padding: 22px; align-items: flex-start; }.registry-overview>strong { font-size: 29px; }.registry-chip { font-size: 13px; } }
+
+.qc-actions.qc-actions-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1500px) { .qc-actions.qc-actions-three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .qc-actions.qc-actions-three { grid-template-columns: 1fr; } }
