@@ -1,0 +1,40 @@
+name: Quality and security gate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ORBITA-QC-portable-Windows/source
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ORBITA-QC-portable-Windows/source/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm contracts:check
+      - run: pnpm test
+      - run: pnpm security:scan
+      - run: pnpm audit --audit-level high
+      - run: pnpm build:portable
+      - run: pnpm sbom:generate
+      - name: Package Windows workspace
+        run: py -3 scripts/package-windows.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: orbita-qc-windows-and-sbom
+          path: |
+            ORBITA-QC-workspaces-Windows.zip
+            ORBITA-QC-portable-Windows/source/sbom.cdx.json

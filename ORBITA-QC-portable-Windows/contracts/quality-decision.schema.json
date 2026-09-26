@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orbita.local/contracts/quality-decision.schema.json",
+  "title": "ОРБИТА.QC controller quality decision",
+  "allOf": [
+    { "$ref": "production-event.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "quality_decision" },
+        "schema_version": { "const": "2.0" },
+        "source_id": { "const": "ORBITA-UI" },
+        "actor_id": { "$ref": "production-event.schema.json#/$defs/identifier" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["security_action_id", "decision", "disposition", "finding_refs", "reason"],
+          "properties": {
+            "security_action_id": { "$ref": "production-event.schema.json#/$defs/identifier" },
+            "decision": { "enum": ["confirmed", "additional_check", "rejected", "accepted_within_spec", "release_after_rework", "scrap_approved"] },
+            "disposition": { "enum": ["rework", "quarantine", "hold", "release", "scrap"] },
+            "finding_refs": {
+              "type": "array",
+              "maxItems": 100,
+              "uniqueItems": true,
+              "items": { "$ref": "production-event.schema.json#/$defs/identifier" }
+            },
+            "reason": { "type": "string", "minLength": 5, "maxLength": 4000 },
+            "missing_photo_acknowledgement": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["acknowledged", "observation_event_id", "absence_reason", "actor_id", "basis", "acknowledged_at"],
+              "properties": {
+                "acknowledged": { "const": true },
+                "observation_event_id": { "$ref": "production-event.schema.json#/$defs/identifier" },
+                "absence_reason": { "enum": ["LOST_IN_TRANSIT", "CLASSIFIED_RESTRICTED", "NO_CAMERA_AT_STATION", "NOT_PROVIDED"] },
+                "actor_id": { "$ref": "production-event.schema.json#/$defs/identifier" },
+                "basis": { "type": "string", "minLength": 1, "maxLength": 128 },
+                "acknowledged_at": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+      "required": ["actor_id"]
+    }
+  ]
+}

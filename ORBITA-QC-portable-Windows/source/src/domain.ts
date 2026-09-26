@@ -24,7 +24,7 @@ export interface Product { id: string; item_type_id: string; work_order_id: stri
 export interface MediaAsset { asset_id: string; item_id: string; path_from_quality_dataset: string; capture_source: string; stage: string; description: string; sha256?: string }
 export type Scope = 'all' | 'SHIFT-A' | 'SHIFT-B';
 type OutcomeKind = 'accepted' | 'duplicate' | 'late' | 'error';
-export interface IngestOutcome { delivery_id: string; event_id: string; item_id: string; kind: OutcomeKind; reason: string }
+export interface IngestOutcome { delivery_id: string; event_id: string; item_id: string; kind: OutcomeKind; reason: string; received_at?: string; source_id?: string }
 interface StoredState { sourceIds: string[]; other: Delivery[]; pendingIds: string[]; outcomes: IngestOutcome[]; counts: Record<OutcomeKind, number>; playing: boolean }
 const dataset = demo as unknown as { items: Product[]; catalogs: typeof demo.catalogs; media: MediaAsset[]; source: Delivery[]; inspectionPlan: typeof demo.inspectionPlan; profiles: typeof demo.profiles };
 const storageKey = 'orbita-qc-expanded-v2';
@@ -95,6 +95,8 @@ const notify = () => { version += 1; listeners.forEach(listener => listener()); 
 export const subscribe = (listener: () => void) => { listeners.add(listener); return () => listeners.delete(listener); };
 export const getVersion = () => version;
 export const ingestState = () => state;
+export const snapshotDemoState = (): StoredState => structuredClone(state);
+export function restoreDemoState(snapshot: StoredState) { state = structuredClone(snapshot); save(); }
 const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* Browser storage may be disabled. */ } };
 const save = () => { refresh(); persist(); notify(); };
 
@@ -107,14 +109,15 @@ const originalById = () => new Map(events.map(event => [event.event_id, event]))
 /** Ingest exact repeats once and place late events by occurrence time in projections. */
 function accept(row: Delivery, log = true): IngestOutcome {
   const error = validateDelivery(row);
-  const known = originalById().get(row.message?.event_id);
+  const known = originalById().get(row?.message?.event_id);
+  const metadata = { received_at: validDate(row?.deliver_at) ? row.deliver_at : new Date().toISOString(), source_id: textField(row?.message?.source_id) ? row.message.source_id : 'UNKNOWN' };
   let outcome: IngestOutcome;
-  if (error) outcome = { delivery_id: row.delivery_id ?? '?', event_id: row.message?.event_id ?? '?', item_id: row.message?.item_id ?? '?', kind: 'error', reason: error };
-  else if (known && canonical(known) !== canonical(row.message)) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'error', reason: 'Конфликт: тот же event_id с другим содержимым' };
-  else if (known) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'duplicate', reason: 'Точный повтор event_id' };
+  if (error) outcome = { delivery_id: row?.delivery_id ?? '?', event_id: row?.message?.event_id ?? '?', item_id: row?.message?.item_id ?? '?', kind: 'error', reason: error, ...metadata };
+  else if (known && canonical(known) !== canonical(row.message)) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'error', reason: 'Конфликт: тот же event_id с другим содержимым', ...metadata };
+  else if (known) outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: 'duplicate', reason: 'Точный повтор event_id', ...metadata };
   else {
     const late = events.some(e => e.item_id === row.message.item_id && Date.parse(e.occurred_at) > Date.parse(row.message.occurred_at));
-    outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: late ? 'late' : 'accepted', reason: late ? 'Поздняя доставка; история отсортирована по времени события' : 'Принято' };
+    outcome = { delivery_id: row.delivery_id, event_id: row.message.event_id, item_id: row.message.item_id, kind: late ? 'late' : 'accepted', reason: late ? 'Поздняя доставка; история отсортирована по времени события' : 'Принято', ...metadata };
   }
   if (outcome.kind !== 'error') {
     if (sourceById.has(row.delivery_id)) state.sourceIds.push(row.delivery_id);
@@ -137,6 +140,24 @@ export function importText(input: string): IngestOutcome[] {
   for (const raw of rows) { result.push(accept(raw as Delivery)); if (result.at(-1)?.kind !== 'error') { events.sort(sortEvents); } }
   save(); return result;
 }
+/** Server receipts are authoritative for human actions; localStorage is only a view cache. */
+export function reconcileSecureEvents(approved: Delivery[]) {
+  state.other = state.other.filter(row => row.message?.source_id !== 'ORBITA-UI');
+  refresh();
+  for (const row of approved) accept(row, false);
+  events.sort(sortEvents);
+  for (const item of new Set(approved.map(row => row.message.item_id))) advanceItem(item);
+  save();
+}
+/** Rebuild robot observations from the server, never trusting a browser-only copy. */
+export function reconcileMobileEvents(received: Delivery[]) {
+  state.other = state.other.filter(row => row.message?.source_id !== 'MOBILE-EMU');
+  refresh();
+  for (const row of received) accept(row, false);
+  events.sort(sortEvents);
+  save();
+}
+export const actionDeliveries = (actionId: string): Delivery[] => deliveries.filter(row => row.message.data.security_action_id === actionId);
 const sortEvents = (a: QualityEvent, b: QualityEvent) => Date.parse(a.occurred_at) - Date.parse(b.occurred_at) || a.event_id.localeCompare(b.event_id);
 function refresh() {
   deliveries = [...state.sourceIds.map(id => sourceById.get(id)).filter((row): row is Delivery => !!row), ...state.other];
@@ -304,8 +325,9 @@ export function describeEvent(event: QualityEvent): string {
 
 export type WorkflowAction = 'confirm' | 'confirm_hold' | 'additional' | 'reject' | 'accepted_within_spec' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'master_scrap' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
 export interface MasterReworkDetails { method: string; operator: string; durationMinutes: number; actualSizeMm: number; paperInspection: boolean }
+let seedingMasterShift = false;
 /** Record a role action as a new auditable event, then unlock only its next source stage. */
-export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string, measurement?: { value: number; instrumentId: string; calibrationConfirmed: boolean }, missingPhotoConfirmation?: { observationEventId: string; acknowledged: true }, masterDetails?: MasterReworkDetails): string {
+export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string, measurement?: { value: number; instrumentId: string; calibrationConfirmed: boolean }, missingPhotoConfirmation?: { observationEventId: string; acknowledged: true }, masterDetails?: MasterReworkDetails, approval?: { actionId: string; actorId: string }): string {
   const own = eventsFor(item); const latest = own.at(-1); if (!latest) throw new Error('Изделие ещё не поступило');
   if (!reason.trim()) throw new Error('Укажите основание');
   const allowedRole = action.startsWith('tech') || action === 'hypothesis' || action === 'cause_confirm' ? 'technologist' : action === 'master_complete' || action === 'master_scrap' ? 'master' : 'controller';
@@ -348,6 +370,7 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
     if (!selected) throw new Error('Случай не найден для этого изделия');
     refs = selected.refs;
   }
+  let actionEventIndex = 0;
   const make = (event_type: string, data: EventData, extra: Partial<QualityEvent> = {}) => {
     const lastTime = Math.max(...eventsFor(item).map(e => Date.parse(e.occurred_at)));
     const previousState = [...eventsFor(item)].reverse().find(e => e.item_state)?.item_state;
@@ -356,7 +379,7 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
       : { physical_location: `${latest.station_id}: зона удержания ОТК`, line_lock_status: 'HELD_AT_STATION' }
       : event_type === 'master_action' ? { physical_location: `${latest.station_id}: межоперационный буфер`, line_lock_status: 'IN_BUFFER' }
       : previousState ?? { physical_location: `${latest.station_id}: зона контроля`, line_lock_status: 'HELD_AT_STATION' };
-    const event: QualityEvent = { event_id: `UI-${crypto.randomUUID()}`, event_type, schema_version: '2.0', occurred_at: new Date(lastTime + 60000).toISOString(), source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id, station_id: latest.station_id, shift_id: latest.shift_id, actor_id: executor.trim() || role.toUpperCase(), item_state: itemState, data, ...extra };
+    const event: QualityEvent = { event_id: approval ? `UI-${approval.actionId}-${++actionEventIndex}` : `UI-${crypto.randomUUID()}`, event_type, schema_version: '2.0', occurred_at: new Date(lastTime + 60000).toISOString(), source_id: seedingMasterShift ? 'ORBITA-DEMO' : 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id, station_id: latest.station_id, shift_id: latest.shift_id, actor_id: approval?.actorId ?? (executor.trim() || role.toUpperCase()), ...(!approval || ['quality_decision', 'master_action'].includes(event_type) ? { item_state: itemState } : {}), data: approval ? { ...data, security_action_id: approval.actionId } : data, ...extra };
     const row: Delivery = { delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event };
     const outcome = accept(row); if (outcome.kind === 'error') throw new Error(outcome.reason); events.sort(sortEvents);
     return event;
@@ -389,17 +412,24 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
 
 /** Prepare the synthetic workshop shift once, while preserving decisions already made in the demo. */
 export function prepareMasterShift(): void {
-  for (const item of ['ITEM-013', 'ITEM-014', 'ITEM-025']) {
+  const formerItem013Demo = state.other.filter(row => row.message?.item_id === 'ITEM-013' && row.message.source_id === 'ORBITA-DEMO');
+  if (formerItem013Demo.length) {
+    state.other = state.other.filter(row => !formerItem013Demo.includes(row));
+    save();
+  }
+  seedingMasterShift = true;
+  try {
+  for (const item of ['ITEM-014', 'ITEM-025']) {
     if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'confirm', 'Учебное направление подтверждённой детали на доработку по F2', 'QC-02');
   }
-  if (eventsFor('ITEM-013').some(event => event.data.disposition === 'rework') && !eventsFor('ITEM-013').some(event => event.event_type === 'technical_disposition')) performAction('ITEM-013', 'technologist', 'tech_allow', 'Учебное разрешение на ограниченную доработку после проверки допуска', 'TECH-01');
   for (const item of ['ITEM-015', 'ITEM-016']) {
     if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'additional', 'Учебный вызов мастера на очный досмотр по F4', 'QC-02');
   }
+  } finally { seedingMasterShift = false; }
 }
 
 /** Record a controller's instrument reading without treating it as a CV result or quality decision. */
-export function recordManualMeasurement(item: string, caseId: string, parameter: string, value: number, instrumentId: string, executor: string, calibrationConfirmed: boolean, criteria?: { lower?: number; upper?: number; document: string }): string {
+export function recordManualMeasurement(item: string, caseId: string, parameter: string, value: number, instrumentId: string, executor: string, calibrationConfirmed: boolean, criteria?: { lower?: number; upper?: number; document: string }, approval?: { actionId: string; actorId: string }): string {
   const selected = cases.find(entry => entry.id === caseId && entry.item === item);
   if (!selected) throw new Error('Случай контроля не найден');
   if (!parameter.trim() || !Number.isFinite(value) || value < 0 || !instrumentId.trim() || !executor.trim()) throw new Error('Укажите параметр, значение, прибор и контролёра');
@@ -412,10 +442,10 @@ export function recordManualMeasurement(item: string, caseId: string, parameter:
   if (!latest) throw new Error('Изделие ещё не поступило');
   const occurredAt = new Date(Math.max(...own.map(event => Date.parse(event.occurred_at))) + 60000).toISOString();
   const event: QualityEvent = {
-    event_id: `UI-${crypto.randomUUID()}`, event_type: 'manual_measurement', schema_version: '2.0', occurred_at: occurredAt,
+    event_id: approval ? `UI-${approval.actionId}-1` : `UI-${crypto.randomUUID()}`, event_type: 'manual_measurement', schema_version: '2.0', occurred_at: occurredAt,
     source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id,
-    station_id: observation?.station_id ?? latest.station_id, shift_id: observation?.shift_id ?? latest.shift_id, operation_run_id: run, actor_id: executor.trim(), item_state: latest.item_state,
-    data: { case_id: caseId, basis_event_ids: observation ? [observation.event_id] : [], feature_id: parameter.trim(), measured_value: value, unit: 'mm', instrument_id: instrumentId.trim(), calibration_status: 'operator_confirmed', is_camera_measurement: false, ...(criteria ? { lower_limit: criteria.lower, upper_limit: criteria.upper, criteria_document: criteria.document.trim(), criteria_source: 'controller_entered' } : {}) },
+    station_id: observation?.station_id ?? latest.station_id, shift_id: observation?.shift_id ?? latest.shift_id, operation_run_id: run, actor_id: approval?.actorId ?? executor.trim(), ...(!approval ? { item_state: latest.item_state } : {}),
+    data: { ...(approval ? { security_action_id: approval.actionId } : {}), case_id: caseId, basis_event_ids: observation ? [observation.event_id] : [], feature_id: parameter.trim(), measured_value: value, unit: 'mm', instrument_id: instrumentId.trim(), calibration_status: 'operator_confirmed', is_camera_measurement: false, ...(criteria ? { lower_limit: criteria.lower, upper_limit: criteria.upper, criteria_document: criteria.document.trim(), criteria_source: 'controller_entered' } : {}) },
   };
   const outcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event });
   if (outcome.kind === 'error') throw new Error(outcome.reason);
@@ -425,7 +455,7 @@ export function recordManualMeasurement(item: string, caseId: string, parameter:
 }
 
 /** Save an independent physical check for a case before confirming or rejecting a signal without a usable frame. */
-export function recordControllerCheck(item: string, caseId: string, result: 'signs_detected' | 'no_signs_detected', reason: string, executor: string, identified?: { defectTypeId: string; region: string; componentId: string }): string {
+export function recordControllerCheck(item: string, caseId: string, result: 'signs_detected' | 'no_signs_detected', reason: string, executor: string, identified?: { defectTypeId: string; region: string; componentId: string }, approval?: { actionId: string; actorId: string }): string {
   const selected = cases.find(entry => entry.id === caseId && entry.item === item);
   if (!selected) throw new Error('Случай контроля не найден');
   if (reason.trim().length < 5 || !executor.trim()) throw new Error('Укажите результат очной проверки, описание и контролёра');
@@ -436,21 +466,21 @@ export function recordControllerCheck(item: string, caseId: string, result: 'sig
   if (!latest || !observation) throw new Error('Исходное наблюдение не найдено');
   const occurredAt = new Date(Math.max(...own.map(event => Date.parse(event.occurred_at))) + 60000).toISOString();
   const event: QualityEvent = {
-    event_id: `UI-${crypto.randomUUID()}`, event_type: 'controller_check', schema_version: '2.0', occurred_at: occurredAt,
+    event_id: approval ? `UI-${approval.actionId}-1` : `UI-${crypto.randomUUID()}`, event_type: 'controller_check', schema_version: '2.0', occurred_at: occurredAt,
     source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id,
-    station_id: observation.station_id, shift_id: observation.shift_id, operation_run_id: observation.operation_run_id, item_state: latest.item_state,
-    actor_id: executor.trim(), data: { case_id: caseId, observation_event_id: observation.event_id, inspection_result: result, finding_refs: selected.refs, basis_event_ids: [observation.event_id], reason: reason.trim() },
+    station_id: observation.station_id, shift_id: observation.shift_id, operation_run_id: observation.operation_run_id, ...(!approval ? { item_state: latest.item_state } : {}),
+    actor_id: approval?.actorId ?? executor.trim(), data: { ...(approval ? { security_action_id: approval.actionId } : {}), case_id: caseId, observation_event_id: observation.event_id, inspection_result: result, finding_refs: selected.refs, basis_event_ids: [observation.event_id], reason: reason.trim() },
   };
   const outcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event });
   if (outcome.kind === 'error') throw new Error(outcome.reason);
   if (selected.type === 'UNASSESSABLE' && result === 'signs_detected' && identified) {
     const classified: QualityEvent = {
-      ...event, event_id: `UI-${crypto.randomUUID()}`, event_type: 'inspection_result', occurred_at: new Date(Date.parse(occurredAt) + 60000).toISOString(),
+      ...event, event_id: approval ? `UI-${approval.actionId}-2` : `UI-${crypto.randomUUID()}`, event_type: 'inspection_result', occurred_at: new Date(Date.parse(occurredAt) + 60000).toISOString(),
       data: {
         inspection_point_id: observation.data.inspection_point_id ?? observation.station_id, inspection_result: 'signs_detected',
         observation_quality: 'good', confidence: null, defects: [{ finding_id: 'F1', defect_type_id: identified.defectTypeId, component_id: identified.componentId, region: identified.region, severity: 'requires_review' }],
         method: 'manual_verification', evidence_refs: [], triage_priority: 'requires_review',
-        basis_event_ids: [event.event_id], capture_context: { source: 'manual_verification', note: reason.trim() },
+        basis_event_ids: [event.event_id], capture_context: { source: 'manual_verification', note: reason.trim() }, ...(approval ? { security_action_id: approval.actionId } : {}),
       },
     };
     const classifiedOutcome = accept({ delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: classified });

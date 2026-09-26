@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orbita.local/contracts/delivery.schema.json",
+  "title": "ОРБИТА.QC event delivery",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["delivery_id", "deliver_at", "message"],
+  "properties": {
+    "delivery_id": { "$ref": "production-event.schema.json#/$defs/identifier" },
+    "deliver_at": { "type": "string", "format": "date-time", "maxLength": 64 },
+    "message": { "$ref": "production-event.schema.json" },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "accepted_at", "event_id", "mission_id"],
+      "properties": {
+        "status": { "const": "accepted" },
+        "accepted_at": { "type": "string", "format": "date-time", "maxLength": 64 },
+        "event_id": { "$ref": "production-event.schema.json#/$defs/identifier" },
+        "mission_id": { "$ref": "production-event.schema.json#/$defs/identifier" }
+      }
+    }
+  }
+}

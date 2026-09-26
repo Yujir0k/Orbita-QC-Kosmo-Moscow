@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { cases, defectNames, eventsFor, mediaIndex, mediaUrl, operations, performAction, prepareMasterShift, tasks, time, type Case, type MasterReworkDetails, type Scope, type Task } from './domain';
+import { cases, defectNames, eventsFor, mediaIndex, mediaUrl, operations, tasks, time, type Case, type MasterReworkDetails, type Scope, type Task } from './domain';
+import { securePerformAction } from './security-client';
 import { Icon } from './ui';
 
 type QueueTab = 'rework' | 'inspection' | 'delays';
@@ -88,19 +89,19 @@ function MasterRepairForm({ task, onDone }: { task: Task; onDone: (message: stri
     setMethod(value);
     setMethodNotice('Способ сохранён для этой смены');
   };
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setError('');
     try {
       if (!method.trim()) throw new Error('Укажите способ устранения дефекта');
       if (!Number.isFinite(Number(duration)) || Number(duration) < 1) throw new Error('Укажите длительность доработки');
       if (!Number.isFinite(Number(actualSize.replace(',', '.'))) || Number(actualSize.replace(',', '.')) < 0) throw new Error('Укажите фактический размер после зачистки');
-      performAction(task.item, 'master', 'master_complete', `${method}; исполнитель ${operator}; ${duration} мин; фактический размер ${actualSize} мм.`, 'MASTER-01', !restricted, issue?.id, undefined, undefined, details);
+      await securePerformAction(task.item, 'master', 'master_complete', `${method}; исполнитель ${operator}; ${duration} мин; фактический размер ${actualSize} мм.`, !restricted, issue?.id, undefined, undefined, details);
       onDone(isRework ? `${task.item}: REVISION_READY · направлено в очередь повторного контроля ОТК` : `${task.item}: очный досмотр зафиксирован и передан ОТК`);
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось записать действие'); }
   };
-  const scrap = () => {
+  const scrap = async () => {
     if (!confirmScrap) { setConfirmScrap(true); return; }
-    try { performAction(task.item, 'master', 'master_scrap', 'Дефект признан неустранимым мастером; деталь передана в изолятор брака.', 'MASTER-01', false, issue?.id); onDone(`${task.item}: передано в изолятор брака`); }
+    try { await securePerformAction(task.item, 'master', 'master_scrap', 'Дефект признан неустранимым мастером; деталь передана в изолятор брака.', false, issue?.id); onDone(`${task.item}: передано в изолятор брака`); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось записать списание'); }
   };
   return <form className="master-workbench" onSubmit={submit} noValidate>
@@ -115,10 +116,9 @@ function MasterRepairForm({ task, onDone }: { task: Task; onDone: (message: stri
 /** Workcenter terminal shared by the master's tasks and production entry points. */
 export function MasterTerminal({ scope }: { scope: Scope }) {
   const [tab, setTab] = useState<QueueTab>('rework');
-  const [selected, setSelected] = useState('ITEM-013');
+  const [selected, setSelected] = useState('');
   const [notice, setNotice] = useState('');
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
-  useEffect(() => { prepareMasterShift(); }, []);
   useEffect(() => { const timer = window.setInterval(() => setElapsedMinutes(value => value + 1), 60000); return () => window.clearInterval(timer); }, []);
   const rework = activeTasks(scope, 'rework');
   const inspection = activeTasks(scope, 'inspection');

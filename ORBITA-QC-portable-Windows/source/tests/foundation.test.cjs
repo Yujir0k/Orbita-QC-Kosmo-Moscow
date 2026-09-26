@@ -154,6 +154,50 @@ test('An unassessable signal becomes a classified case after a positive physical
   assert.equal(domain.cases.find(row => row.id === classified.id).confirmed, true);
 });
 
+test('browser projection discards local human actions without a matching server receipt', () => {
+  domain.resetDemo();
+  const approval = { actionId: '00000000-0000-4000-8000-000000000001', actorId: 'controller-01' };
+  domain.performAction('ITEM-013', 'controller', 'confirm', 'Риска подтверждена очным осмотром', 'ignored-form-author', true, undefined, undefined, undefined, undefined, approval);
+  const originals = domain.actionDeliveries(approval.actionId);
+  assert.equal(originals.length, 1);
+  assert.equal(originals[0].message.actor_id, 'controller-01');
+  domain.reconcileSecureEvents([]);
+  assert.equal(domain.events.some(event => event.data.security_action_id === approval.actionId), false);
+  domain.reconcileSecureEvents(originals);
+  assert.equal(domain.events.filter(event => event.data.security_action_id === approval.actionId).length, 1);
+  domain.resetDemo();
+});
+
+test('ITEM-013 returns to the fresh controller queue while other workshop tasks survive reconciliation', () => {
+  domain.resetDemo();
+  domain.performAction('ITEM-013', 'controller', 'confirm', 'Прежнее учебное направление на доработку', 'QC-02');
+  const previous = domain.snapshotDemoState();
+  previous.other.filter(row => row.message.item_id === 'ITEM-013').forEach(row => { row.message.source_id = 'ORBITA-DEMO'; });
+  domain.restoreDemoState(previous);
+  domain.prepareMasterShift();
+  assert.equal(domain.eventsFor('ITEM-013').some(event => event.event_type === 'quality_decision'), false);
+  assert.equal(domain.eventsFor('ITEM-014').some(event => event.source_id === 'ORBITA-DEMO' && event.data.disposition === 'rework'), true);
+  domain.reconcileSecureEvents([]);
+  assert.equal(domain.eventsFor('ITEM-013').some(event => event.event_type === 'quality_decision'), false);
+  assert.equal(domain.eventsFor('ITEM-014').some(event => event.source_id === 'ORBITA-DEMO' && event.data.disposition === 'rework'), true);
+  domain.resetDemo();
+});
+
+test('mobile observations appear from server receipts and disappear when their receipt is absent', () => {
+  domain.resetDemo();
+  const source = domain.eventsFor('ITEM-013').find(event => event.event_type === 'inspection_result');
+  const event = structuredClone(source);
+  event.event_id = 'MOBILE-TEST-1';
+  event.source_id = 'MOBILE-EMU';
+  event.data.capture_context = { source: 'mobile_robot_simulator', mission_id: 'TEST-1', synthetic: true };
+  const row = { delivery_id: 'MOBILE-DLV-TEST-1', deliver_at: new Date().toISOString(), message: event };
+  domain.reconcileMobileEvents([row]);
+  assert.equal(domain.eventsFor('ITEM-013').some(value => value.event_id === event.event_id), true);
+  domain.reconcileMobileEvents([]);
+  assert.equal(domain.eventsFor('ITEM-013').some(value => value.event_id === event.event_id), false);
+  domain.resetDemo();
+});
+
 test('Routes remain role-specific and all modules belong to a role', () => {
   for (const workspace of nav.workspaces) assert.ok(nav.roles.some(role => nav.canAccess(role.id, workspace.id)), workspace.id);
   assert.deepEqual(nav.roleById.master.primary, ['home', 'operations', 'products']);
@@ -309,9 +353,9 @@ test('Workshop handoff removes a rework task and creates a repeat-inspection cas
   domain.resetDemo();
   domain.prepareMasterShift();
   const inspection = load('inspection-case.ts');
-  assert.equal(domain.tasks.filter(task => task.role === 'master' && task.event.data.disposition === 'rework').length, 3);
+  assert.equal(domain.tasks.filter(task => task.role === 'master' && task.event.data.disposition === 'rework').length, 2);
   assert.equal(domain.tasks.filter(task => task.role === 'master' && task.event.data.disposition === 'hold').length, 2);
-  assert.equal(inspection.inspectionCaseFrom(domain.cases.find(record => record.item === 'ITEM-013')).status, 'SENT_TO_REWORK');
+  assert.equal(inspection.inspectionCaseFrom(domain.cases.find(record => record.item === 'ITEM-013')).status, 'NEW_SIGNAL');
   const details = { method: 'Локальная зачистка заусенцев', operator: 'OP-03', durationMinutes: 18, actualSizeMm: 0.04, paperInspection: false };
   domain.performAction('ITEM-014', 'master', 'master_complete', 'Заусенец зачищен', 'MASTER-01', true, undefined, undefined, undefined, details);
   assert.ok(!domain.tasks.some(task => task.role === 'master' && task.item === 'ITEM-014'));

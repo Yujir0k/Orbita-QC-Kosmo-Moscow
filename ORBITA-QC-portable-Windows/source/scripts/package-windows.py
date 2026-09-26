@@ -13,7 +13,7 @@ temporary = target.with_suffix('.zip.tmp')
 if application.resolve().parent != workspace.resolve() or not (application / 'site/index.html').is_file():
     raise SystemExit('Portable site is missing or application layout is unexpected')
 
-excluded_dirs = {'node_modules', 'dist', '__pycache__', '.git'}
+excluded_dirs = {'node_modules', 'dist', 'data', '__pycache__', '.git'}
 excluded_files = {'tsconfig.tsbuildinfo', 'preview.log', 'preview-error.log', 'portable-preview.log', 'portable-preview-error.log'}
 
 with ZipFile(temporary, 'w', ZIP_DEFLATED, compresslevel=6) as archive:

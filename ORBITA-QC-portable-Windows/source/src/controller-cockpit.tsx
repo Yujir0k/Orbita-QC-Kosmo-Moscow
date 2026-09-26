@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react';
-import { cases, defectNames, describeEvent, eventNames, events, eventsFor, inScope, items, mediaIndex, performAction, recordControllerCheck, recordManualMeasurement, resultNames, stationNames, time, type Case, type QualityEvent, type Scope, type WorkflowAction } from './domain';
+import { cases, defectNames, describeEvent, eventNames, events, eventsFor, inScope, items, mediaIndex, resultNames, stationNames, time, type Case, type QualityEvent, type Scope, type WorkflowAction } from './domain';
+import { currentSecurityUser, securePerformAction, secureRecordControllerCheck, secureRecordManualMeasurement } from './security-client';
 import { controllerCaseData, queueItemLabel, type ControllerCaseData } from './controller-case';
 import { controllerEvidenceFrom, latestControllerCheck, machineAlertText, missingFrameReason } from './controller-evidence';
 import { decisionReadiness, verifyImage, type ImageState } from './controller-readiness';
@@ -97,13 +98,11 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
   const [parameter, setParameter] = useState('');
   const [value, setValue] = useState('');
   const [instrument, setInstrument] = useState('');
-  const [operator, setOperator] = useState('');
   const [calibrated, setCalibrated] = useState(false);
   const [message, setMessage] = useState('');
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkResult, setCheckResult] = useState<'signs_detected' | 'no_signs_detected'>(source.type === 'UNASSESSABLE' ? 'no_signs_detected' : 'signs_detected');
   const [checkNote, setCheckNote] = useState('');
-  const [checker, setChecker] = useState('');
   const [identifiedType, setIdentifiedType] = useState('DENT');
   const [identifiedRegion, setIdentifiedRegion] = useState<string>(manualRegions[0][0]);
   const productComponents = items.find(item => item.id === record.itemId)?.components ?? [];
@@ -125,19 +124,19 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
   const outsideLimit = typeof measured === 'number' && (typeof lower === 'number' && measured < lower || typeof upper === 'number' && measured > upper);
   const disposition = record.technologistFinding;
   const controllerCheck = latestControllerCheck(source, history);
-  const submitMeasurement = (event: FormEvent<HTMLFormElement>) => {
+  const submitMeasurement = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      recordManualMeasurement(record.itemId, record.id, parameter, Number(value), instrument, operator, calibrated,
+      await secureRecordManualMeasurement(record.itemId, record.id, parameter, Number(value), instrument, calibrated,
         limitLower || limitUpper || limitDocument ? { lower: limitLower ? Number(limitLower) : undefined, upper: limitUpper ? Number(limitUpper) : undefined, document: limitDocument } : undefined);
       setMessage(limitLower || limitUpper ? 'Замер и введённый контролёром критерий записаны с источником и автором.' : 'Показание прибора записано. Для вывода о допуске нужны пределы из КД.');
       setManualOpen(false);
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось записать замер'); }
   };
-  const submitCheck = (event: FormEvent<HTMLFormElement>) => {
+  const submitCheck = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const checkId = recordControllerCheck(record.itemId, record.id, checkResult, checkNote, checker,
+      const checkId = await secureRecordControllerCheck(record.itemId, record.id, checkResult, checkNote,
         source.type === 'UNASSESSABLE' && checkResult === 'signs_detected' ? { defectTypeId: identifiedType, region: identifiedRegion, componentId: identifiedComponent } : undefined);
       if (source.type === 'UNASSESSABLE' && checkResult === 'signs_detected') {
         const classified = cases.find(row => row.item === record.itemId && row.observations.some(event => event.data.basis_event_ids?.includes(checkId)));
@@ -224,7 +223,7 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
             <label>Компонент<select value={identifiedComponent} onChange={event => setIdentifiedComponent(event.target.value)}>{productComponents.map(component => <option key={component.id} value={component.id}>{component.id}</option>)}</select></label>
           </>}
           <label>Что проверено<textarea required minLength={5} value={checkNote} onChange={event => setCheckNote(event.target.value)} placeholder="Опишите осмотр детали, зоны и результат"/></label>
-          <label>Контролёр<input required value={checker} onChange={event => setChecker(event.target.value)} placeholder="ID контролёра"/></label>
+          <label>Контролёр<input value={currentSecurityUser()?.id ?? ''} readOnly/></label>
           <button type="submit">Записать очную проверку</button>
         </form>}
         {measurement && typeof measured === 'number' ? <div className="qc-fact-measure"><strong>{measured} {typeof measurement.data.unit === 'string' ? measurement.data.unit : 'мм'}</strong><span>{String(measurement.data.feature_id ?? 'Контролируемый параметр')}</span>{typeof lower === 'number' || typeof upper === 'number' ? <p className={outsideLimit ? 'qc-fact-alert' : 'qc-fact-ok'}>{outsideLimit ? 'Вне зарегистрированного допуска' : 'В пределах зарегистрированного допуска'} · {typeof lower === 'number' ? `от ${lower}` : ''}{typeof upper === 'number' ? ` до ${upper}` : ''}</p> : <p className="qc-measure-status">Допуск по КД не передан</p>}{typeof measurement.data.instrument_id === 'string' && <small>Прибор {measurement.data.instrument_id} · {measurement.actor_id}</small>}</div> : <div className="qc-fact-empty qc-measurement-empty"><span className="qc-empty-kicker">Размерный контроль</span><strong>Линейный размер детали по КД не подтвержден (требуется поверенный инструмент)</strong><p>Показание прибора для этого случая в исходном потоке не поступило.</p></div>}
@@ -234,7 +233,7 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
           <label>Параметр по КД<input required value={parameter} onChange={event => setParameter(event.target.value)} placeholder="Например, толщина стенки"/></label>
           <label>Показание, мм<input required type="number" min="0" step="any" value={value} onChange={event => setValue(event.target.value)}/></label>
           <label>ID прибора<input required value={instrument} onChange={event => setInstrument(event.target.value)}/></label>
-          <label>Контролёр<input required value={operator} onChange={event => setOperator(event.target.value)}/></label>
+          <label>Контролёр<input value={currentSecurityUser()?.id ?? ''} readOnly/></label>
           <details className="qc-measure-criteria"><summary>Допуск для этого параметра — если известен по КД</summary><p>Введите из документа. Пустые поля означают, что критерий неизвестен.</p><label>Нижняя граница, мм<input type="number" step="any" value={limitLower} onChange={event => setLimitLower(event.target.value)}/></label><label>Верхняя граница, мм<input type="number" step="any" value={limitUpper} onChange={event => setLimitUpper(event.target.value)}/></label><label>Документ, редакция и пункт<input value={limitDocument} onChange={event => setLimitDocument(event.target.value)}/></label></details>
           <label className="qc-calibrated"><input type="checkbox" checked={calibrated} onChange={event => setCalibrated(event.target.checked)}/> Поверка прибора подтверждена</label>
           <button type="submit">Записать замер</button>
@@ -267,7 +266,6 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
   const [basis, setBasis] = useState('');
   const [documentId, setDocumentId] = useState('');
   const [comment, setComment] = useState('');
-  const [author, setAuthor] = useState('');
   const [measurement, setMeasurement] = useState('');
   const [instrument, setInstrument] = useState('');
   const [calibrated, setCalibrated] = useState(false);
@@ -340,14 +338,14 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
     window.addEventListener('keydown', listener);
     return () => window.removeEventListener('keydown', listener);
   }, [options, settled, pendingChoice]);
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (missingAfter && (choice === 'confirm' || choice === 'confirm_hold') && !responsibilityAccepted) return;
     if (!choice || !basis || (choice !== 'additional' && !documentId.trim()) || comment.trim().length < 5) return;
     if (!basisOptions.includes(basis)) { setMessage('Основание больше не подтверждается доступными фактами. Выберите его заново.'); return; }
     if (options.find(option => option.key === choice)?.disabled) { setMessage('Основание изменилось. Выберите доступное решение заново.'); return; }
     try {
-      performAction(record.itemId, 'controller', choice, `${basis}. Источник: ${source.observations.at(-1)!.event_id}. ${documentId.trim() ? documentId.trim() + '. ' : ''}${comment.trim()}`, author.trim(), true, record.id,
+      await securePerformAction(record.itemId, 'controller', choice, `${basis}. Источник: ${source.observations.at(-1)!.event_id}. ${documentId.trim() ? documentId.trim() + '. ' : ''}${comment.trim()}`, true, record.id,
         requireMeasurement && choice === 'release' ? { value: Number(measurement), instrumentId: instrument, calibrationConfirmed: calibrated } : undefined,
         missingAfter && responsibilityAccepted ? { observationEventId: source.observations.at(-1)!.event_id, acknowledged: true } : undefined);
       setMessage('Решение записано в историю. Очередь и задания обновлены.');
@@ -375,8 +373,8 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
         <strong>Запись решения: {options.find(option => option.key === choice)?.label}</strong>
         <label>{choice === 'additional' ? 'Документ / инструкция (если есть)' : 'Документ / акт осмотра и редакция'}<input required={choice !== 'additional'} value={documentId} onChange={event => setDocumentId(event.target.value)}/></label>
         {requireMeasurement && choice === 'release' && <div className="cockpit-measurement"><strong>Фактический ручной замер · обязательный</strong><span>Для учебного маршрута ITEM-013: толщина стенки ≥ 5,0 мм. Внесите результат измерения; кадр CV его не заменяет.</span><label>Измерено, мм<input type="number" step="0.01" min="5" required value={measurement} onChange={event => setMeasurement(event.target.value)}/></label><label>Идентификатор прибора<input required value={instrument} onChange={event => setInstrument(event.target.value)}/></label><label className="cockpit-inline-check"><input type="checkbox" checked={calibrated} onChange={event => setCalibrated(event.target.checked)}/>Поверка прибора подтверждена контролёром</label></div>}
-        <label>Контролёр<input value={author} required onChange={event => setAuthor(event.target.value)}/></label>
-        <button className="qc-submit" type="submit" disabled={!author.trim() || !basis || (choice !== 'additional' && !documentId.trim()) || comment.trim().length < 5 || (requireMeasurement && choice === 'release' && (!measurement || !instrument.trim() || !calibrated))}>Записать решение</button>
+        <label>Контролёр<input value={currentSecurityUser()?.id ?? ''} readOnly/></label>
+        <button className="qc-submit" type="submit" disabled={!basis || (choice !== 'additional' && !documentId.trim()) || comment.trim().length < 5 || (requireMeasurement && choice === 'release' && (!measurement || !instrument.trim() || !calibrated))}>Записать решение</button>
       </form>}
     {message && <p className="qc-decision-message" role="status">{message}</p>}
   </section>;

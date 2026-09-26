@@ -1,13 +1,24 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/cosmo-quality/integration-inbound/1.0",
-  "title": "Synthetic ERP work-order delivery v1.0",
+  "title": "Normalized ERP work-order delivery v1.0",
   "type": "object",
   "required": ["delivery_id", "deliver_at", "message"],
   "additionalProperties": false,
   "properties": {
     "delivery_id": {"type": "string"},
     "deliver_at": {"type": "string", "format": "date-time"},
+    "external_refs": {
+      "type": "object",
+      "required": ["order_key", "item_keys"],
+      "properties": {
+        "order_key": {"type": "string"},
+        "order_number": {"type": ["string", "null"]},
+        "item_keys": {"type": "object", "additionalProperties": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "source_snapshot": {"type": "object"},
     "message": {
       "type": "object",
       "required": ["message_id", "message_type", "schema_version", "source_system", "sent_at", "payload"],
@@ -16,7 +27,7 @@
         "message_id": {"type": "string"},
         "message_type": {"const": "work_order"},
         "schema_version": {"const": "1.0"},
-        "source_system": {"const": "ERP-EMU"},
+        "source_system": {"enum": ["ERP-EMU", "ERP-1C", "ERP-GALAKTIKA"]},
         "sent_at": {"type": "string", "format": "date-time"},
         "payload": {
           "type": "object",

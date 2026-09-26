@@ -1,0 +1,12 @@
+{
+  "orders": { "WO-B": "1C-REF-WO-B" },
+  "itemTypes": { "TYPE-BRACKET-01": "1C-CODE-BRACKET-01" },
+  "items": {
+    "ITEM-007": "1C-SERIAL-007",
+    "ITEM-008": "1C-SERIAL-008",
+    "ITEM-009": "1C-SERIAL-009",
+    "ITEM-010": "1C-SERIAL-010",
+    "ITEM-011": "1C-SERIAL-011",
+    "ITEM-012": "1C-SERIAL-012"
+  }
+}
