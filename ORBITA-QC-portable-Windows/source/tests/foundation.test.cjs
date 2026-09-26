@@ -25,7 +25,9 @@ const controllerCase = load('controller-case.ts');
 
 test('Routes remain role-specific and all modules belong to a role', () => {
   for (const workspace of nav.workspaces) assert.ok(nav.roles.some(role => nav.canAccess(role.id, workspace.id)), workspace.id);
-  assert.equal(nav.parseRoute('#/controller/security/crypto').module, 'home');
+  assert.equal(nav.parseRoute('#/controller/security/crypto').module, 'quality');
+  assert.equal(nav.parseRoute('').module, 'quality');
+  assert.equal(nav.canAccess('controller', 'tasks'), false);
   assert.equal(nav.parseRoute('#/controller/products/registry?item=ITEM-013').item, 'ITEM-013');
   assert.equal(nav.parseRoute('#/controller/quality/signals?item=ITEM-013&case=NC-123').caseId, 'NC-123');
   assert.equal(nav.sectionsFor('controller', 'quality').length, 1);

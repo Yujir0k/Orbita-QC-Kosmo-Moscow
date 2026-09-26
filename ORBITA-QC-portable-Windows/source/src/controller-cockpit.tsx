@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { cases, defectNames, describeEvent, events, eventsFor, inScope, items, mediaIndex, performAction, stationNames, time, type Case, type Scope, type WorkflowAction } from './domain';
 import { controllerCaseData } from './controller-case';
 import { inspectionCaseFrom, type InspectionCase } from './inspection-case';
+import { Icon } from './ui';
 
 type QueueFilter = 'critical' | 'rework' | 'unassessable' | 'all';
 type ViewerMode = 'split' | 'side';
@@ -12,7 +13,7 @@ const statusText: Record<InspectionCase['status'], string> = {
   REWORK_VERIFICATION: 'Повторный контроль', CONFIRMED_DEFECT: 'Дефект подтверждён',
   FALSE_POSITIVE: 'Ложное срабатывание', ACCEPTED_AFTER_REWORK: 'Принято после доработки',
 };
-const missing = '';
+const missing = '⚠ Не заполнено';
 const isFormTarget = (target: EventTarget | null) => target instanceof HTMLElement && !!target.closest('input, textarea, select, [contenteditable="true"]');
 
 /** Verify the delivered file against the dataset digest; this does not verify a digital signature. */
@@ -31,7 +32,8 @@ function compareAge(createdAt: string, timelineEnd: number): string {
   return hours >= 24 ? `${Math.floor(hours / 24)} д в ленте` : `${hours} ч в ленте`;
 }
 
-function queueStatus(record: Case): boolean {
+/** Whether a defect case currently requires a controller decision. */
+export function queueStatus(record: Case): boolean {
   const caseData = inspectionCaseFrom(record);
   const own = eventsFor(record.item);
   const lastDecision = own.filter(event => event.event_type === 'quality_decision').at(-1);
@@ -43,7 +45,7 @@ function queueStatus(record: Case): boolean {
 function Frame({ url, label, emptyText, contrast, zoom, grid, bbox }: { url?: string; label: string; emptyText: string; contrast: boolean; zoom: boolean; grid: boolean; bbox?: [number, number, number, number] }) {
   return <div className={`cockpit-frame ${!url ? 'is-empty' : ''} ${contrast ? 'high-contrast' : ''} ${zoom ? 'zoomed' : ''} ${grid ? 'with-grid' : ''}`}>
     <span className="frame-tag">{label}</span>
-    {url ? <><img src={url} alt={label}/>{bbox && <span className="frame-highlight" style={{ left: `${bbox[0]}%`, top: `${bbox[1]}%`, width: `${bbox[2]}%`, height: `${bbox[3]}%` }} aria-label="Рамка дефекта от CV"/>}</> : <div className="frame-empty"><strong>Кадр не передан</strong><span>{emptyText}</span></div>}
+    {url ? <><img src={url} alt={label}/>{bbox && <span className="frame-highlight" style={{ left: `${bbox[0]}%`, top: `${bbox[1]}%`, width: `${bbox[2]}%`, height: `${bbox[3]}%` }} aria-label="Рамка дефекта от CV"/>}</> : <div className="frame-empty"><Icon name="control" size={28}/><strong>Кадр не передан</strong><span>{emptyText}</span></div>}
   </div>;
 }
 
@@ -64,8 +66,8 @@ function EvidenceViewer({ record, hashState }: { record: InspectionCase; hashSta
     return () => window.removeEventListener('keydown', listener);
   }, []);
   const hasPair = !!evidence.beforeImageUrl && !!evidence.currentImageUrl;
-  const beforeLabel = record.iteration > 1 ? 'ИСХОДНЫЙ СИГНАЛ CV' : 'ДО · предыдущий этап';
-  const afterLabel = record.masterReworkReport?.actionType === 'rework_completed' ? 'ПОСЛЕ · доработка мастера' : record.iteration > 1 ? 'ОЧНАЯ ПРОВЕРКА МАСТЕРА' : 'СЕЙЧАС · наблюдение CV';
+  const beforeLabel = record.iteration > 1 ? 'ДО · Исходный сигнал CV' : 'ДО · Входной контроль';
+  const afterLabel = record.masterReworkReport?.actionType === 'rework_completed' ? 'СЕЙЧАС · После доработки' : record.iteration > 1 ? 'СЕЙЧАС · Очная проверка' : record.itemId === 'ITEM-013' ? 'СЕЙЧАС · Зона фрезерования' : `СЕЙЧАС · ${stationNames[record.machineContext.stationId] ?? 'Наблюдение CV'}`;
   return <section className="cockpit-panel cockpit-evidence" aria-label="Визуальная экспертиза">
     <div className="cockpit-section-head"><div><span className="cockpit-kicker">02 / ДОКАЗАТЕЛЬНАЯ БАЗА</span><h2>Визуальная экспертиза</h2></div><span className={`cockpit-integrity ${hashState}`}>{hashState === 'valid' ? 'SHA-256 файла совпал' : hashState === 'invalid' ? 'НАРУШЕНА ЦЕЛОСТНОСТЬ КАДРА' : hashState === 'checking' ? 'Проверка SHA-256…' : 'Хеш кадра не передан'}</span></div>
     {hashState === 'invalid' && <div className="cockpit-alert danger" role="alert">Файл кадра не совпадает с заявленным SHA-256 или недоступен. Решение по этому изображению заблокировано.</div>}
@@ -75,9 +77,9 @@ function EvidenceViewer({ record, hashState }: { record: InspectionCase; hashSta
       <Frame url={evidence.currentImageUrl} label={afterLabel} emptyText="" contrast={contrast} zoom={zoom} grid={grid} bbox={record.iteration === 1 && bboxVisible ? evidence.defectBBox : undefined}/>
       <div className="cockpit-split-before" style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }}><Frame url={evidence.beforeImageUrl} label={beforeLabel} emptyText="" contrast={contrast} zoom={zoom} grid={grid}/></div>
       <input type="range" min="0" max="100" value={split} aria-label="Положение разделителя снимков" onChange={event => setSplit(Number(event.target.value))}/>
-    </div> : <div className="cockpit-frame-pair"><Frame url={evidence.beforeImageUrl} label={beforeLabel} emptyText="Снимок предыдущего этапа не приложен" contrast={contrast} zoom={zoom} grid={grid} bbox={record.iteration > 1 && bboxVisible ? evidence.defectBBox : undefined}/><Frame url={evidence.currentImageUrl} label={afterLabel} emptyText="Запросите очный контроль" contrast={contrast} zoom={zoom} grid={grid} bbox={record.iteration === 1 && bboxVisible ? evidence.defectBBox : undefined}/></div>}
-    <div className="viewer-tools"><button className={zoom ? 'active' : ''} onClick={() => setZoom(value => !value)}>{zoom ? '100%' : 'Увеличить · Z'}</button><button className={contrast ? 'active' : ''} onClick={() => setContrast(value => !value)}>Контраст</button><button className={grid ? 'active' : ''} onClick={() => setGrid(value => !value)}>Сетка просмотра</button><button className={bboxVisible ? 'active' : ''} onClick={() => setBboxVisible(value => !value)} disabled={!evidence.defectBBox}>Рамка CV</button><button disabled title="Слой маски подключается после появления данных CV">Маска CV</button></div>
-    <dl className="cockpit-camera"><div><dt>Камера</dt><dd>{evidence.cameraMeta.cameraId ?? missing}</dd></div><div><dt>Ракурс</dt><dd>{evidence.cameraMeta.viewAngle ?? missing}</dd></div><div><dt>Свет</dt><dd>{evidence.cameraMeta.lightingProfile ?? missing}</dd></div><div><dt>Профиль калибровки</dt><dd>{evidence.cameraMeta.calibrationProfile}</dd></div><div><dt>Срок калибровки</dt><dd/></div><div className="wide"><dt>SHA-256 файла</dt><dd className="mono">{hash ?? missing}</dd></div></dl>
+    </div> : <div className={`cockpit-frame-pair ${!evidence.beforeImageUrl ? 'before-missing' : ''} ${!evidence.currentImageUrl ? 'no-current' : ''}`}><Frame url={evidence.beforeImageUrl} label={beforeLabel} emptyText="Кадр предыдущего этапа отсутствует в пакете данных" contrast={contrast} zoom={zoom} grid={grid} bbox={record.iteration > 1 && bboxVisible ? evidence.defectBBox : undefined}/><Frame url={evidence.currentImageUrl} label={afterLabel} emptyText="Запросите очный контроль" contrast={contrast} zoom={zoom} grid={grid} bbox={record.iteration === 1 && bboxVisible ? evidence.defectBBox : undefined}/></div>}
+    <div className="viewer-tools"><button className={zoom ? 'active' : ''} onClick={() => setZoom(value => !value)}><Icon name="search" size={16}/>{zoom ? '100%' : 'Зум · Z'}</button><button className={contrast ? 'active' : ''} onClick={() => setContrast(value => !value)}><Icon name="control" size={16}/>Контраст</button><button className={grid ? 'active' : ''} onClick={() => setGrid(value => !value)}><Icon name="layer" size={16}/>Сетка</button><button className={bboxVisible ? 'active' : ''} onClick={() => setBboxVisible(value => !value)} disabled={!evidence.defectBBox}>Рамка CV</button><button disabled title="Слой маски подключается после появления данных CV">Маска CV</button></div>
+    <dl className="cockpit-camera"><div><dt>Камера / ракурс</dt><dd>{evidence.cameraMeta.cameraId ?? missing}<small>{evidence.cameraMeta.viewAngle ?? missing}</small></dd></div><div><dt>Свет</dt><dd>{evidence.cameraMeta.lightingProfile ?? missing}</dd></div><div><dt>Калибровка</dt><dd>{evidence.cameraMeta.calibrationProfile ?? missing}</dd></div><div><dt>SHA-256 файла</dt><dd className="mono" title={hash ?? undefined}>{hash ?? missing}</dd></div></dl>
     <p className="cockpit-fineprint">Хеш проверяет содержимое локального файла. Электронная подпись и защищённая хеш-цепочка источником не переданы. Сетка просмотра не является сеткой допусков.</p>
   </section>;
 }
@@ -115,10 +117,10 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
     { key: 'reject', label: 'Отклонить сигнал CV', shortcut: 'F2', tone: 'green', disabled: !visualAllowed },
     { key: 'additional', label: 'Назначить доппроверку', shortcut: 'F3', tone: 'blue' },
   ] : [
-    { key: 'confirm_hold', label: 'Подтвердить дефект · удержать', shortcut: 'F1', tone: 'red', disabled: !visualAllowed },
+    { key: 'confirm_hold', label: 'Подтвердить дефект', shortcut: 'F1', tone: 'red', disabled: !visualAllowed },
     { key: 'confirm', label: 'Направить на доработку', shortcut: 'F2', tone: 'amber', disabled: !visualAllowed },
-    { key: 'reject', label: 'Отклонить сигнал CV', shortcut: 'F3', tone: 'neutral', disabled: !visualAllowed || record.itemId === 'ITEM-016' },
-    { key: 'additional', label: 'Очный контроль / доппроверка', shortcut: 'F4', tone: 'blue' },
+    { key: 'reject', label: 'Отклонить (ложный сигнал)', shortcut: 'F3', tone: 'neutral', disabled: !visualAllowed || record.itemId === 'ITEM-016' },
+    { key: 'additional', label: 'Ручной замер / доппроверка', shortcut: 'F4', tone: 'blue' },
   ];
   const settled = !scrapReady && (['FALSE_POSITIVE', 'ACCEPTED_AFTER_REWORK'].includes(record.status) || (!hasMaster && source.decisions.length > 0 && record.status !== 'NEW_SIGNAL'));
   useEffect(() => { setChoice(null); setBasis(''); setDocumentId(''); setComment(''); setMessage(''); setMeasurement(''); setInstrument(''); setCalibrated(false); }, [record.id, record.iteration]);
@@ -141,14 +143,16 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
       setChoice(null); setComment('');
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось записать решение'); }
   };
-  return <section className="cockpit-decision"><div className="cockpit-section-head"><div><span className="cockpit-kicker">ПУЛЬТ РЕШЕНИЯ</span><h2>Вердикт контролёра</h2></div></div>
+  return <section className="cockpit-decision"><div className="cockpit-section-head"><div><span className="cockpit-kicker">04 / ПУЛЬТ</span><h2>Пульт решения контролёра</h2></div></div>
     {settled ? <p className="cockpit-muted">Текущее рассмотрение завершено. Решение и основание доступны в истории заявки.</p> : <>
+      <div className="cockpit-decision-prereq">
+        <label>Основание решения (по классификатору)<select required value={basis} onChange={event => setBasis(event.target.value)}><option value="">Выберите основание</option><option value="ГОСТ">ГОСТ</option><option value="СТП">СТП</option><option value="Рабочий чертёж">Рабочий чертёж</option><option value="Программа контроля">Программа контроля</option></select></label>
+        <label>Комментарий<textarea required minLength={5} rows={2} value={comment} onChange={event => setComment(event.target.value)} placeholder="Что проверено и что установлено"/></label>
+      </div>
       <div className="cockpit-actions">{options.map(option => <button key={option.key} type="button" className={`${option.tone} ${choice === option.key ? 'selected' : ''}`} disabled={option.disabled} title={option.title} onClick={() => { setChoice(option.key); setMessage(''); }}><kbd>{option.shortcut}</kbd><span>{option.label}</span></button>)}</div>
       {!visualAllowed && !scrapReady && <p className="cockpit-block">По отсутствующему или ограниченному кадру доступны только очный контроль и доппроверка.</p>}
       {choice && <form className="cockpit-decision-form" onSubmit={submit}>
-        <label>Вид основания<select required value={basis} onChange={event => setBasis(event.target.value)}><option value="">Выберите вид документа</option><option value="ГОСТ">ГОСТ</option><option value="СТП">СТП</option><option value="Рабочий чертёж">Рабочий чертёж</option><option value="Программа контроля">Программа контроля</option></select></label>
         <label>Номер и редакция документа<input required value={documentId} onChange={event => setDocumentId(event.target.value)}/></label>
-        <label>Комментарий и фактический результат<textarea required minLength={5} rows={3} value={comment} onChange={event => setComment(event.target.value)} placeholder="Что проверено и на каком основании принято решение"/></label>
         {requireMeasurement && choice === 'release' && <div className="cockpit-measurement"><strong>Фактический ручной замер · обязательный</strong><span>Для учебного маршрута ITEM-013: толщина стенки ≥ 5,0 мм. Внесите результат измерения; кадр CV его не заменяет.</span><label>Измерено, мм<input type="number" step="0.01" min="5" required value={measurement} onChange={event => setMeasurement(event.target.value)}/></label><label>Идентификатор прибора<input required value={instrument} onChange={event => setInstrument(event.target.value)}/></label><label className="cockpit-inline-check"><input type="checkbox" checked={calibrated} onChange={event => setCalibrated(event.target.checked)}/>Поверка прибора подтверждена контролёром</label></div>}
         <label>Контролёр<input value={author} required onChange={event => setAuthor(event.target.value)}/></label>
         <label className="cockpit-inline-check"><input type="checkbox" disabled/>Синхронизировать с ERP · интеграция запланирована</label>
@@ -189,6 +193,11 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
     return () => { active = false; };
   }, [imageUrl, expectedHash]);
   const sourceCase = selected?.source;
+  useEffect(() => {
+    const list = document.querySelector('.cockpit-queue-list');
+    const active = list?.querySelector('.cockpit-queue-item.active');
+    if (list && active) list.scrollTop += active.getBoundingClientRect().top - list.getBoundingClientRect().top - 10;
+  }, [sourceCase?.id]);
   const product = view ? items.find(row => row.id === view.itemId) : undefined;
   const data = sourceCase && product ? controllerCaseData(sourceCase, product, mediaIndex) : undefined;
   const own = view ? eventsFor(view.itemId) : [];
@@ -214,12 +223,41 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
     <div className="cockpit-title"><div><span className="cockpit-kicker">РАБОЧЕЕ МЕСТО / ОТК</span><h2>Кокпит верификации качества</h2></div><div className="cockpit-title-meta"><span className="cockpit-live-dot"/>Синтетические события · локальный учебный контур</div></div>
     <header className="cockpit-passport">
       <div><span className="cockpit-kicker">ПАСПОРТ ДЕТАЛИ</span><strong className="mono">{view?.itemId ?? ''}</strong><small>{view?.partName}</small></div>
-      <div><span>Заказ</span><strong className="mono">{view?.workOrder}</strong><small>Ревизия {view?.drawingRevision} · Чертёж <i className="cockpit-empty-slot" aria-label="Поле чертежа пусто"/></small></div>
-      <div><span>Партия</span><strong className="mono">{view?.batchId}</strong><small>Лот поставщика: {view?.supplierLotId}</small><small>Маршрутный лист: {view?.routeSheet ?? <i className="cockpit-empty-slot" aria-label="Поле маршрутного листа пусто"/>}</small></div>
+      <div><span>Заказ</span><strong className="mono">{view?.workOrder}</strong><small>Ревизия {view?.drawingRevision} · Чертёж {missing}</small></div>
+      <div><span>Партия</span><strong className="mono">{view?.batchId}</strong><small>Лот поставщика: {view?.supplierLotId}</small><small>Маршрутный лист: {view?.routeSheet ?? missing}</small></div>
       <div className="passport-integrity"><span>Защищённый контур</span><strong>Нет подтверждения</strong><small>SHA-256 файла проверяется отдельно; подпись и цепочка ожидают подключения</small></div>
     </header>
     <div className="cockpit-columns"><aside className="cockpit-panel cockpit-queue"><div className="cockpit-section-head"><div><span className="cockpit-kicker">01 / ПОТОК</span><h2>Очередь сигналов ОТК</h2></div><strong>{filtered.length}</strong></div><div className="cockpit-queue-filters">{([['critical','Критичные'], ['rework','Повторный контроль'], ['unassessable','Оценка невозможна'], ['all','Все в смене']] as const).map(([key, label]) => <button key={key} className={`${key} ${filter === key ? 'active' : ''}`} onClick={() => setFilter(key)}>{label}<span>{counts[key]}</span></button>)}</div><div className="cockpit-queue-tools"><input aria-label="Поиск заявки" placeholder="ID, узел, признак…" value={query} onChange={event => setQuery(event.target.value)}/><select aria-label="Критичность" value={criticality} onChange={event => setCriticality(event.target.value)}><option value="all">Любая критичность</option><option value="CRITICAL">Критическая</option><option value="HIGH">Высокая</option><option value="MEDIUM">Средняя</option><option value="LOW">Низкая</option></select></div><div className="cockpit-queue-list">{filtered.length ? filtered.map(({ source: row, view: item }) => <button key={row.id} className={`cockpit-queue-item ${sourceCase?.id === row.id ? 'active' : ''} ${item.urgency.toLowerCase()}`} onClick={() => openCase(item.itemId, row.id)} aria-current={sourceCase?.id === row.id ? 'true' : undefined}><span className="queue-top"><strong className="mono">{item.itemId}</strong><small>{compareAge(item.createdAt, timelineEnd)}</small></span><span className="queue-part">{item.partName}</span><span className="queue-defect">{defectNames[row.type] ?? row.type} · {controllerCaseData(row, items.find(product => product.id === row.item)!, mediaIndex).regionName}</span><span className="queue-bottom"><em>{item.iteration > 1 ? `Итерация #${item.iteration}` : item.visualEvidence.aiConfidence != null ? `CV ${item.visualEvidence.aiConfidence}%` : 'Уверенность не передана'}</em><span>{item.visualEvidence.hasImage ? '● Кадр' : '○ Без кадра'}</span></span></button>) : <p className="cockpit-muted">В выбранном фильтре нет открытых заявок.</p>}</div></aside>
-      {view && sourceCase && data ? <><EvidenceViewer key={view.id} record={view} hashState={hashState}/><aside className="cockpit-panel cockpit-context"><div className="cockpit-context-scroll"><div className="cockpit-section-head"><div><span className="cockpit-kicker">03 / КОНТЕКСТ</span><h2>Досье и основания</h2></div><span className="cockpit-iteration">Итерация #{view.iteration}</span></div><div className="cockpit-status-row"><span className={`urgency ${view.urgency.toLowerCase()}`}>{view.urgency}</span><span>{statusText[view.status]}</span></div><section className="context-block"><h3>Что известно о признаке</h3><dl><div><dt>Случай</dt><dd className="mono">{view.id}</dd></div><div><dt>Признак</dt><dd>{defectNames[sourceCase.type] ?? sourceCase.type} · {data.regionName}</dd></div><div><dt>Уверенность CV</dt><dd>{view.visualEvidence.aiConfidence != null ? `${view.visualEvidence.aiConfidence}%` : missing}</dd></div><div><dt>Наблюдение</dt><dd>{time(observation!.occurred_at)} · {observation!.event_id}</dd></div></dl><div className="context-gaps">{data.missing.slice(0, 5).map(value => <span key={value}>! {value}</span>)}</div></section><section className="context-block"><h3>Технологическое расследование</h3>{view.technologistFinding ? <><strong>{view.technologistFinding.investigationStatus === 'COMPLETED' ? 'Заключение записано' : 'Анализ причин продолжается'}</strong><p>{view.technologistFinding.description}</p><small>Допустимость доработки: {view.technologistFinding.reworkPermitted == null ? missing : view.technologistFinding.reworkPermitted ? 'подтверждена' : 'запрещена'}</small></> : <div className="cockpit-pending-slot" aria-label="Место для заключения технолога"/>}</section>{view.iteration > 1 && <section className="context-block rework"><h3>Отчёт мастера</h3><p><strong>{view.masterReworkReport?.masterName ?? missing}</strong> · {view.masterReworkReport ? time(view.masterReworkReport.completedAt) : ''}</p><p>{view.masterReworkReport?.actionDescription ?? missing}</p><small>Ручной замер: {view.masterReworkReport?.manualMeasurement ? `${view.masterReworkReport.manualMeasurement.measuredValue} мм · ${view.masterReworkReport.manualMeasurement.toolName ?? missing}` : <i className="cockpit-empty-slot" aria-label="Поле ручного замера пусто"/>}</small></section>}<section className="context-block"><h3>Операция и оборудование</h3><dl><div><dt>Участок</dt><dd>{stationNames[view.machineContext.stationId] ?? view.machineContext.stationId}</dd></div><div><dt>Запуск</dt><dd className="mono">{observation!.operation_run_id ?? missing}</dd></div><div><dt>Станок</dt><dd>{view.machineContext.machineId ?? missing}</dd></div><div><dt>Оператор</dt><dd>{view.machineContext.operatorId ?? missing}</dd></div><div><dt>DPM-код</dt><dd className="cockpit-empty-slot" aria-label="Поле DPM пусто"/></div></dl>{machine && <p className={view.machineContext.machineWarnings.length ? 'text-amber' : 'cockpit-muted'}>Телеметрия: {view.machineContext.machineWarnings.length ? view.machineContext.machineWarnings.join('; ') : `${machine.data.state ?? 'состояние не указано'}, пиковая нагрузка ${machine.data.spindle_load_peak_pct ?? missing}%`}. Не является доказательством причины.</p>}</section><details className="context-history"><summary>История случая · {sourceCase.observations.length} наблюд.</summary>{[...sourceCase.observations, ...sourceCase.decisions].sort((a,b) => Date.parse(a.occurred_at) - Date.parse(b.occurred_at)).map(event => <p key={event.event_id}><span className="mono">{time(event.occurred_at)}</span> {describeEvent(event)}</p>)}</details><button className="cockpit-passport-link" onClick={() => openPassport(view.itemId)}>Полный паспорт изделия ↗</button></div><DecisionPanel key={`${view.id}-${view.iteration}`} record={view} source={sourceCase} hashState={hashState}/></aside></> : <div className="cockpit-empty">Выберите заявку в очереди</div>}</div>
-    <div className="cockpit-footer"><span><kbd>F1–F4</kbd> Решение <kbd>Пробел</kbd> Следующая заявка <kbd>Z</kbd> Зум</span><span className="mono">Контролёр <i className="cockpit-empty-slot" aria-label="Имя контролёра не введено"/> · сессия {Math.floor((now - sessionStart) / 60000)} мин</span></div>
+      {view && sourceCase && data ? <><EvidenceViewer key={view.id} record={view} hashState={hashState}/><aside className="cockpit-panel cockpit-context"><div className="cockpit-context-scroll"><div className="cockpit-section-head"><div><span className="cockpit-kicker">03 / КОНТЕКСТ</span><h2>Досье и основания</h2></div><span className="cockpit-iteration">Итерация #{view.iteration}</span></div><div className="cockpit-status-row"><span className={`urgency ${view.urgency.toLowerCase()}`}>{view.urgency}</span><span>{statusText[view.status]}</span></div><section className="context-block">
+  <h3>О дефекте и контексте</h3>
+  <dl>
+    <div><dt>Случай</dt><dd className="mono">{view.id}</dd></div>
+    <div><dt>Дефект</dt><dd>{defectNames[sourceCase.type] ?? sourceCase.type} · {data.regionName}</dd></div>
+    <div><dt>Уверенность CV</dt><dd>{view.visualEvidence.aiConfidence != null ? (view.visualEvidence.aiConfidence + '%') : missing}</dd></div>
+    <div><dt>Станок</dt><dd>{view.machineContext.machineId ?? missing}</dd></div>
+    <div><dt>Оператор</dt><dd>{view.machineContext.operatorId ?? missing}</dd></div>
+    <div><dt>Участок</dt><dd>{stationNames[view.machineContext.stationId] ?? view.machineContext.stationId}</dd></div>
+    <div><dt>Запуск</dt><dd className="mono">{observation!.operation_run_id ?? missing}</dd></div>
+    <div><dt>Наблюдение</dt><dd>{time(observation!.occurred_at)} · {observation!.event_id}</dd></div>
+    <div><dt>DPM-код</dt><dd>{missing}</dd></div>
+  </dl>
+  {data.missing.length > 0 && <div className="context-gaps">{data.missing.slice(0, 5).map(value => <span key={value}>⚠ {value}</span>)}</div>}
+  {machine && <p className={view.machineContext.machineWarnings.length ? 'text-amber' : 'cockpit-muted'}>Телеметрия: {view.machineContext.machineWarnings.length ? view.machineContext.machineWarnings.join('; ') : (machine.data.state ?? 'состояние не указано') + ', пиковая нагрузка ' + (machine.data.spindle_load_peak_pct ?? missing) + '%'}. Не является доказательством причины.</p>}
+</section>
+<section className="context-block">
+  <h3>Технологическое расследование</h3>
+  {view.technologistFinding ? <>
+    <strong>{view.technologistFinding.investigationStatus === 'COMPLETED' ? 'Заключение записано' : 'Анализ причин продолжается'}</strong>
+    <p>{view.technologistFinding.description}</p>
+    <small>Допустимость доработки: {view.technologistFinding.reworkPermitted == null ? missing : view.technologistFinding.reworkPermitted ? 'подтверждена' : 'запрещена'}</small>
+  </> : <p className="cockpit-pending-status"><Icon name="clock" size={16}/>Расследование технолога не открыто (дефект на рассмотрении ОТК)</p>}
+  {view.iteration > 1 && <div className="context-rework">
+    <h4>Отчёт мастера</h4>
+    <p><strong>{view.masterReworkReport?.masterName ?? missing}</strong> · {view.masterReworkReport ? time(view.masterReworkReport.completedAt) : missing}</p>
+    <p>{view.masterReworkReport?.actionDescription ?? missing}</p>
+    <small>Ручной замер: {view.masterReworkReport?.manualMeasurement ? view.masterReworkReport.manualMeasurement.measuredValue + ' мм · ' + (view.masterReworkReport.manualMeasurement.toolName ?? missing) : missing}</small>
+  </div>}
+</section><details className="context-history"><summary>История случая · {sourceCase.observations.length} наблюд.</summary>{[...sourceCase.observations, ...sourceCase.decisions].sort((a,b) => Date.parse(a.occurred_at) - Date.parse(b.occurred_at)).map(event => <p key={event.event_id}><span className="mono">{time(event.occurred_at)}</span> {describeEvent(event)}</p>)}</details><button className="cockpit-passport-link" onClick={() => openPassport(view.itemId)}>Полный паспорт изделия ↗</button></div><DecisionPanel key={`${view.id}-${view.iteration}`} record={view} source={sourceCase} hashState={hashState}/></aside></> : <div className="cockpit-empty">Выберите заявку в очереди</div>}</div>
+    <div className="cockpit-footer"><span><kbd>F1–F4</kbd> Решение <kbd>Пробел</kbd> Следующая заявка <kbd>Z</kbd> Зум</span><span className="mono">Контролёр {missing} · сессия {Math.floor((now - sessionStart) / 60000)} мин</span></div>
   </div>;
 }

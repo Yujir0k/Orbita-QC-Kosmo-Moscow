@@ -99,7 +99,7 @@ export const workspaces: Workspace[] = [
 
 export interface Role { id: RoleId; name: string; initials: string; title: string; subtitle: string; focus: string; primary: ModuleId[]; secondary: ModuleId[] }
 export const roles: Role[] = [
-  { id: 'controller', name: 'Контролёр', initials: 'КК', title: 'Рабочее место контролёра', subtitle: 'Наблюдения, проверки и решения по качеству изделий.', focus: 'Качество и доказательства', primary: ['home', 'quality', 'tasks', 'products'], secondary: ['analytics'] },
+  { id: 'controller', name: 'Контролёр', initials: 'КК', title: 'Рабочее место контролёра', subtitle: 'Наблюдения, проверки и решения по качеству изделий.', focus: 'Качество и доказательства', primary: ['quality', 'products', 'home'], secondary: ['analytics'] },
   { id: 'master', name: 'Мастер', initials: 'МУ', title: 'Рабочее место мастера', subtitle: 'Ход производства, незавершённые работы и действия команды.', focus: 'Исполнение и ритм производства', primary: ['home', 'production', 'tasks', 'quality', 'products'], secondary: ['analytics', 'mobile'] },
   { id: 'technologist', name: 'Технолог', initials: 'ТХ', title: 'Рабочее место технолога', subtitle: 'Причины отклонений, условия контроля и развитие анализа.', focus: 'Причины и улучшения', primary: ['home', 'investigation', 'tasks', 'products'], secondary: ['control', 'models', 'analytics', 'forecast', 'events'] },
   { id: 'leader', name: 'Руководитель', initials: 'РК', title: 'Пульс качества', subtitle: 'Качество, производственное время и решения, требующие внимания.', focus: 'Результаты и риски', primary: ['home', 'analytics', 'tasks', 'products'], secondary: ['forecast'] },
@@ -117,7 +117,6 @@ export function sectionsFor(role: RoleId, module: ModuleId): Section[] {
   const sections = moduleById[module].sections;
   if (module === 'quality' && role === 'controller') return sections.filter(s => s.id === 'signals');
   if (module === 'analytics' && role === 'controller') return sections.filter(s => ['quality', 'reports'].includes(s.id));
-  if (module === 'tasks' && role === 'controller') return sections.filter(s => s.id !== 'team');
   return sections;
 }
 export interface Route { role: RoleId; module: ModuleId; section: string; item?: string; caseId?: string }
@@ -126,7 +125,7 @@ export function parseRoute(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
   const [rawRole, rawModule, rawSection] = path.split('/');
   const role = roles.some(r => r.id === rawRole) ? rawRole as RoleId : 'controller';
-  const module = workspaces.some(m => m.id === rawModule) && canAccess(role, rawModule as ModuleId) ? rawModule as ModuleId : 'home';
+  const module = workspaces.some(m => m.id === rawModule) && canAccess(role, rawModule as ModuleId) ? rawModule as ModuleId : role === 'controller' ? 'quality' : 'home';
   const sections = sectionsFor(role, module);
   const section = sections.some(s => s.id === rawSection) ? rawSection : sections[0]?.id ?? '';
   const item = new URLSearchParams(query).get('item') ?? undefined;

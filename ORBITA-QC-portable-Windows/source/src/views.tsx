@@ -3,7 +3,7 @@ import { Badge, Button, Empty, Icon, Metric, Note, Panel, ProductDrawing } from 
 import { canAccess, moduleById, roles, roleById, sectionsFor, type ModuleId, type RoleId, type Route, type Section } from './navigation';
 import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, productStatus, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
-import { ControllerCockpit } from './controller-cockpit';
+import { ControllerCockpit, queueStatus } from './controller-cockpit';
 import planet from './assets/planet-orbita.webp';
 
 export type Navigate = (module: ModuleId, section?: string, item?: string) => void;
@@ -97,8 +97,13 @@ function QualityView({ route, scope, openItem, openCase }: ViewProps) {
   return <>{route.section === 'signals' && <SmartQueue role={route.role} scope={scope} openItem={openItem}/>}<div className="workspace-toolbar"><div className="filter-chips" aria-label="Фильтр случаев">{[['all', 'Все'], ['pending', 'На рассмотрении'], ['confirmed', 'Подтверждённые'], ['closed', 'Закрытые']].map(([key, label]) => <button key={key} aria-pressed={filter === key} className={filter === key ? 'active' : ''} onClick={() => setFilter(key)}>{label}{key === 'all' && <span>{source.length}</span>}</button>)}</div><span className="toolbar-note">Поступившие наблюдения</span></div><Panel title={route.section === 'signals' ? 'Наблюдения и их рассмотрение' : 'Реестр несоответствий'} eyebrow="ОБЪЕДИНЕНИЕ ПО ИЗДЕЛИЮ И ОБЛАСТИ"><CaseTable data={data} openItem={openItem} /></Panel><Note>Сигнал анализатора и подтверждённый дефект имеют разные статусы. Повторные наблюдения одной области в одной операции объединены; исходные события доступны в истории.</Note></>;
 }
 
-function ProductsView({ scope, openItem }: ViewProps) {
+function ProductsView({ route, scope, openItem, openCase }: ViewProps) {
   const [query, setQuery] = useState('');
+  const openProduct = (itemId: string) => {
+    const activeCase = route.role === 'controller' ? cases.find(record => record.item === itemId && queueStatus(record)) : undefined;
+    if (activeCase) openCase(itemId, activeCase.id);
+    else openItem(itemId);
+  };
   const filtered = items
     .filter(item => events.some(event => event.item_id === item.id && inScope(event, scope)))
     .filter(item => `${item.id} ${item.work_order_id}`.toLowerCase().includes(query.toLowerCase()));
@@ -110,7 +115,7 @@ function ProductsView({ scope, openItem }: ViewProps) {
     </div>
     <Panel title="Реестр изделий" eyebrow="СВЯЗЬ С ПРОИЗВОДСТВЕННЫМИ ЗАКАЗАМИ">
       <div className="table-wrap"><table><thead><tr><th>Изделие</th><th>Заказ</th><th>Состав</th><th>Состояние по событиям</th><th>История</th></tr></thead><tbody>
-        {filtered.map(item => { const status = productStatus(item.id); return <tr key={item.id}><td><button className="cell-link mono" onClick={() => openItem(item.id)}>{item.id}</button><small>Кронштейн приборного блока</small></td><td className="mono">{item.work_order_id}</td><td>{item.components.length} компонента<small>Ревизия {item.assembly_revision}</small></td><td><Badge tone={status.tone}>{status.label}</Badge></td><td><button className="icon-button" aria-label={`История ${item.id}`} onClick={() => openItem(item.id)}><Icon name="arrow" /></button></td></tr>; })}
+        {filtered.map(item => { const status = productStatus(item.id); return <tr key={item.id}><td><button className="cell-link mono" onClick={() => openProduct(item.id)}>{item.id}</button><small>Кронштейн приборного блока</small></td><td className="mono">{item.work_order_id}</td><td>{item.components.length} компонента<small>Ревизия {item.assembly_revision}</small></td><td><Badge tone={status.tone}>{status.label}</Badge></td><td><button className="icon-button" aria-label={`Открыть ${item.id}`} onClick={() => openProduct(item.id)}><Icon name="arrow" /></button></td></tr>; })}
       </tbody></table></div>
       {!filtered.length && <Empty title="Изделия не найдены" text="Проверьте номер или выберите другую смену." />}
     </Panel>
