@@ -5,6 +5,7 @@ import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
 import { ControllerWorkspace } from './controller-ui';
 import { AdminCadView, AdminExchangeView, AdminMappingsView, AdminMesView } from './admin-integrations';
+import { SecurityAuditView } from './security-ui';
 import planet from './assets/planet-orbita.webp';
 
 export type Navigate = (module: ModuleId, section?: string, item?: string) => void;
@@ -233,6 +234,7 @@ export function WorkspaceView(props: ViewProps) {
     case 'analytics': return <AnalyticsView {...props}/>;
     case 'integrations': return <IntegrationsView {...props}/>;
     case 'events': return <EventsView {...props}/>;
+    case 'security': if (route.section === 'audit' || route.section === 'integrity') return <SecurityAuditView/>; break;
     case 'control': return <ControlView {...props}/>;
     case 'platform': return <PlatformView {...props}/>;
     case 'guide': return <GuideView {...props}/>;

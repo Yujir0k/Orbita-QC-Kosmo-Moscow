@@ -5,6 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createIntegration } from './integration.mjs'
 import { createPlantIntegrations } from './plant-integrations.mjs'
+import { createSecurity } from './security.mjs'
 
 const host = '127.0.0.1'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'site')
@@ -32,15 +33,28 @@ const mimeTypes = {
 }
 
 let port = requestedPort
-const integration = await createIntegration({ directory, getBaseUrl: () => `http://${host}:${port}` })
-const plant = await createPlantIntegrations({ directory, importAssembly: integration.importAssembly })
+const security = await createSecurity({ directory })
+const integration = await createIntegration({ directory, getBaseUrl: () => `http://${host}:${port}`, storage: security.store, internalToken: security.internalToken })
+const plant = await createPlantIntegrations({ directory, importAssembly: integration.importAssembly, storage: security.store, authorizeDecision: security.validateMesDecision })
 const server = http.createServer(async (request, response) => {
+  response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
+  response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+  response.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
+  response.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
   let pathname
   try { pathname = decodeURIComponent(new URL(request.url, `http://${host}/`).pathname) }
   catch { response.writeHead(400).end('Bad request'); return }
   if (pathname.startsWith('/api/')) {
-    if (pathname.startsWith('/api/plant/')) await plant.handle(request, response, pathname)
-    else await integration.handle(request, response, pathname)
+    if (await security.handle(request, response, pathname)) return
+    try {
+      const principal = await security.guard(request, response, pathname)
+      if (!principal) return
+      if (pathname.startsWith('/api/plant/')) await plant.handle(request, response, pathname, principal)
+      else await integration.handle(request, response, pathname)
+    } catch (error) {
+      console.error('Security bus failure:', error)
+      if (!response.headersSent) response.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' }).end(JSON.stringify({ error: 'Операция остановлена: проверка безопасности недоступна' }))
+    }
     return
   }
   if (request.method !== 'GET' && request.method !== 'HEAD') {
@@ -77,6 +91,8 @@ const server = http.createServer(async (request, response) => {
       'Content-Length': data.length,
       'Cache-Control': 'no-cache',
       'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer',
+      'X-Frame-Options': 'DENY',
     })
     response.end(request.method === 'HEAD' ? undefined : data)
   } catch (error) {
@@ -99,6 +115,8 @@ server.listen(port, host, () => {
   const url = `http://${host}:${port}/`
   console.log(`ОРБИТА.QC запущена: ${url}`)
   console.log('Оставьте это окно открытым. Для остановки нажмите Ctrl+C.')
+  console.log('Учебные учётные записи (пароли созданы локально и не входят в архив):')
+  for (const account of security.demoCredentials()) console.log(`  ${account.id} [${account.role}]: ${account.password}`)
   if (process.env.ORBITA_NO_BROWSER !== '1') {
     try {
       const browser = spawn('explorer.exe', [url], { detached: true, stdio: 'ignore', windowsHide: true })

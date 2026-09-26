@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { events, items, time } from './domain';
 import { Badge, Button, Empty, Note, Panel } from './ui';
+import { secureFetch } from './security-client';
 
 type Payload = { item_id: string; work_order_id: string; quality_status: 'accepted' | 'quarantined' | 'released_after_rework'; basis_event_ids: string[] };
 type Order = { delivery_id: string; received_at: string; message: { message_id: string; payload: { work_order_id: string; item_ids: string[]; quantity: number; assembly_revision: string } }; external_refs?: { order_key: string; item_keys: Record<string, string> } };
@@ -11,7 +12,7 @@ type IntegrationState = { mode: string; profile: 'emulator' | '1c' | 'galaktika'
 type PlantState = { mes: { configured: boolean; cursor: string; received: number; last_error: string | null; deliveries: { message: { event_id: string; event_type: string; item_id: string } }[]; outbox: { event: { event_id: string; item_id: string }; status: string; attempts: number; last_error: string | null }[] }; cad: { configured: boolean; available_assemblies: string[]; imports: { assembly_id: string; revision: string; imported_at: string }[] } };
 
 async function api<T>(url: string, body?: unknown): Promise<T> {
-  const response = await fetch(url, body === undefined ? undefined : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const response = await secureFetch(url, body === undefined ? undefined : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const value = await response.json();
   if (!response.ok) throw new Error(value.error || `HTTP ${response.status}`);
   return value as T;

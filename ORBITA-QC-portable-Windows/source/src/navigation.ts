@@ -109,7 +109,7 @@ export const roles: Role[] = [
 
 export const moduleById = Object.fromEntries(workspaces.map(workspace => [workspace.id, workspace])) as Record<ModuleId, Workspace>;
 export const roleById = Object.fromEntries(roles.map(role => [role.id, role])) as Record<RoleId, Role>;
-/** UI visibility only. Production authorization must be enforced by the server. */
+/** UI visibility only; the server independently enforces action and API permissions. */
 export function canAccess(role: RoleId, module: ModuleId): boolean {
   return module === 'guide' || [...roleById[role].primary, ...roleById[role].secondary].includes(module);
 }

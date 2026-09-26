@@ -52,7 +52,7 @@ function mappings(value, sections) {
 
 const mesTypes = new Set(['operation_started', 'operation_finished', 'operation_paused', 'operator_action', 'machine_state'])
 
-export async function createPlantIntegrations({ directory, importAssembly, stateFile, mesOptions = {}, cadOptions = {}, fetchImpl = fetch }) {
+export async function createPlantIntegrations({ directory, importAssembly, stateFile, storage, authorizeDecision, mesOptions = {}, cadOptions = {}, fetchImpl = fetch }) {
   async function loadMapping(options, envName) {
     if (options.mapping) return options.mapping
     const file = options.mappingFile ?? process.env[envName]
@@ -70,12 +70,18 @@ export async function createPlantIntegrations({ directory, importAssembly, state
   const demoItems = new Map(demo.items.map(item => [item.id, item]))
   const fresh = () => ({ mes: { cursor: '', deliveries: [], raw: [], outbox: [], last_error: null }, cad: { imports: [] } })
   let state
-  try { state = { ...fresh(), ...JSON.parse(await readFile(file, 'utf8')) } }
-  catch (error) { if (error.code !== 'ENOENT') throw error; state = fresh() }
+  if (storage) state = { ...fresh(), ...(await storage.readJson(file) ?? {}) }
+  else {
+    try { state = { ...fresh(), ...JSON.parse(await readFile(file, 'utf8')) } }
+    catch (error) { if (error.code !== 'ENOENT') throw error; state = fresh() }
+  }
   let writes = Promise.resolve()
   const persist = () => {
     const snapshot = JSON.stringify(state, null, 2)
-    writes = writes.then(async () => { await mkdir(path.dirname(file), { recursive: true }); const temporary = `${file}.tmp`; await writeFile(temporary, snapshot); await rename(temporary, file) })
+    writes = writes.then(async () => {
+      if (storage) await storage.writeJson(file, JSON.parse(snapshot))
+      else { await mkdir(path.dirname(file), { recursive: true }); const temporary = `${file}.tmp`; await writeFile(temporary, snapshot); await rename(temporary, file) }
+    })
     return writes
   }
   const publicState = () => ({
@@ -207,11 +213,21 @@ export async function createPlantIntegrations({ directory, importAssembly, state
     return result
   }
 
-  async function handle(request, response, pathname) {
+  async function handle(request, response, pathname, principal) {
     try {
       if (pathname === '/api/plant/state' && request.method === 'GET') return json(response, 200, publicState())
-      if (pathname === '/api/plant/mes/sync' && request.method === 'POST') return json(response, 200, await syncMes())
-      if (pathname === '/api/plant/mes/decisions' && request.method === 'POST') return json(response, 200, await queueDecision(await bodyOf(request)))
+      if (pathname === '/api/plant/mes/configured' && request.method === 'GET') return json(response, 200, { configured: mesConfigured })
+      if (pathname === '/api/plant/mes/sync' && request.method === 'POST') {
+        const batch = await syncMes()
+        const lines = principal?.user?.lineIds
+        return json(response, 200, lines ? { ...batch, deliveries: batch.deliveries.filter(row => lines.includes(row.message.line_id)) } : batch)
+      }
+      if (pathname === '/api/plant/mes/decisions' && request.method === 'POST') {
+        const decision = await bodyOf(request)
+        if (principal?.user && (principal.user.id !== decision?.actor_id || !principal.user.lineIds.includes(decision?.line_id))) throw fail(403, 'Решение недоступно для учётной записи или линии')
+        if (authorizeDecision && !authorizeDecision(decision)) throw fail(403, 'Решение не подтверждено защищённым журналом действий')
+        return json(response, 200, await queueDecision(decision))
+      }
       if (pathname.startsWith('/api/plant/mes/retry/') && request.method === 'POST') {
         const id = decodeURIComponent(pathname.split('/').at(-1))
         const entry = state.mes.outbox.find(row => row.event.event_id === id)

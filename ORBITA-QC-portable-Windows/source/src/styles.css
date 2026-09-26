@@ -300,3 +300,13 @@ table .badge { font-size: 10px; }
 .assembly-entry strong { min-width: 220px; }
 .assembly-entry small { color: #9fb1bf; flex: 1; }
 @media(max-width:700px) { .integration-metrics { grid-template-columns: 1fr; } .integration-form { align-items: stretch; } .integration-form .button { width: 100%; } }
+.security-login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 25% 15%, #24455a, #0e1922 70%); color: #e8f3f8; }
+.security-login-card { width: min(100%, 460px); padding: 34px; border: 1px solid #426075; border-radius: 16px; background: #172936; box-shadow: 0 25px 70px #0007; }
+.security-login-card h1 { margin: 12px 0; font-size: 30px; }
+.security-login-card p, .security-login-card small { color: #a9beca; line-height: 1.55; }
+.security-login-card form { display: grid; gap: 16px; margin: 25px 0; }
+.security-login-card label { display: grid; gap: 7px; font-size: 13px; color: #c9d9e2; }
+.security-login-card input, .security-login-card select { width: 100%; padding: 11px; border: 1px solid #547082; border-radius: 8px; background: #101f2a; color: #edf7fa; }
+.security-login-card .button { justify-content: center; }
+.security-error { color: #ffb6a7 !important; }
+.security-audit-toolbar { display: flex; align-items: center; gap: 14px; margin: 18px 0; flex-wrap: wrap; }

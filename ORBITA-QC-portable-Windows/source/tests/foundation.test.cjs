@@ -23,6 +23,20 @@ const domain = load('domain.ts');
 const nav = load('navigation.ts');
 const controllerCase = load('controller-case.ts');
 
+test('browser projection discards local human actions without a matching server receipt', () => {
+  domain.resetDemo();
+  const approval = { actionId: '00000000-0000-4000-8000-000000000001', actorId: 'controller-01' };
+  domain.performAction('ITEM-013', 'controller', 'confirm', 'Риска подтверждена очным осмотром', 'ignored-form-author', true, undefined, approval);
+  const originals = domain.actionDeliveries(approval.actionId);
+  assert.equal(originals.length, 1);
+  assert.equal(originals[0].message.actor_id, 'controller-01');
+  domain.reconcileSecureEvents([]);
+  assert.equal(domain.events.some(event => event.data.security_action_id === approval.actionId), false);
+  domain.reconcileSecureEvents(originals);
+  assert.equal(domain.events.filter(event => event.data.security_action_id === approval.actionId).length, 1);
+  domain.resetDemo();
+});
+
 test('Routes remain role-specific and all modules belong to a role', () => {
   for (const workspace of nav.workspaces) assert.ok(nav.roles.some(role => nav.canAccess(role.id, workspace.id)), workspace.id);
   assert.equal(nav.parseRoute('#/controller/security/crypto').module, 'home');

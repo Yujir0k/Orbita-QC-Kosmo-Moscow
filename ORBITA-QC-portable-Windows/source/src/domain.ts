@@ -81,6 +81,8 @@ const notify = () => { version += 1; listeners.forEach(listener => listener()); 
 export const subscribe = (listener: () => void) => { listeners.add(listener); return () => listeners.delete(listener); };
 export const getVersion = () => version;
 export const ingestState = () => state;
+export const snapshotDemoState = (): StoredState => structuredClone(state);
+export function restoreDemoState(snapshot: StoredState) { state = structuredClone(snapshot); save(); }
 const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* Browser storage may be disabled. */ } };
 const save = () => { refresh(); persist(); notify(); };
 
@@ -123,6 +125,16 @@ export function importText(input: string): IngestOutcome[] {
   for (const raw of rows) { result.push(accept(raw as Delivery)); if (result.at(-1)?.kind !== 'error') { events.sort(sortEvents); } }
   save(); return result;
 }
+/** Server receipts are authoritative for human actions; localStorage is only a view cache. */
+export function reconcileSecureEvents(approved: Delivery[]) {
+  state.other = state.other.filter(row => row.message?.source_id !== 'ORBITA-UI');
+  refresh();
+  for (const row of approved) accept(row, false);
+  events.sort(sortEvents);
+  for (const item of new Set(approved.map(row => row.message.item_id))) advanceItem(item);
+  save();
+}
+export const actionDeliveries = (actionId: string): Delivery[] => deliveries.filter(row => row.message.data.security_action_id === actionId);
 const sortEvents = (a: QualityEvent, b: QualityEvent) => Date.parse(a.occurred_at) - Date.parse(b.occurred_at) || a.event_id.localeCompare(b.event_id);
 function refresh() {
   deliveries = [...state.sourceIds.map(id => sourceById.get(id)).filter((row): row is Delivery => !!row), ...state.other];
@@ -288,7 +300,7 @@ export function describeEvent(event: QualityEvent): string {
 
 export type WorkflowAction = 'confirm' | 'additional' | 'reject' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
 /** Record a role action as a new auditable event, then unlock only its next source stage. */
-export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string): string {
+export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string, approval?: { actionId: string; actorId: string }): string {
   const own = eventsFor(item); const latest = own.at(-1); if (!latest) throw new Error('Изделие ещё не поступило');
   if (!reason.trim()) throw new Error('Укажите основание');
   const allowedRole = action.startsWith('tech') || action === 'hypothesis' || action === 'cause_confirm' ? 'technologist' : action === 'master_complete' ? 'master' : 'controller';
@@ -313,9 +325,10 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
     if (!selected) throw new Error('Случай не найден для этого изделия');
     refs = selected.refs;
   }
+  let actionEventIndex = 0;
   const make = (event_type: string, data: EventData, extra: Partial<QualityEvent> = {}) => {
     const lastTime = Math.max(...eventsFor(item).map(e => Date.parse(e.occurred_at)));
-    const event: QualityEvent = { event_id: `UI-${crypto.randomUUID()}`, event_type, schema_version: '2.0', occurred_at: new Date(lastTime + 60000).toISOString(), source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id, station_id: latest.station_id, shift_id: latest.shift_id, actor_id: executor.trim() || role.toUpperCase(), data, ...extra };
+    const event: QualityEvent = { event_id: approval ? `UI-${approval.actionId}-${++actionEventIndex}` : `UI-${crypto.randomUUID()}`, event_type, schema_version: '2.0', occurred_at: new Date(lastTime + 60000).toISOString(), source_id: 'ORBITA-UI', item_id: item, item_type_id: latest.item_type_id, line_id: latest.line_id, station_id: latest.station_id, shift_id: latest.shift_id, actor_id: approval?.actorId ?? (executor.trim() || role.toUpperCase()), data: approval ? { ...data, security_action_id: approval.actionId } : data, ...extra };
     const row: Delivery = { delivery_id: `UI-DLV-${crypto.randomUUID()}`, deliver_at: new Date().toISOString(), message: event };
     const outcome = accept(row); if (outcome.kind === 'error') throw new Error(outcome.reason); events.sort(sortEvents);
     return event;

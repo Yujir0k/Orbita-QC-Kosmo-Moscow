@@ -20,7 +20,7 @@ async function bodyOf(request) {
   try { return JSON.parse(raw || '{}') } catch { throw fail(400, 'Некорректный JSON') }
 }
 
-export async function createIntegration({ directory, getBaseUrl, stateFile, profile = process.env.ORBITA_ERP_PROFILE || 'emulator', adapterOptions }) {
+export async function createIntegration({ directory, getBaseUrl, stateFile, storage, internalToken, profile = process.env.ORBITA_ERP_PROFILE || 'emulator', adapterOptions }) {
   if (!['emulator', '1c', 'galaktika'].includes(profile)) throw new Error(`Неизвестный профиль ERP: ${profile}`)
   let external = null
   let externalMapping = null
@@ -58,17 +58,23 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, prof
   }
   const fresh = () => ({ profile, orders: [], outbox: [], emulator: { accepted: [], attempts: {} }, assemblies: [] })
   let state
-  try { state = { ...fresh(), ...JSON.parse(await readFile(statePath, 'utf8')) } }
-  catch (error) { if (error.code !== 'ENOENT') throw error; state = fresh() }
+  if (storage) state = { ...fresh(), ...(await storage.readJson(statePath) ?? {}) }
+  else {
+    try { state = { ...fresh(), ...JSON.parse(await readFile(statePath, 'utf8')) } }
+    catch (error) { if (error.code !== 'ENOENT') throw error; state = fresh() }
+  }
   if (state.profile !== profile) throw new Error(`Файл состояния принадлежит профилю ${state.profile}; требуется отдельный файл для ${profile}`)
   let writes = Promise.resolve()
   const persist = () => {
     const snapshot = JSON.stringify(state, null, 2)
     writes = writes.then(async () => {
-      await mkdir(path.dirname(statePath), { recursive: true })
-      const temporary = `${statePath}.tmp`
-      await writeFile(temporary, snapshot)
-      await rename(temporary, statePath)
+      if (storage) await storage.writeJson(statePath, JSON.parse(snapshot))
+      else {
+        await mkdir(path.dirname(statePath), { recursive: true })
+        const temporary = `${statePath}.tmp`
+        await writeFile(temporary, snapshot)
+        await rename(temporary, statePath)
+      }
     })
     return writes
   }
@@ -101,7 +107,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, prof
       if (external) receipt = await external.sendResult(entry.message, entry.attempts, order)
       else {
         const response = await fetch(`${getBaseUrl()}/api/emulator/results`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry.message), signal: AbortSignal.timeout(5000),
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...(internalToken ? { 'X-Orbita-Internal': internalToken } : {}) }, body: JSON.stringify(entry.message), signal: AbortSignal.timeout(5000),
         })
         responseOk = response.ok
         receipt = await response.json()
@@ -172,7 +178,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, prof
         if (external) row = await external.fetchOrder(input.work_order_id)
         else {
           if (!sourceOrders.has(input.work_order_id)) throw fail(404, 'Неизвестный заказ ERP-эмулятора')
-          const upstream = await fetch(`${getBaseUrl()}/api/emulator/orders/${encodeURIComponent(input.work_order_id)}`, { signal: AbortSignal.timeout(5000) })
+          const upstream = await fetch(`${getBaseUrl()}/api/emulator/orders/${encodeURIComponent(input.work_order_id)}`, { headers: internalToken ? { 'X-Orbita-Internal': internalToken } : {}, signal: AbortSignal.timeout(5000) })
           if (!upstream.ok) throw fail(502, 'Не удалось получить задание от ERP')
           row = await upstream.json()
         }
