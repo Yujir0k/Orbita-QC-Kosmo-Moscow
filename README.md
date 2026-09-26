@@ -1,49 +1,14 @@
 # ОРБИТА.QC
 
+### [Открыть демонстрационный стенд →](https://orbita-193-233-220-37.sslip.io/)
+
+**Контроль качества • история изделия • исследование причин • действия производства**
+
+![Главный экран ОРБИТА.QC](docs/screenshots/controller-home.png)
+
 Рабочая среда контроля качества: от наблюдения на производственной линии до решения ОТК, выполнения работы мастером и исследования причины дефекта. История изделия объединяет события контроля, операции, оборудование, исполнителей, фотографии и человеческие выводы. Каждый вывод можно проследить до его оснований.
 
 Приложение запускается в Docker. Текстовые и численные данные, решения, сеансы и очередь обмена хранятся в PostgreSQL; фотографии — в отдельном экземпляре PostgreSQL. Интерфейс получает состояние через HTTPS API. Изменение карточки в браузере становится производственным фактом только после серверной проверки и фиксации транзакции.
-
-## Быстрый старт
-
-Потребуются Git, Docker с Linux containers и Compose v2, OpenSSL. На Windows используется PowerShell 7. Для запуска контейнеров локальные Node.js, Python и PostgreSQL не нужны. Для комфортной работы стенда выделите Docker около 6 ГБ памяти; фактическую потребность проверяйте под своей нагрузкой.
-
-### Windows
-
-Клонируйте репозиторий на диск A в каталог с латинским именем: это исключает проблемы Docker Desktop с кириллицей в пути сборки.
-
-```powershell
-git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git A:\orbita-qc
-cd A:\orbita-qc
-pwsh -File deployment/start.ps1 -Replicas 2
-```
-
-Если OpenSSL отсутствует в PATH, укажите установленный исполняемый файл:
-
-```powershell
-pwsh -File deployment/start.ps1 -OpenSsl 'C:\Program Files\OpenSSL-Win64\bin\openssl.exe'
-```
-
-### Linux
-
-```sh
-git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git orbita-qc
-cd orbita-qc
-sh deployment/start.sh
-```
-
-Откройте **https://localhost:8443**. Генератор создаёт локальный CA и сертификаты; браузеру требуется доверие к этому CA. Проверяйте, что сертификат относится к вашему стенду. Для предприятия используются сертификаты его PKI. Проверка TLS между контейнерами включена, отключать её для запуска не требуется.
-
-```sh
-docker compose ps
-docker compose logs --tail 100 api
-docker compose stop
-docker compose up -d --no-build --scale api=2
-```
-
-Первый запуск импортирует исходный набор один раз. Повторный запуск сохраняет решения. Каталоги `.runtime/postgres`, `.runtime/media-postgres` и `.runtime/backups` находятся рядом с проектом; при размещении проекта на A прикладные данные также остаются на A. Образы и служебные файлы Docker располагаются согласно настройкам Docker Desktop.
-
-Параметры входа и переключение режима описаны в [документации бэкенда](app/source/server/README.md). Ключи и первоначальные учётные данные генерируются в `.secrets` и не входят в Git.
 
 ## Работа начинается с роли
 
@@ -246,6 +211,48 @@ $env:LOAD_REQUESTS = '100'
 $env:LOAD_CONCURRENCY = '10'
 node app/source/scripts/smoke-production.mjs
 ```
+
+## Быстрый старт
+
+Потребуются Git, Docker с Linux containers и Compose v2, OpenSSL. На Windows используется PowerShell 7. Для запуска контейнеров локальные Node.js, Python и PostgreSQL не нужны. Для комфортной работы стенда выделите Docker около 6 ГБ памяти; фактическую потребность проверяйте под своей нагрузкой.
+
+### Windows
+
+Клонируйте репозиторий на диск A в каталог с латинским именем: это исключает проблемы Docker Desktop с кириллицей в пути сборки.
+
+```powershell
+git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git A:\orbita-qc
+cd A:\orbita-qc
+pwsh -File deployment/start.ps1 -Replicas 2
+```
+
+Если OpenSSL отсутствует в PATH, укажите установленный исполняемый файл:
+
+```powershell
+pwsh -File deployment/start.ps1 -OpenSsl 'C:\Program Files\OpenSSL-Win64\bin\openssl.exe'
+```
+
+### Linux
+
+```sh
+git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git orbita-qc
+cd orbita-qc
+sh deployment/start.sh
+```
+
+Откройте **https://localhost:8443**. Генератор создаёт локальный CA и сертификаты; браузеру требуется доверие к этому CA. Проверяйте, что сертификат относится к вашему стенду. Для предприятия используются сертификаты его PKI. Проверка TLS между контейнерами включена, отключать её для запуска не требуется.
+
+```sh
+docker compose ps
+docker compose logs --tail 100 api
+docker compose stop
+docker compose up -d --no-build --scale api=2
+```
+
+Первый запуск импортирует исходный набор один раз. Повторный запуск сохраняет решения. Каталоги `.runtime/postgres`, `.runtime/media-postgres` и `.runtime/backups` находятся рядом с проектом; при размещении проекта на A прикладные данные также остаются на A. Образы и служебные файлы Docker располагаются согласно настройкам Docker Desktop.
+
+Параметры входа и переключение режима описаны в [документации бэкенда](app/source/server/README.md). Ключи и первоначальные учётные данные генерируются в `.secrets` и не входят в Git.
+
 
 ## Структура репозитория
 
