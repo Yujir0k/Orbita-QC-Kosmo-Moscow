@@ -96,6 +96,23 @@ test('a controller action is attributed by the server and its original is encryp
   assert.equal(security.validateMesDecision({ ...event, line_id: 'OTHER-LINE' }), false)
 })
 
+test('quarantine decision is approved and audited with its exact disposition', async () => {
+  const qc = await login('qc', 'correct-controller-password')
+  const reason = 'Дефект подтверждён; изделие направлено в карантин'
+  const approval = await request('/api/security/actions', { method: 'POST', cookie: qc.cookie, csrf: qc.csrf,
+    body: { itemId: 'ITEM-1', action: 'quarantine', reason } })
+  assert.equal(approval.status, 200)
+  const event = { event_id: `UI-${approval.body.actionId}-1`, event_type: 'quality_decision', schema_version: '2.0',
+    occurred_at: new Date().toISOString(), source_id: 'ORBITA-UI', actor_id: 'qc', item_id: 'ITEM-1',
+    item_type_id: 'TYPE-1', line_id: 'LINE-1', station_id: 'ST-1', shift_id: 'SHIFT-1',
+    item_state: { physical_location: 'ST-1: зона удержания ОТК', line_lock_status: 'HELD_AT_STATION' },
+    data: { decision: 'confirmed', disposition: 'quarantine', finding_refs: [], reason, security_action_id: approval.body.actionId } }
+  const completed = await request('/api/security/actions/complete', { method: 'POST', cookie: qc.cookie, csrf: qc.csrf,
+    body: { actionId: approval.body.actionId, deliveries: [{ delivery_id: `UI-DLV-${randomUUID()}`, deliver_at: new Date().toISOString(), message: event }] } })
+  assert.equal(completed.status, 200)
+  assert.equal(security.validateMesDecision(event), true)
+})
+
 test('technologist requests and conclusions and a master report persist in the audited history', async () => {
   const tech = await login('tech', 'correct-technologist-password')
   const master = await login('master-line1', 'correct-master-line1-password')
@@ -180,16 +197,23 @@ test('workcenter rework and independent measurements require exact server approv
     body: { actionId, deliveries: [delivery(event)] } })
   assert.equal(complete.status, 200)
 
+  const inspectionDetails = { ...details, method: 'Очный осмотр', actualSizeMm: 0, inspectionResult: 'signs_detected', inspectionNote: 'На кромке виден заусенец' }
+  const inspectionReason = 'Очный осмотр: на кромке виден заусенец; исполнитель OP-03.'
+  const inspectionApproval = await request('/api/security/actions', { method: 'POST', cookie: master.cookie, csrf: master.csrf,
+    body: { itemId: 'ITEM-1', action: 'master_complete', reason: inspectionReason, includePhoto: true, masterDetails: inspectionDetails } })
+  assert.equal(inspectionApproval.status, 200)
+  const inspectionEvent = { ...event, event_id: `UI-${inspectionApproval.body.actionId}-1`,
+    data: { ...event.data, security_action_id: inspectionApproval.body.actionId, action_type: 'inspection_support',
+      rework_method: inspectionDetails.method, actual_size_mm: 0, inspection_result: 'signs_detected',
+      inspection_note: inspectionDetails.inspectionNote, comment: inspectionReason, reason: inspectionReason } }
+  assert.equal((await request('/api/security/actions/complete', { method: 'POST', cookie: master.cookie, csrf: master.csrf,
+    body: { actionId: inspectionApproval.body.actionId, deliveries: [delivery(inspectionEvent)] } })).status, 200)
+
   const qc = await login('qc', 'correct-controller-password')
   const checkReason = 'Очный осмотр подтвердил царапину'
   const check = await request('/api/security/actions', { method: 'POST', cookie: qc.cookie, csrf: qc.csrf,
     body: { itemId: 'ITEM-1', action: 'controller_check', caseId: 'CASE-1', checkResult: 'signs_detected', reason: checkReason } })
-  assert.equal(check.status, 200)
-  const checkEvent = { ...event, item_state: undefined, event_id: `UI-${check.body.actionId}-1`, event_type: 'controller_check', actor_id: 'qc',
-    data: { security_action_id: check.body.actionId, case_id: 'CASE-1', observation_event_id: 'OBS-1', inspection_result: 'signs_detected',
-      finding_refs: ['OBS-1#F1'], basis_event_ids: ['OBS-1'], reason: checkReason } }
-  assert.equal((await request('/api/security/actions/complete', { method: 'POST', cookie: qc.cookie, csrf: qc.csrf,
-    body: { actionId: check.body.actionId, deliveries: [delivery(checkEvent)] } })).status, 200)
+  assert.equal(check.status, 422)
 
   const reading = { parameter: 'Толщина стенки', value: 5.12, instrumentId: 'GAGE-01', calibrated: true }
   const measurement = await request('/api/security/actions', { method: 'POST', cookie: qc.cookie, csrf: qc.csrf,

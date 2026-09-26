@@ -1,4 +1,4 @@
-import { actionDeliveries, cases, performAction, reconcileMobileEvents, reconcileSecureEvents, recordCauseReview, recordControllerCheck, recordManualMeasurement, recordMasterProcessReport, requestInvestigationEvidence, restoreDemoState, snapshotDemoState, type CauseReviewInput, type Delivery, type MasterProcessInput, type MasterReworkDetails, type WorkflowAction } from './domain';
+import { actionDeliveries, cases, performAction, reconcileMobileEvents, reconcileSecureEvents, recordCauseReview, recordManualMeasurement, recordMasterProcessReport, requestInvestigationEvidence, restoreDemoState, snapshotDemoState, type CauseReviewInput, type Delivery, type MasterProcessInput, type MasterReworkDetails, type WorkflowAction } from './domain';
 import type { EvidenceRecipient } from './investigation-services';
 import type { RoleId } from './navigation';
 
@@ -101,12 +101,6 @@ export async function secureRecordManualMeasurement(item: string, caseId: string
   return secureAction(item, 'manual_measurement', `Замер ${parameter}: ${value} мм, прибор ${instrumentId}`, caseId,
     approval => recordManualMeasurement(item, caseId, parameter, value, instrumentId, approval.actorId, calibrated, criteria, approval),
     { measurement: { parameter, value, instrumentId, calibrated, criteria } });
-}
-
-/** Authorize and audit a physical inspection independently of the final decision. */
-export async function secureRecordControllerCheck(item: string, caseId: string, result: 'signs_detected' | 'no_signs_detected', reason: string, identified?: { defectTypeId: string; region: string; componentId: string }): Promise<string> {
-  return secureAction(item, 'controller_check', reason, caseId,
-    approval => recordControllerCheck(item, caseId, result, reason, approval.actorId, identified, approval), { checkResult: result, ...(identified ? { identified } : {}) });
 }
 
 /** Save a technologist's conclusion to the shared audited event history. */

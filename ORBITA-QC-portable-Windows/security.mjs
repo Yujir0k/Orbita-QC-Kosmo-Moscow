@@ -5,18 +5,18 @@ import { createAuditLog, createCrypto, createEncryptedStore, loadRootKey } from 
 import { readJsonObject } from './contract-validator.mjs'
 
 const roleForAction = {
-  confirm: 'controller', confirm_hold: 'controller', additional: 'controller', reject: 'controller', accepted_within_spec: 'controller',
-  recheck_fail: 'controller', release: 'controller', scrap: 'controller', controller_check: 'controller', manual_measurement: 'controller',
+  confirm: 'controller', confirm_hold: 'controller', quarantine: 'controller', additional: 'controller', reject: 'controller', accepted_within_spec: 'controller',
+  recheck_fail: 'controller', release: 'controller', scrap: 'controller', manual_measurement: 'controller',
   master_complete: 'master', master_scrap: 'master', master_process_report: 'master', tech_allow: 'technologist', tech_deny: 'technologist', hypothesis: 'technologist', cause_confirm: 'technologist', cause_review_detailed: 'technologist', evidence_request: 'technologist',
 }
-const decisionForAction = { confirm: 'confirmed', confirm_hold: 'confirmed', additional: 'additional_check', reject: 'rejected', accepted_within_spec: 'accepted_within_spec', recheck_fail: 'confirmed', release: 'release_after_rework', scrap: 'scrap_approved' }
-const dispositionForAction = { confirm: item => item === 'ITEM-015' ? 'quarantine' : 'rework', confirm_hold: () => 'hold', additional: () => 'hold', reject: () => 'release', accepted_within_spec: () => 'release', recheck_fail: () => 'rework', release: () => 'release', scrap: () => 'scrap' }
+const decisionForAction = { confirm: 'confirmed', confirm_hold: 'confirmed', quarantine: 'confirmed', additional: 'additional_check', reject: 'rejected', accepted_within_spec: 'accepted_within_spec', recheck_fail: 'confirmed', release: 'release_after_rework', scrap: 'scrap_approved' }
+const dispositionForAction = { confirm: item => item === 'ITEM-015' ? 'quarantine' : 'rework', confirm_hold: () => 'hold', quarantine: () => 'quarantine', additional: () => 'hold', reject: () => 'release', accepted_within_spec: () => 'release', recheck_fail: () => 'rework', release: () => 'release', scrap: () => 'scrap' }
 const sequenceForAction = (action, item, approved) => {
   if (action === 'confirm') return item === 'ITEM-015' ? ['inspection_result', 'quality_decision'] : ['quality_decision']
   if (action === 'reject') return item === 'ITEM-016' ? ['inspection_result', 'quality_decision'] : ['quality_decision']
   if (action === 'release') return item === 'ITEM-013' ? ['manual_measurement', 'inspection_result', 'quality_decision'] : ['inspection_result', 'quality_decision']
   if (action === 'recheck_fail') return ['inspection_result', 'quality_decision']
-  if (['confirm_hold', 'additional', 'accepted_within_spec', 'scrap'].includes(action)) return ['quality_decision']
+  if (['confirm_hold', 'quarantine', 'additional', 'accepted_within_spec', 'scrap'].includes(action)) return ['quality_decision']
   if (['master_complete', 'master_scrap'].includes(action)) return ['master_action']
   if (action === 'manual_measurement') return ['manual_measurement']
   if (action === 'controller_check') return approved?.checkResult === 'signs_detected' && approved?.identified ? ['controller_check', 'inspection_result'] : ['controller_check']
@@ -63,13 +63,14 @@ function validActionData(event, approved) {
     && ['checked', 'issue', 'unknown', 'not_applicable'].includes(d.fixture_condition)
     && ['checked', 'issue', 'unknown', 'not_applicable'].includes(d.tool_condition)
     && ['yes', 'no', 'unknown'].includes(d.setup_changed) && strings(d.basis_event_ids)
-  if (event.event_type === 'master_action') return onlyKeys(d, ['security_action_id', 'action_type', 'workflow_status', 'evidence_refs', 'photo_uploaded_at', 'observation_quality', 'executor_id', 'rework_method', 'duration_minutes', 'actual_size_mm', 'paper_inspection', 'comment', 'reason'])
-    && d.action_type === (approved.action === 'master_scrap' ? 'scrap_to_isolator' : approved.masterDetails ? 'rework_completed' : d.action_type)
+  if (event.event_type === 'master_action') return onlyKeys(d, ['security_action_id', 'action_type', 'workflow_status', 'evidence_refs', 'photo_uploaded_at', 'observation_quality', 'executor_id', 'rework_method', 'duration_minutes', 'actual_size_mm', 'paper_inspection', 'inspection_result', 'inspection_note', 'comment', 'reason'])
+    && d.action_type === (approved.action === 'master_scrap' ? 'scrap_to_isolator' : approved.masterDetails?.inspectionResult ? 'inspection_support' : 'rework_completed')
     && ['rework_completed', 'inspection_support', 'scrap_to_isolator'].includes(d.action_type) && strings(d.evidence_refs)
     && d.workflow_status === (approved.action === 'master_scrap' ? 'SCRAP_ISOLATOR' : 'REVISION_READY')
     && d.executor_id === (approved.masterDetails?.operator ?? approved.actor) && d.comment === approved.reason && d.reason === approved.reason
     && d.rework_method === approved.masterDetails?.method && d.duration_minutes === approved.masterDetails?.durationMinutes
     && d.actual_size_mm === approved.masterDetails?.actualSizeMm && d.paper_inspection === (approved.masterDetails?.paperInspection ?? false)
+    && d.inspection_result === approved.masterDetails?.inspectionResult && d.inspection_note === approved.masterDetails?.inspectionNote
     && (d.observation_quality === undefined || d.observation_quality === 'good')
     && (approved.includePhoto !== false || d.evidence_refs.length === 0)
   if (event.event_type === 'controller_check') return approved.action === 'controller_check'
@@ -292,13 +293,15 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         if (body.caseId !== undefined && (typeof body.caseId !== 'string' || body.caseId.length > 128)
           || body.includePhoto !== undefined && typeof body.includePhoto !== 'boolean'
           || body.recipient !== undefined && (body.action !== 'evidence_request' || !['master', 'controller', 'mechanic', 'laboratory'].includes(body.recipient))
-          || body.masterDetails !== undefined && (body.action !== 'master_complete' || !object(body.masterDetails) || !onlyKeys(body.masterDetails, ['method', 'operator', 'durationMinutes', 'actualSizeMm', 'paperInspection'])
+          || body.masterDetails !== undefined && (body.action !== 'master_complete' || !object(body.masterDetails) || !onlyKeys(body.masterDetails, ['method', 'operator', 'durationMinutes', 'actualSizeMm', 'paperInspection', 'inspectionResult', 'inspectionNote'])
             || typeof body.masterDetails.method !== 'string' || !body.masterDetails.method.trim() || body.masterDetails.method.length > 400
             || typeof body.masterDetails.operator !== 'string' || !body.masterDetails.operator.trim() || body.masterDetails.operator.length > 128
             || !Number.isFinite(body.masterDetails.durationMinutes) || body.masterDetails.durationMinutes <= 0
-            || !Number.isFinite(body.masterDetails.actualSizeMm) || body.masterDetails.actualSizeMm < 0 || typeof body.masterDetails.paperInspection !== 'boolean')
+            || !Number.isFinite(body.masterDetails.actualSizeMm) || body.masterDetails.actualSizeMm < 0 || typeof body.masterDetails.paperInspection !== 'boolean'
+            || body.masterDetails.inspectionResult !== undefined && !['signs_detected', 'no_signs_detected', 'unable_to_assess'].includes(body.masterDetails.inspectionResult)
+            || body.masterDetails.inspectionNote !== undefined && (typeof body.masterDetails.inspectionNote !== 'string' || body.masterDetails.inspectionNote.length > 4000))
           || body.measurement !== undefined && (!['release', 'manual_measurement'].includes(body.action) || !object(body.measurement))
-          || body.missingPhotoConfirmation !== undefined && (!['confirm', 'confirm_hold'].includes(body.action) || !object(body.missingPhotoConfirmation)
+          || body.missingPhotoConfirmation !== undefined && (!['confirm', 'confirm_hold', 'quarantine'].includes(body.action) || !object(body.missingPhotoConfirmation)
             || !onlyKeys(body.missingPhotoConfirmation, ['observationEventId', 'acknowledged']) || body.missingPhotoConfirmation.acknowledged !== true
             || typeof body.missingPhotoConfirmation.observationEventId !== 'string')
           || body.checkResult !== undefined && (body.action !== 'controller_check' || !['signs_detected', 'no_signs_detected'].includes(body.checkResult))

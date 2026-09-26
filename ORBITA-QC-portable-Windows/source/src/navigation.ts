@@ -1,11 +1,18 @@
 export type RoleId = 'controller' | 'master' | 'technologist' | 'leader' | 'administrator';
-export type ModuleId = 'home' | 'quality' | 'production' | 'operations' | 'products' | 'investigation' | 'tasks' | 'analytics' | 'control' | 'models' | 'forecast' | 'mobile' | 'integrations' | 'events' | 'security' | 'platform' | 'guide';
+export type ModuleId = 'home' | 'executive' | 'quality' | 'production' | 'operations' | 'products' | 'investigation' | 'tasks' | 'analytics' | 'control' | 'models' | 'forecast' | 'mobile' | 'integrations' | 'events' | 'security' | 'platform' | 'guide';
 export interface Section { id: string; label: string; purpose: string; fields: string[]; steps: [string, string, string]; optional?: boolean }
 export interface Workspace { id: ModuleId; label: string; caption: string; icon: string; sections: Section[] }
 const section = (id: string, label: string, purpose: string, fields: string[], steps: [string, string, string], optional = false): Section => ({ id, label, purpose, fields, steps, optional });
 
 export const workspaces: Workspace[] = [
   { id: 'home', label: 'Главная', caption: 'Рабочее пространство вашей роли', icon: 'home', sections: [] },
+  { id: 'executive', label: 'Кабинет руководителя', caption: 'Баланс качества, эффективность команды и управление производством', icon: 'analytics', sections: [
+    section('analytics', 'Работа предприятия', 'KPI, заказы 1С/MES, тепловая карта, Парето и надёжность оборудования.', ['FTR', 'План-факт', 'Повторяемость', 'КТГ и потери времени'], ['Оценить программу', 'Найти концентрацию дефектов', 'Назначить решение']),
+    section('balance', 'Баланс дефектов и ремонтов', 'Восстановление изделий, трудозатраты и контроль повторных доработок.', ['Выявлено', 'Восстановлено', 'Изолятор', 'Риски допуска'], ['Оценить баланс', 'Проверить повторные доработки', 'Открыть паспорт']),
+    section('personnel', 'Персонал и смены', 'Сравнение смен и аудит работы контролёра, технолога и мастера.', ['FTR смены', 'Выпуск', 'Технические паузы', 'Персональный аудит'], ['Сравнить смены', 'Оценить работу ролей', 'Выделить отклонения']),
+    section('actions', 'Управленческие решения', 'Визы руководителя с основаниями и локальной демонстрационной очередью передачи.', ['Рекламация', 'Наряд ОГМ', 'Маршрут доработки', 'Автор и время визы'], ['Открыть паспорт', 'Утвердить действие', 'Проверить запись передачи']),
+    section('reports', 'Генератор отчетов', 'Три печатных отраслевых бланка с фильтрами периода и заказа.', ['Период', 'Заказ', 'Шаблон', 'Подпись и печать'], ['Выбрать срез', 'Сформировать и просмотреть', 'Печатать или сохранить PDF']),
+  ] },
   { id: 'quality', label: 'Контроль качества', caption: 'От наблюдения до обоснованного решения по изделию', icon: 'quality', sections: [
     section('signals', 'Сигналы', 'Первичная проверка наблюдений внешних анализаторов и ручного контроля.', ['Изделие и участок', 'Качество наблюдения', 'Повторные сигналы', 'Источник и время'], ['Получить наблюдение', 'Проверить контекст', 'Открыть рассмотрение']),
     section('cases', 'Несоответствия', 'Единая карточка случая: признаки, доказательства, решение и связанные действия.', ['Статус рассмотрения', 'Подтверждённый дефект', 'Решение контролёра', 'История изменений'], ['Сопоставить признаки', 'Зафиксировать решение', 'Передать действие мастеру']),
@@ -103,10 +110,10 @@ export const workspaces: Workspace[] = [
 
 export interface Role { id: RoleId; name: string; initials: string; title: string; subtitle: string; focus: string; primary: ModuleId[]; secondary: ModuleId[] }
 export const roles: Role[] = [
-  { id: 'controller', name: 'Контролёр', initials: 'КК', title: 'Рабочее место контролёра', subtitle: 'Наблюдения, проверки и решения по качеству изделий.', focus: 'Качество и доказательства', primary: ['quality', 'products', 'home'], secondary: ['analytics'] },
+  { id: 'controller', name: 'Контролёр', initials: 'КК', title: 'Рабочее место контролёра', subtitle: 'Наблюдения, проверки и решения по качеству изделий.', focus: 'Качество и доказательства', primary: ['home', 'quality', 'products'], secondary: ['analytics'] },
   { id: 'master', name: 'Мастер', initials: 'МУ', title: 'Рабочее место мастера', subtitle: 'Ход производства, незавершённые работы и действия команды.', focus: 'Исполнение и ритм производства', primary: ['home', 'operations', 'products'], secondary: ['analytics'] },
   { id: 'technologist', name: 'Технолог', initials: 'ТХ', title: 'Рабочее место технолога', subtitle: 'Подтверждённые дефекты, обстоятельства операций и обоснованные выводы.', focus: 'Причины и улучшения', primary: ['home', 'investigation', 'tasks', 'analytics', 'products'], secondary: ['events'] },
-  { id: 'leader', name: 'Руководитель', initials: 'РК', title: 'Пульс качества', subtitle: 'Качество, производственное время и решения, требующие внимания.', focus: 'Результаты и риски', primary: ['home', 'analytics', 'production', 'tasks', 'products'], secondary: ['forecast'] },
+  { id: 'leader', name: 'Руководитель производства', initials: 'РП', title: 'Кабинет руководителя', subtitle: 'Баланс качества, эффективность команды и решения по рискам производства.', focus: 'Качество, команда и решения', primary: ['executive', 'products'], secondary: [] },
   { id: 'administrator', name: 'Администратор', initials: 'АД', title: 'Центр управления системой', subtitle: 'Обмен данными, доступ, инфраструктура и защищённость.', focus: 'Надёжность и управление', primary: ['home', 'integrations', 'events', 'platform'], secondary: ['security', 'mobile'] },
 ];
 
@@ -119,6 +126,14 @@ export function canAccess(role: RoleId, module: ModuleId): boolean {
 /** Return role-relevant sections without duplicating the underlying workspace. */
 export function sectionsFor(role: RoleId, module: ModuleId): Section[] {
   const sections = moduleById[module].sections;
+  if (module === 'analytics' && ['controller', 'master', 'leader'].includes(role)) {
+    const tabs = role === 'controller'
+      ? [['overview', 'Сводка ОТК'], ['quality', 'Изделия и дефекты'], ['decisions', 'Решения'], ['sources', 'Качество наблюдений'], ['reports', 'Отчёты']]
+      : role === 'master'
+        ? [['overview', 'Сводка участка'], ['time', 'Операции и время'], ['rework', 'Доработка'], ['handover', 'Передача смены'], ['quality', 'Качество участка'], ['reports', 'Отчёты']]
+        : [['overview', 'Сводка руководителя'], ['quality', 'Качество по линиям'], ['time', 'Производственное время'], ['rework', 'Повторная обработка'], ['causes', 'Причины и риски'], ['reports', 'Отчёты']];
+    return tabs.map(([id, label]) => section(id, label, 'Показатели принятой истории с переходом к основаниям и экспортом выбранного среза.', [], ['Выбрать срез', 'Проверить основания', 'Выгрузить отчёт']));
+  }
   if (role === 'master' && module === 'operations') return sections.map(s => ({ ...s, label: 'Пульт участка' }));
   if (role === 'master' && module === 'tasks') return sections.filter(s => s.id === 'mine').map(s => ({ ...s, label: 'Очередь мастера' }));
   if (role === 'technologist' && module === 'investigation') return sections.filter(s => s.id === 'cases');
@@ -131,7 +146,6 @@ export function sectionsFor(role: RoleId, module: ModuleId): Section[] {
     sections.find(s => s.id === 'reports')!,
   ];
   if (module === 'quality' && role === 'controller') return sections.filter(s => s.id === 'signals');
-  if (module === 'analytics' && role === 'controller') return sections.filter(s => ['quality', 'reports'].includes(s.id));
   return sections;
 }
 export interface Route { role: RoleId; module: ModuleId; section: string; item?: string; caseId?: string }
@@ -140,9 +154,13 @@ export function parseRoute(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
   const [rawRole, rawModule, rawSection] = path.split('/');
   const role = roles.some(r => r.id === rawRole) ? rawRole as RoleId : 'controller';
-  const module = workspaces.some(m => m.id === rawModule) && canAccess(role, rawModule as ModuleId) ? rawModule as ModuleId : role === 'controller' ? 'quality' : 'home';
+  const module = role === 'leader' && ['home', 'analytics'].includes(rawModule) ? 'executive' : workspaces.some(m => m.id === rawModule) && canAccess(role, rawModule as ModuleId) ? rawModule as ModuleId : role === 'leader' ? 'executive' : 'home';
   const sections = sectionsFor(role, module);
-  const section = sections.some(s => s.id === rawSection) ? rawSection : sections[0]?.id ?? '';
+  const requestedSection = role === 'leader' && module === 'executive'
+    ? rawModule === 'analytics' ? rawSection === 'reports' ? 'reports' : rawSection === 'rework' ? 'balance' : 'analytics'
+      : ['command', 'pareto', 'equipment'].includes(rawSection) ? 'analytics' : rawSection
+    : rawSection;
+  const section = sections.some(s => s.id === requestedSection) ? requestedSection : sections[0]?.id ?? '';
   const item = new URLSearchParams(query).get('item') ?? undefined;
   const caseId = new URLSearchParams(query).get('case') ?? undefined;
   return { role, module, section, item, caseId };

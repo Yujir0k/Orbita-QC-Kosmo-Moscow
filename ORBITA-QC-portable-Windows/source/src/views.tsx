@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, Empty, Icon, ImagePreview, Metric, Note, Panel, ProductDrawing } from './ui';
 import { canAccess, moduleById, roles, roleById, sectionsFor, type ModuleId, type RoleId, type Route, type Section } from './navigation';
-import { causeReviewNeedsRevision, cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
+import { causeReviewNeedsRevision, cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, productStatus, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
 import { ControllerCockpit } from './controller-cockpit';
 import { MasterTerminal } from './master-terminal';
@@ -14,6 +14,8 @@ import { SecurityAuditView } from './security-ui';
 import { MobileOpsView } from './mobileops-ui';
 import { TechnologistWorkbench } from './technologist-workbench';
 import { TechnologistAnalyticsView } from './technologist-analytics-view';
+import { RoleAnalyticsView } from './role-analytics-view';
+import { ProductionHeadView } from './ProductionHeadView';
 import { pendingEvidenceRequests } from './technologist-evidence';
 import { recipientName } from './investigation-services';
 import { productSpecification } from './product-catalog';
@@ -32,7 +34,7 @@ const homeStory: Record<RoleId, { eyebrow: string; title: string; text: string; 
   controller: { eyebrow: 'ОТ ПРИЗНАКА К РЕШЕНИЮ', title: 'У каждого вывода\nесть основание.', text: 'Сигналы, контекст операции и история проверок — в одной карточке изделия.', cta: 'Открыть контроль качества', module: 'quality' },
   master: { eyebrow: 'ПРОИЗВОДСТВО В ФОКУСЕ', title: 'Видеть отклонение.\nОрганизовать действие.', text: 'Приостановленные операции, карантин и доработка собраны в рабочем пространстве участка.', cta: 'Открыть пульт участка', module: 'operations' },
   technologist: { eyebrow: 'ПОНИМАТЬ ПРИЧИНЫ', title: 'Факты складываются\nв полную картину.', text: 'Сопоставляйте контроль до и после, журналы оборудования и действия на операции.', cta: 'Открыть расследования', module: 'investigation' },
-  leader: { eyebrow: 'УПРАВЛЯТЬ НА ОСНОВЕ ДАННЫХ', title: 'Качество в деталях.\nПроизводство целиком.', text: 'От общего показателя до конкретного изделия, решения и подтверждающих событий.', cta: 'Исследовать показатели', module: 'analytics' },
+  leader: { eyebrow: 'УПРАВЛЯТЬ НА ОСНОВЕ ДАННЫХ', title: 'Качество в деталях.\nПроизводство целиком.', text: 'От общего показателя до конкретного изделия, решения и подтверждающих событий.', cta: 'Исследовать показатели', module: 'executive' },
   administrator: { eyebrow: 'ЕДИНЫЙ ПРОИЗВОДСТВЕННЫЙ КОНТУР', title: 'Связанные системы.\nПрослеживаемые данные.', text: 'Источники, обмен, права доступа и состояние компонентов собраны в одном месте.', cta: 'Открыть центр интеграций', module: 'integrations' },
 };
 
@@ -43,9 +45,11 @@ export function HomeView(props: ViewProps) {
   const story = homeStory[role];
   const relevantTasks = tasks.filter(t => inScope(t.event, scope) && (role === 'leader' || t.role === role) && !t.done);
   const visibleCases = cases.filter(c => c.observations.some(e => inScope(e, scope)));
-  const focusItem = scope === 'SHIFT-A' ? 'ITEM-006' : 'ITEM-007';
-  const focusCases = cases.filter(c => c.item === focusItem);
-  const focusProduct = items.find(item => item.id === focusItem)!;
+  const focusItem = relevantTasks[0]?.item ?? visibleCases.find(c => role !== 'technologist' || c.confirmed)?.item ?? events.find(e => inScope(e, scope))?.item_id;
+  const focusCases = visibleCases.filter(c => c.item === focusItem);
+  const focusProduct = items.find(item => item.id === focusItem);
+  const focusReview = focusCases.map(c => c.review).filter(review => !!review).at(-1);
+  const intake = ingestState();
   return <>
     {role === 'administrator' && <AdminOverview navigate={navigate}/>}
     <div className="hero">
@@ -57,8 +61,8 @@ export function HomeView(props: ViewProps) {
       {role === 'administrator' ? <>
         <Metric label="Источники в наборе" value={new Set(events.map(e => e.source_id)).size} note="Синтетические события" icon="source" onClick={() => navigate('platform', 'topology')} />
         <Metric label="События" value={m.events} note="После исключения дубля доставки" icon="events" onClick={() => navigate('events')} />
-        <Metric label="Профили интеграций" value={4} note="Подключения требуют настройки" icon="integrations" onClick={() => navigate('integrations')} />
-        <Metric label="Рабочие роли" value={5} note="Права и области доступа" icon="users" onClick={() => navigate('platform', 'users')} />
+        <Metric label="Профили в наборе" value={profiles.length} note="Состояние подключений — в центре интеграций" icon="integrations" onClick={() => navigate('integrations')} />
+        <Metric label="Рабочие роли" value={roles.length} note="Права и области доступа" icon="users" onClick={() => navigate('platform', 'users')} />
       </> : role === 'master' ? <>
         <Metric label="Изделия в срезе" value={m.items} note="По производственным событиям" icon="products" onClick={() => navigate('products')} />
         <Metric label="Незавершённые операции" value={m.unfinished} note="Требуют внимания мастера" icon="clock" tone="amber" onClick={() => navigate('operations')} />
@@ -78,14 +82,14 @@ export function HomeView(props: ViewProps) {
     </div>
     <div className="home-columns">
       <div className="stack">
-        {role === 'administrator' ? <Panel title="Контур обмена" eyebrow="ПОДКЛЮЧЕНИЯ" action={<Button onClick={() => navigate('integrations')}>Все профили</Button>}><div className="connection-list">{profiles.map((p, i) => <button key={p.system} onClick={() => navigate('integrations')}><span className="connector-symbol">{['1C', 'Г', 'M', 'К'][i]}</span><div><strong>{['1С:Предприятие', 'Галактика ERP', 'MES', 'КОМПАС-3D'][i]}</strong><small>{['Заказы ⇄ результаты качества', 'Заказы ⇄ результаты качества', 'Операции ⇄ статусы', 'Структура сборки → паспорт'][i]}</small></div><Badge>Профиль</Badge><Icon name="chevron" /></button>)}</div></Panel>
+        {role === 'administrator' ? <Panel title="Приём событий" eyebrow="ТЕКУЩИЙ ЖУРНАЛ" action={<Button onClick={() => navigate('events')}>Открыть журнал</Button>}><div className="connection-list">{[['Принято', intake.counts.accepted], ['Поздние события', intake.counts.late], ['Точные дубли', intake.counts.duplicate], ['Ошибки приёма', intake.counts.error]].map(([label, count]) => <button key={label} onClick={() => navigate('events')}><span className="connector-symbol"><Icon name="events" size={18}/></span><div><strong>{label}</strong><small>{count} в текущем журнале</small></div><Icon name="chevron" /></button>)}</div></Panel>
           : role === 'master' || role === 'leader' ? <Panel title="Требуют действия" eyebrow="ОТКЛОНЕНИЯ И ИСПОЛНЕНИЕ" action={<Button onClick={() => navigate('tasks', role === 'leader' ? 'team' : 'mine')}>Все задачи</Button>}><TaskList data={relevantTasks.slice(0, 4)} openItem={openItem} /></Panel>
-          : <Panel title={role === 'technologist' ? 'Подтверждённые случаи для разбора' : 'Случаи учебной смены'} eyebrow={role === 'technologist' ? 'ОТК ПОДТВЕРДИЛ · ПРИЧИНА ОТДЕЛЬНО' : 'КОНТРОЛЬ КАЧЕСТВА'} action={<Button onClick={() => navigate(role === 'technologist' ? 'investigation' : 'quality', role === 'technologist' ? 'cases' : 'signals')}>Все случаи</Button>}><CaseTable data={visibleCases.filter(c => role !== 'technologist' || c.confirmed).slice(0, 4)} openItem={openItem} openCase={role === 'technologist' ? openCase : undefined}/></Panel>}
-        <Panel title="От сигнала до результата" eyebrow="СКВОЗНОЙ СЦЕНАРИЙ" className="workflow-panel"><WorkflowStrip {...props} /></Panel>
+          : <Panel title={role === 'technologist' ? 'Подтверждённые случаи для разбора' : ''} eyebrow={role === 'technologist' ? 'ОТК ПОДТВЕРДИЛ · ПРИЧИНА ОТДЕЛЬНО' : undefined} action={<Button onClick={() => navigate(role === 'technologist' ? 'investigation' : 'quality', role === 'technologist' ? 'cases' : 'signals')}>Все случаи</Button>}><CaseTable data={visibleCases.filter(c => role !== 'technologist' || c.confirmed).slice(0, 4)} openItem={openItem} openCase={role === 'technologist' ? openCase : undefined}/></Panel>}
+        <Panel title="Состояние процесса" eyebrow="ПО ПРИНЯТЫМ СОБЫТИЯМ" className="workflow-panel"><WorkflowStrip {...props} /></Panel>
       </div>
       <div className="stack">
         <Panel title={role === 'administrator' ? 'Доверие к истории' : `В фокусе · ${focusItem}`} eyebrow={role === 'administrator' ? 'ЦЕЛОСТНОСТЬ' : 'ПАСПОРТ ИЗДЕЛИЯ'} className="focus-panel">
-          {role === 'administrator' ? <><div className="security-orbit"><Icon name="security" size={72} /></div><h3>Оригинал. Проекция. Аудит.</h3><p>Отдельные рабочие области для проверки исходных событий, восстановленной истории и действий пользователей.</p><Button onClick={() => navigate('security', 'integrity')}>Открыть безопасность</Button></> : <><ProductDrawing /><div className="focus-title"><strong>Кронштейн приборного блока</strong><Badge tone="amber">Учебный пример</Badge></div><dl className="facts"><div><dt>Заказ</dt><dd className="mono">{focusProduct.work_order_id}</dd></div><div><dt>Ревизия</dt><dd>A · 4 компонента</dd></div><div><dt>Наблюдения</dt><dd>{focusCases.map(c => defectNames[c.type]).join(', ')}</dd></div><div><dt>Причина</dt><dd className="text-amber">{focusCases.some(c => c.review) ? 'Гипотеза о станке' : 'Не установлена'}</dd></div></dl><Button className="full" onClick={() => openItem(focusItem)}>Открыть всю историю</Button></>}
+          {role === 'administrator' ? <><div className="security-orbit"><Icon name="security" size={72} /></div><h3>Принятая история</h3><dl className="facts"><div><dt>События в срезе</dt><dd>{m.events}</dd></div><div><dt>Решения ОТК</dt><dd>{events.filter(e => e.event_type === 'quality_decision' && inScope(e, scope)).length}</dd></div><div><dt>Ошибки приёма</dt><dd>{intake.counts.error}</dd></div></dl><Button onClick={() => navigate('security', 'integrity')}>Проверить целостность</Button></> : focusProduct && focusItem ? <><ProductDrawing /><div className="focus-title"><strong>{productSpecification(focusItem).name}</strong><Badge tone={productStatus(focusItem).tone}>{productStatus(focusItem).label}</Badge></div><dl className="facts"><div><dt>Заказ</dt><dd className="mono">{focusProduct.work_order_id}</dd></div><div><dt>Ревизия / состав</dt><dd>{focusProduct.assembly_revision} · {focusProduct.components.length} компонента(ов)</dd></div><div><dt>Наблюдения</dt><dd>{focusCases.length ? focusCases.map(c => defectNames[c.type] ?? c.type).join(', ') : 'Нет случаев в выбранном срезе'}</dd></div><div><dt>Причина</dt><dd>{focusReview?.data.status === 'confirmed' ? 'Установлена' : focusReview ? 'На рассмотрении' : 'Не установлена'}</dd></div></dl><Button className="full" onClick={() => openItem(focusItem)}>Открыть всю историю</Button></> : <Empty title="Нет изделия в выбранном срезе" text="Выберите другую смену, чтобы увидеть паспорт."/>}
         </Panel>
         <div className="context-tip"><Icon name="layer" size={21} /><div><strong>Общий контекст для команды</strong><p>Карточка изделия сохраняет маршрут, наблюдения и решения при переходе между ролями.</p></div></div>
       </div>
@@ -93,13 +97,15 @@ export function HomeView(props: ViewProps) {
   </>;
 }
 
-function WorkflowStrip({ route, navigate, changeRole }: ViewProps) {
+function WorkflowStrip({ route, scope, navigate, changeRole }: ViewProps) {
+  const scopedEvents = events.filter(event => inScope(event, scope));
+  const scopedCases = cases.filter(record => record.observations.some(event => inScope(event, scope)));
   const flow: { label: string; detail: string; icon: string; role: RoleId; module: ModuleId }[] = [
-    { label: 'Наблюдение', detail: 'Внешний источник', icon: 'source', role: 'administrator', module: 'events' },
-    { label: 'Рассмотрение', detail: 'Контролёр', icon: 'quality', role: 'controller', module: 'quality' },
-    { label: 'Разбор причины', detail: 'Технолог', icon: 'investigation', role: 'technologist', module: 'investigation' },
-    { label: 'Действие', detail: 'Мастер', icon: 'tasks', role: 'master', module: 'operations' },
-    { label: 'Результат', detail: 'Обмен с ERP', icon: 'integrations', role: 'administrator', module: 'integrations' },
+    { label: 'Наблюдения', detail: `${scopedEvents.filter(event => event.event_type === 'inspection_result').length} событий`, icon: 'source', role: 'administrator', module: 'events' },
+    { label: 'Рассмотрение ОТК', detail: `${scopedCases.filter(record => !record.decisions.length).length} ждут решения`, icon: 'quality', role: 'controller', module: 'quality' },
+    { label: 'Разбор причин', detail: `${scopedCases.filter(record => record.confirmed && !record.review).length} без заключения`, icon: 'investigation', role: 'technologist', module: 'investigation' },
+    { label: 'Действия мастера', detail: `${tasks.filter(task => task.role === 'master' && !task.done && inScope(task.event, scope)).length} открыто`, icon: 'tasks', role: 'master', module: 'operations' },
+    { label: 'Решения ОТК', detail: `${scopedEvents.filter(event => event.event_type === 'quality_decision').length} записано`, icon: 'events', role: 'administrator', module: 'events' },
   ];
   return <div className="workflow-strip">{flow.map((step, i) => <button key={step.label} onClick={() => canAccess(route.role, step.module) ? navigate(step.module) : changeRole(step.role, step.module)} title={canAccess(route.role, step.module) ? `Открыть: ${step.label}` : `Показать рабочее место: ${roleById[step.role].name}`}><span className="flow-icon"><Icon name={step.icon} /><em>{String(i + 1).padStart(2, '0')}</em></span><strong>{step.label}</strong><small>{step.detail}</small>{i < flow.length - 1 && <Icon className="flow-arrow" name="chevron" size={14} />}</button>)}</div>;
 }
@@ -264,13 +270,14 @@ export function WorkspaceView(props: ViewProps) {
     })}</div> : <Empty title="Запросов пока нет" text="Их можно отправить из вкладки «Заключение» выбранного дела."/>}</Panel></div>;
   }
   switch (route.module) {
-    case 'home': return <HomeView {...props}/>;
+    case 'home': return route.role === 'leader' ? <ProductionHeadView {...props}/> : <HomeView {...props}/>;
+    case 'executive': return <ProductionHeadView {...props}/>;
     case 'quality': return <QualityView {...props}/>;
     case 'products': return <ProductsView {...props}/>;
     case 'production': return <ProductionView {...props}/>;
     case 'operations': return <MasterTerminal scope={scope}/>;
     case 'investigation': return route.role === 'technologist' && route.section === 'cases' ? <TechnologistWorkbench {...props}/> : <InvestigationView {...props}/>;
-    case 'analytics': return route.role === 'technologist' ? <TechnologistAnalyticsView {...props}/> : <AnalyticsView {...props}/>;
+    case 'analytics': return route.role === 'technologist' ? <TechnologistAnalyticsView {...props}/> : ['controller', 'master'].includes(route.role) ? <RoleAnalyticsView key={route.role} {...props}/> : <AnalyticsView {...props}/>;
     case 'integrations': return <IntegrationsView {...props}/>;
     case 'events': return <EventsView {...props}/>;
     case 'security': if (route.section === 'audit' || route.section === 'integrity') return <SecurityAuditView/>; if (route.section === 'backup') return <SecurityBackupView/>; if (route.section === 'crypto') return <SecurityCryptoView/>; break;

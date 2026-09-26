@@ -31,7 +31,7 @@ test('Decision guidance uses the actual defect, unknown result and restricted ob
   domain.resetDemo();
   const critical = domain.cases.find(row => row.item === 'ITEM-049');
   const advice = readiness.decisionReadiness(critical, domain.eventsFor(critical.item), false);
-  assert.match(advice.title, /дополнительную проверку/);
+  assert.match(advice.title, /очный осмотр мастера/);
   assert.match(advice.request, /Кромка B.*COMP-049-BODY.*вмятина/);
   assert.ok(advice.reasons.some(reason => /критическую/.test(reason)));
   assert.equal(advice.confirmed, false);
@@ -206,8 +206,8 @@ test('Routes remain role-specific and visible modules are accessible to their ro
   assert.equal(nav.canAccess('master', 'mobile'), false);
   assert.equal(nav.routeHash({ role: 'master', module: 'operations', section: 'terminal' }), '#/master/operations');
   assert.equal(nav.parseRoute('#/master/production/line').module, 'home');
-  assert.equal(nav.parseRoute('#/controller/security/crypto').module, 'quality');
-  assert.equal(nav.parseRoute('').module, 'quality');
+  assert.equal(nav.parseRoute('#/controller/security/crypto').module, 'home');
+  assert.equal(nav.parseRoute('').module, 'home');
   assert.equal(nav.canAccess('controller', 'tasks'), false);
   assert.equal(nav.parseRoute('#/controller/products/registry?item=ITEM-013').item, 'ITEM-013');
   assert.equal(nav.parseRoute('#/controller/quality/signals?item=ITEM-013&case=NC-123').caseId, 'NC-123');
@@ -463,9 +463,9 @@ test('Late events, exact duplicates and invalid messages stay separate', () => {
 });
 
 
-test('Missing classified and lost frames require case-bound acknowledgement for both confirmation actions', () => {
+test('Missing classified and lost frames require case-bound acknowledgement for confirmation and quarantine', () => {
   for (const item of ['ITEM-020', 'ITEM-021']) {
-    for (const action of ['confirm_hold', 'confirm']) {
+    for (const action of ['confirm_hold', 'confirm', 'quarantine']) {
       domain.resetDemo();
       const record = domain.cases.find(row => row.item === item);
       const observation = record.observations.at(-1);
@@ -475,7 +475,7 @@ test('Missing classified and lost frames require case-bound acknowledgement for 
       assert.equal(domain.eventsFor(item).filter(event => event.event_type === 'quality_decision').length, 0);
       domain.performAction(...args, {observationEventId: observation.event_id, acknowledged: true});
       const decision = domain.eventsFor(item).filter(event => event.event_type === 'quality_decision').at(-1);
-      assert.equal(decision.data.disposition, action === 'confirm_hold' ? 'hold' : 'rework');
+      assert.equal(decision.data.disposition, action === 'confirm_hold' ? 'hold' : action === 'quarantine' ? 'quarantine' : 'rework');
       assert.equal(decision.data.missing_photo_acknowledgement.actor_id, 'QC-TEST');
       assert.equal(decision.data.missing_photo_acknowledgement.observation_event_id, observation.event_id);
       assert.equal(decision.data.missing_photo_acknowledgement.absence_reason, observation.data.media_evidence.after_operation.absence_reason);

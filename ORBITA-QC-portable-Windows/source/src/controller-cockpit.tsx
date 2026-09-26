@@ -1,21 +1,14 @@
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react';
 import { cases, defectNames, describeEvent, eventNames, events, eventsFor, inScope, items, mediaIndex, resultNames, stationNames, time, type Case, type QualityEvent, type Scope, type WorkflowAction } from './domain';
-import { currentSecurityUser, securePerformAction, secureRecordControllerCheck, secureRecordManualMeasurement } from './security-client';
+import { currentSecurityUser, securePerformAction } from './security-client';
 import { controllerCaseData, queueItemLabel, type ControllerCaseData } from './controller-case';
-import { controllerEvidenceFrom, latestControllerCheck, machineAlertText, missingFrameReason } from './controller-evidence';
-import { decisionReadiness, verifyImage, type ImageState } from './controller-readiness';
+import { controllerEvidenceFrom, machineAlertText, missingFrameReason } from './controller-evidence';
+import { verifyImage, type ImageState } from './controller-readiness';
 import { inspectionCaseFrom, type InspectionCase, type InspectionFrame } from './inspection-case';
 import { Icon, ImageLightbox } from './ui';
 
 type QueueFilter = 'critical' | 'rework' | 'master_rework' | 'unassessable' | 'all';
 type HashState = ImageState;
-const manualRegions = [
-  ['outer_left_edge', 'Наружная левая кромка'], ['outer_right_edge', 'Наружная правая кромка'],
-  ['outer_right_face', 'Наружная правая поверхность'], ['front_face', 'Лицевая поверхность'],
-  ['inner_edge', 'Внутренняя кромка'], ['hole_edge', 'Кромка отверстия'],
-  ['edge_B', 'Кромка B'], ['body_outer_A', 'Наружная поверхность A'],
-] as const;
-
 const isFormTarget = (target: EventTarget | null) => target instanceof HTMLElement && !!target.closest('input, textarea, select, [contenteditable="true"]');
 
 function compareAge(createdAt: string, timelineEnd: number): string {
@@ -90,62 +83,19 @@ function EvidenceViewer({ record, hashState }: { record: InspectionCase; hashSta
   </section>;
 }
 
-function ControllerFacts({ record, source, history, caseData, openCase, hashState }: { record: InspectionCase; source: Case; history: QualityEvent[]; caseData: ControllerCaseData; openCase: (item: string, caseId: string) => void; hashState: HashState }) {
-  const [manualOpen, setManualOpen] = useState(false);
-  const [limitLower, setLimitLower] = useState('');
-  const [limitUpper, setLimitUpper] = useState('');
-  const [limitDocument, setLimitDocument] = useState('');
-  const [parameter, setParameter] = useState('');
-  const [value, setValue] = useState('');
-  const [instrument, setInstrument] = useState('');
-  const [calibrated, setCalibrated] = useState(false);
-  const [message, setMessage] = useState('');
-  const [checkOpen, setCheckOpen] = useState(false);
-  const [checkResult, setCheckResult] = useState<'signs_detected' | 'no_signs_detected'>(source.type === 'UNASSESSABLE' ? 'no_signs_detected' : 'signs_detected');
-  const [checkNote, setCheckNote] = useState('');
-  const [identifiedType, setIdentifiedType] = useState('DENT');
-  const [identifiedRegion, setIdentifiedRegion] = useState<string>(manualRegions[0][0]);
-  const productComponents = items.find(item => item.id === record.itemId)?.components ?? [];
-  const [identifiedComponent, setIdentifiedComponent] = useState(productComponents[0]?.id ?? '');
+function ControllerFacts({ record, source, history, caseData, hashState }: { record: InspectionCase; source: Case; history: QualityEvent[]; caseData: ControllerCaseData; hashState: HashState }) {
   const evidence = controllerEvidenceFrom(source, history, !!caseData.image);
-  const { observation, previousInspection, received, operation, machine, runEvents, measurement } = evidence;
+  const { observation, previousInspection, received, operation, machine, runEvents } = evidence;
   const reportedDuration = runEvents.find(event => event.event_type === 'operation_finished')?.data.reported_duration as { value?: number; unit?: string; meaning?: string } | undefined;
   const defect = observation.data.defects?.find(finding => finding.defect_type_id === source.type && finding.region === source.region && finding.component_id === source.component);
   const kdSpec = observation.data.kd_spec;
   const mediaEvidence = observation.data.media_evidence;
-  const latestState = history.filter(event => event.item_state).at(-1)?.item_state;
   const capture = observation.data.capture_context ?? {};
   const incoming = previousInspection?.data.inspection_result;
   const load = machine?.data.spindle_load_peak_pct;
   const toolMinutes = machine?.data.tool_life_used_min;
-  const measured = measurement?.data.measured_value;
-  const lower = measurement?.data.lower_limit;
-  const upper = measurement?.data.upper_limit;
-  const outsideLimit = typeof measured === 'number' && (typeof lower === 'number' && measured < lower || typeof upper === 'number' && measured > upper);
   const disposition = record.technologistFinding;
-  const controllerCheck = latestControllerCheck(source, history);
-  const submitMeasurement = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      await secureRecordManualMeasurement(record.itemId, record.id, parameter, Number(value), instrument, calibrated,
-        limitLower || limitUpper || limitDocument ? { lower: limitLower ? Number(limitLower) : undefined, upper: limitUpper ? Number(limitUpper) : undefined, document: limitDocument } : undefined);
-      setMessage(limitLower || limitUpper ? 'Замер и введённый контролёром критерий записаны с источником и автором.' : 'Показание прибора записано. Для вывода о допуске нужны пределы из КД.');
-      setManualOpen(false);
-    } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось записать замер'); }
-  };
-  const submitCheck = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      const checkId = await secureRecordControllerCheck(record.itemId, record.id, checkResult, checkNote,
-        source.type === 'UNASSESSABLE' && checkResult === 'signs_detected' ? { defectTypeId: identifiedType, region: identifiedRegion, componentId: identifiedComponent } : undefined);
-      if (source.type === 'UNASSESSABLE' && checkResult === 'signs_detected') {
-        const classified = cases.find(row => row.item === record.itemId && row.observations.some(event => event.data.basis_event_ids?.includes(checkId)));
-        if (classified) { openCase(record.itemId, classified.id); return; }
-      }
-      setMessage('Очная проверка записана отдельно от исходного сигнала. Теперь можно выбрать соответствующее решение.');
-      setCheckNote('');
-    } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось записать проверку'); }
-  };
+  const masterInspection = history.filter(event => event.event_type === 'master_action' && event.data.action_type === 'inspection_support' && Date.parse(event.occurred_at) > Date.parse(observation.occurred_at)).at(-1);
   return <section className="qc-instruments qc-facts" aria-label="Факты для решения контролёра">
     <div className="qc-facts-heading"><h2 className="qc-tier-title">Факты для решения</h2><span>Сигнал: {observation.source_id} · {observation.event_id} · {time(observation.occurred_at)}</span></div>
     <div className="qc-instrument-grid">
@@ -164,7 +114,7 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
         <div className="qc-fact-row"><span>Оценка глубины</span><strong>{typeof defect?.depth_estimated_mm === 'number' ? `${defect.depth_estimated_mm} мм` : 'Требуется профилометр'}</strong></div>
         {typeof defect?.length_mm === 'number' && <p className="qc-fact-caution">Оценка модели{typeof defect.dimension_uncertainty_mm === 'number' ? `, погрешность около ±${defect.dimension_uncertainty_mm} мм` : ''}. Не заменяет замер поверенным прибором.</p>}
         <details className="qc-fact-details"><summary>История и параметры наблюдения</summary>
-        {previousInspection ? <div className="qc-comparison"><h4>До → текущее наблюдение</h4><p><strong>{resultNames[incoming ?? ''] ?? incoming}</strong> → <strong>{resultNames[observation.data.inspection_result ?? ''] ?? 'Не передан'}</strong></p><span>{previousInspection.data.inspection_point_id ?? previousInspection.station_id} · {time(previousInspection.occurred_at)} · обзор {previousInspection.data.observation_quality === 'good' ? 'достаточный' : previousInspection.data.observation_quality === 'poor' ? 'ограничен' : 'не указан'}</span><p>{observation.data.comparison?.summary}</p><p className="qc-fact-caution">Предыдущий результат относится к изделию. Время обнаружения само по себе не доказывает причину дефекта.</p></div> : <p className="qc-fact-empty">Предыдущего контроля в принятой истории нет. Состояние до сигнала неизвестно.</p>}
+        {previousInspection ? <div className="qc-comparison"><h4>До → текущее наблюдение</h4><p><strong>{resultNames[incoming ?? ''] ?? incoming}</strong> → <strong>{resultNames[observation.data.inspection_result ?? ''] ?? 'Не передан'}</strong></p><span>{previousInspection.data.inspection_point_id ?? previousInspection.station_id} · {time(previousInspection.occurred_at)} · обзор {previousInspection.data.observation_quality === 'good' ? 'достаточный' : previousInspection.data.observation_quality === 'poor' ? 'ограничен' : 'не указан'}</span><p>{observation.data.comparison?.summary}</p></div> : <p className="qc-fact-empty">Предыдущего контроля в принятой истории нет. Состояние до сигнала неизвестно.</p>}
         <div className="qc-fact-row"><span>Качество наблюдения</span><strong>{observation.data.observation_quality === 'good' ? 'Источник оценил обзор как достаточный' : observation.data.observation_quality === 'poor' ? 'Обзор ограничен' : 'Оценка не передана'}</strong></div>
         {typeof capture.camera_id === 'string' && <div className="qc-fact-row"><span>Камера / ракурс</span><strong>{capture.camera_id}{typeof capture.view_id === 'string' ? ` · ${capture.view_id}` : ''}</strong></div>}
         <div className="qc-fact-row"><span>Освещение / профиль калибровки</span><strong>{caseData.lighting} · {caseData.calibration}</strong></div>
@@ -172,7 +122,7 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
         {!caseData.image && <p className="qc-fact-caution">Причина отсутствия кадра после операции: {missingFrameReason(observation)}.</p>}
         {typeof observation.data.reason === 'string' && <p className="qc-fact-description">{observation.data.reason}</p>}
         {caseData.image?.description && <p className="qc-fact-description"><strong>Описание связанного кадра:</strong> {caseData.image.description}</p>}
-        <p className="qc-fact-caution">{observation.data.method === 'manual_verification' ? 'Результат очного контроля записан отдельно от окончательного решения.' : 'Признак CV требует решения контролёра; уверенность модели не является размером дефекта.'}</p></details>
+        </details>
       </article>
       <article className="qc-instrument-card">
         <div className="qc-fact-card-head"><h3>02 · Что происходило до сигнала</h3><span className="qc-fact-source">MES / станок</span></div>
@@ -197,7 +147,6 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
         {operation && <details className="qc-fact-details"><summary>События запуска · {runEvents.length}</summary><div className="qc-event-timeline">{runEvents.length ? <ol>{runEvents.map(event => <li key={event.event_id}><time>{time(event.occurred_at).split(', ').at(-1)}</time><div><strong>{event.event_type === 'machine_state' ? `Станок: ${event.data.state === 'warning' ? 'предупреждение' : event.data.state === 'running' ? 'работает' : event.data.state ?? 'состояние'}` : eventNames[event.event_type] ?? event.event_type}</strong>{machineAlertText(event) && <p className="qc-fact-alert">{machineAlertText(event)}</p>}{event.event_type === 'operator_action' && <p>{event.data.action_type === 'required_checkpoint_skipped' ? 'Источник сообщил о пропуске обязательной проверки' : event.data.action_type} · {event.data.procedure_step_id} · {event.actor_id}</p>}{event.data.reason_code && <p>Причина: {event.data.reason_code}</p>}<details className="qc-source-details"><summary>{event.source_id} · {event.event_id}</summary><pre>{JSON.stringify(event, null, 2)}</pre></details></div></li>)}</ol> : <p>Лог запуска не поступил.</p>}</div></details>}
         {operation && !machine && <p className="qc-mes-warning">⚠️ Телеметрия связанного запуска не поступила (возможна задержка доставки событий).</p>}
         {machine && <p className="qc-fact-caution">Норматив для пиковой нагрузки и ресурс инструмента не переданы. Наработка в минутах не определяет процент износа.</p>}
-        <p className="qc-fact-caution">Состояние станка показывает обстоятельства, но не доказывает причину дефекта.</p>
       </article>
       <article className="qc-instrument-card">
         <div className="qc-fact-card-head"><h3>03 · Чем подтверждено</h3><span className="qc-fact-source">КД / ОТК</span></div>
@@ -208,37 +157,9 @@ function ControllerFacts({ record, source, history, caseData, openCase, hashStat
           <div className="qc-fact-row"><span>Допуск по КД / ОСТ</span><strong>{kdSpec.max_allowable_defect_length_mm === 0 ? 'Не допускаются (критично, порог 0 мм)' : `Максимум ${kdSpec.max_allowable_defect_length_mm} мм`}</strong></div>
           <span className="qc-kd-standard">{kdSpec.standard_ref}</span>
           {typeof defect?.length_mm === 'number' && defect.length_mm > kdSpec.max_allowable_defect_length_mm && <strong className="qc-limit-exceeded"><Icon name="alert" size={16}/>Превышение допуска КД</strong>}
-          {kdSpec.source_kind === 'synthetic_demo_assumption' && <p className="qc-fact-caution">Учебный критерий КД. Сравнение с оценкой модели требует решения ОТК.</p>}
         </div>}
-        {latestState && <div className="qc-location"><p>Локация: <strong>{latestState.physical_location}</strong></p><span className={`qc-lock-badge ${latestState.line_lock_status === 'HELD_AT_STATION' ? 'held' : ''}`} title={latestState.line_lock_status}><Icon name={latestState.line_lock_status === 'HELD_AT_STATION' ? 'lock' : 'flow'} size={15}/>{latestState.line_lock_status === 'HELD_AT_STATION' ? 'Удержание станка' : latestState.line_lock_status === 'IN_BUFFER' ? 'В буфере' : 'Передана дальше'} · {latestState.line_lock_status}</span></div>}
         {record.masterReworkReport && <div className="qc-fact-check"><strong>{record.masterReworkReport.actionType === 'rework_completed' ? 'Отчёт о доработке' : 'Отчёт о доппроверке'}</strong><span>{record.masterReworkReport.masterName} · {time(record.masterReworkReport.completedAt)}</span><p>{record.masterReworkReport.actionDescription || 'Описание не передано'}</p></div>}
-        {controllerCheck && <div className="qc-fact-check"><strong>Очная проверка: {controllerCheck.data.inspection_result === 'signs_detected' ? 'признак подтверждён' : 'признак не обнаружен'}</strong><span>{controllerCheck.actor_id} · {time(controllerCheck.occurred_at)}</span><p>{controllerCheck.data.reason}</p></div>}
-        <button className="qc-add-measurement" type="button" aria-expanded={checkOpen} onClick={() => setCheckOpen(open => !open)}>{checkOpen ? 'Свернуть очный осмотр' : '+ Записать результат очного осмотра'}</button>
-        {checkOpen && <form className="qc-check-form" onSubmit={submitCheck}>
-          <strong>Результат фактически выполненного осмотра</strong><span>Для назначения будущей проверки используйте действие «Назначить доппроверку».</span>
-          <label>Результат<select value={checkResult} onChange={event => setCheckResult(event.target.value as 'signs_detected' | 'no_signs_detected')}><option value="signs_detected">Признак обнаружен</option><option value="no_signs_detected">Признак не обнаружен</option></select></label>
-          {source.type === 'UNASSESSABLE' && checkResult === 'signs_detected' && <>
-            <label>Тип дефекта<select value={identifiedType} onChange={event => setIdentifiedType(event.target.value)}>{['DENT', 'SCRATCH', 'BURR', 'CHIP'].map(type => <option key={type} value={type}>{defectNames[type]}</option>)}</select></label>
-            <label>Зона<select value={identifiedRegion} onChange={event => setIdentifiedRegion(event.target.value)}>{manualRegions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-            <label>Компонент<select value={identifiedComponent} onChange={event => setIdentifiedComponent(event.target.value)}>{productComponents.map(component => <option key={component.id} value={component.id}>{component.id}</option>)}</select></label>
-          </>}
-          <label>Что проверено<textarea required minLength={5} value={checkNote} onChange={event => setCheckNote(event.target.value)} placeholder="Опишите осмотр детали, зоны и результат"/></label>
-          <label>Контролёр<input value={currentSecurityUser()?.id ?? ''} readOnly/></label>
-          <button type="submit">Записать очную проверку</button>
-        </form>}
-        {measurement && typeof measured === 'number' ? <div className="qc-fact-measure"><strong>{measured} {typeof measurement.data.unit === 'string' ? measurement.data.unit : 'мм'}</strong><span>{String(measurement.data.feature_id ?? 'Контролируемый параметр')}</span>{typeof lower === 'number' || typeof upper === 'number' ? <p className={outsideLimit ? 'qc-fact-alert' : 'qc-fact-ok'}>{outsideLimit ? 'Вне зарегистрированного допуска' : 'В пределах зарегистрированного допуска'} · {typeof lower === 'number' ? `от ${lower}` : ''}{typeof upper === 'number' ? ` до ${upper}` : ''}</p> : <p className="qc-measure-status">Допуск по КД не передан</p>}{typeof measurement.data.instrument_id === 'string' && <small>Прибор {measurement.data.instrument_id} · {measurement.actor_id}</small>}</div> : <div className="qc-fact-empty qc-measurement-empty"><span className="qc-empty-kicker">Размерный контроль</span><strong>Линейный размер детали по КД не подтвержден (требуется поверенный инструмент)</strong><p>Показание прибора для этого случая в исходном потоке не поступило.</p></div>}
-        {measurement && typeof measurement.data.criteria_document === 'string' && <p className="qc-fact-caution">Критерий введён контролёром: {measurement.data.criteria_document}. Поверка прибора подтверждена исполнителем.</p>}
-        <button className="qc-add-measurement" type="button" onClick={() => setManualOpen(open => !open)}>{measurement ? '+ Записать новый замер' : '+ Внести ручной замер с прибора'}</button>
-        {manualOpen && <form className="qc-manual-form" onSubmit={submitMeasurement}>
-          <label>Параметр по КД<input required value={parameter} onChange={event => setParameter(event.target.value)} placeholder="Например, толщина стенки"/></label>
-          <label>Показание, мм<input required type="number" min="0" step="any" value={value} onChange={event => setValue(event.target.value)}/></label>
-          <label>ID прибора<input required value={instrument} onChange={event => setInstrument(event.target.value)}/></label>
-          <label>Контролёр<input value={currentSecurityUser()?.id ?? ''} readOnly/></label>
-          <details className="qc-measure-criteria"><summary>Допуск для этого параметра — если известен по КД</summary><p>Введите из документа. Пустые поля означают, что критерий неизвестен.</p><label>Нижняя граница, мм<input type="number" step="any" value={limitLower} onChange={event => setLimitLower(event.target.value)}/></label><label>Верхняя граница, мм<input type="number" step="any" value={limitUpper} onChange={event => setLimitUpper(event.target.value)}/></label><label>Документ, редакция и пункт<input value={limitDocument} onChange={event => setLimitDocument(event.target.value)}/></label></details>
-          <label className="qc-calibrated"><input type="checkbox" checked={calibrated} onChange={event => setCalibrated(event.target.checked)}/> Поверка прибора подтверждена</label>
-          <button type="submit">Записать замер</button>
-        </form>}
-        {message && <p role="status" className="qc-measurement-message">{message}</p>}
+        {masterInspection && <div className="qc-fact-check"><strong>Осмотр мастера: {masterInspection.data.inspection_result === 'signs_detected' ? 'признак подтверждён' : masterInspection.data.inspection_result === 'no_signs_detected' ? 'признак не обнаружен' : 'оценить не удалось'}</strong><span>{masterInspection.actor_id} · {time(masterInspection.occurred_at)}</span><p>{String(masterInspection.data.inspection_note ?? masterInspection.data.reason ?? '')}</p></div>}
         <details className="qc-fact-details"><summary>Маршрут и недостающие данные</summary><div className="qc-fact-pairs">
           <div><span>Заказ</span><strong>{record.workOrder}</strong></div>
           {typeof received?.data.supplier_lot_id === 'string' && <div><span>Партия</span><strong>{received.data.supplier_lot_id}</strong></div>}
@@ -275,10 +196,10 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
   const own = eventsFor(record.itemId);
   const scrapReady = record.itemId === 'ITEM-015' && source.type !== 'UNASSESSABLE' && own.filter(event => event.event_type === 'quality_decision').at(-1)?.data.disposition === 'quarantine' && own.some(event => event.event_type === 'technical_disposition' && event.data.disposition === 'rework_not_allowed');
   const visualAllowed = record.visualEvidence.hasImage && record.visualEvidence.quality === 'OPTIMAL' && !!hashState && ['valid', 'unavailable'].includes(hashState);
-  const controllerCheck = latestControllerCheck(source, own);
+  const masterInspection = own.filter(event => event.event_type === 'master_action' && event.data.action_type === 'inspection_support' && Date.parse(event.occurred_at) > Date.parse(source.observations.at(-1)?.occurred_at ?? '')).at(-1);
   const manualFinding = source.observations.at(-1)?.data.method === 'manual_verification' && source.observations.at(-1)?.data.inspection_result === 'signs_detected' && !own.some(event => event.event_type === 'master_action' && Date.parse(event.occurred_at) > Date.parse(source.observations.at(-1)!.occurred_at));
-  const confirmAllowed = source.type !== 'UNASSESSABLE' && (missingAfter || visualAllowed || controllerCheck?.data.inspection_result === 'signs_detected' || manualFinding);
-  const rejectAllowed = visualAllowed || controllerCheck?.data.inspection_result === 'no_signs_detected';
+  const confirmAllowed = source.type !== 'UNASSESSABLE' && (missingAfter || visualAllowed || masterInspection?.data.inspection_result === 'signs_detected' || manualFinding);
+  const rejectAllowed = visualAllowed || masterInspection?.data.inspection_result === 'no_signs_detected';
   const caseMeasurement = controllerEvidenceFrom(source, own, visualAllowed).measurement;
   const measuredValue = caseMeasurement?.data.measured_value;
   const lowerLimit = caseMeasurement?.data.lower_limit;
@@ -289,42 +210,31 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
   const kdMaximum = source.observations.at(-1)?.data.kd_spec?.max_allowable_defect_length_mm;
   const withinKd = (typeof measuredValue === 'number' && (typeof lowerLimit === 'number' || typeof upperLimit === 'number') && !measuredOutsideLimit)
     || (typeof observedLength === 'number' && typeof kdMaximum === 'number' && observedLength <= kdMaximum);
-  const recommendedF3Action: WorkflowAction = withinKd && record.itemId === 'ITEM-019' ? 'accepted_within_spec' : 'reject';
-  const f3Action: WorkflowAction = reworkCompleted ? 'scrap' : recommendedF3Action;
-  const options: { key: WorkflowAction; label: string; shortcut: string; tone: string; disabled?: boolean; title?: string; recommended?: boolean }[] = [
-    ...(reworkCompleted ? [{ key: 'release' as WorkflowAction, label: 'Дефект устранён · Выпустить', shortcut: 'F1', tone: 'green', disabled: !rejectAllowed, title: !rejectAllowed ? 'Нужен пригодный кадр результата или очный осмотр мастера' : undefined }] : []),
-    { key: reworkCompleted ? 'recheck_fail' : 'confirm', label: reworkCompleted ? 'Дефект остался · Повторная доработка' : 'Подтвердить дефект · На доработку', shortcut: 'F2', tone: 'amber', disabled: !reworkCompleted && !confirmAllowed, title: !reworkCompleted && !confirmAllowed ? 'Нужно подтверждение признака по кадру или очной проверке' : undefined },
-    { key: f3Action, label: reworkCompleted ? 'Неустранимый дефект · Списать' : 'Отклонить (Ложный сигнал AI / В пределах КД)', shortcut: 'F3', tone: reworkCompleted ? 'neutral' : withinKd ? 'green' : 'neutral', disabled: reworkCompleted ? !eventsFor(record.itemId).some(event => event.event_type === 'technical_disposition' && event.data.disposition === 'rework_not_allowed') : !rejectAllowed && !withinKd, recommended: !reworkCompleted && withinKd, title: reworkCompleted ? 'Нужно заключение технолога о невозможности доработки' : !rejectAllowed && !withinKd ? 'Нужно подтверждение отсутствия признака по кадру или очной проверке' : undefined },
-    { key: 'additional', label: 'Назначить доппроверку (Очный осмотр)', shortcut: 'F4', tone: 'blue' },
+  const recommendedRejectAction: WorkflowAction = withinKd && record.itemId === 'ITEM-019' ? 'accepted_within_spec' : 'reject';
+  const options: { key: WorkflowAction; label: string; shortcut: string; tone: string; disabled?: boolean; title?: string; recommended?: boolean }[] = reworkCompleted ? [
+    { key: 'release', label: 'Дефект устранён · Выпустить', shortcut: 'F1', tone: 'green', disabled: !rejectAllowed, title: !rejectAllowed ? 'Нужен пригодный кадр результата или очный осмотр мастера' : undefined },
+    { key: 'recheck_fail', label: 'Дефект остался · Повторная доработка', shortcut: 'F2', tone: 'amber' },
+    { key: 'scrap', label: 'Неустранимый дефект · Списать', shortcut: 'F3', tone: 'neutral', disabled: !eventsFor(record.itemId).some(event => event.event_type === 'technical_disposition' && event.data.disposition === 'rework_not_allowed'), title: 'Нужно заключение технолога о невозможности доработки' },
+  ] : [
+    { key: 'confirm', label: 'Подтвердить дефект · На доработку', shortcut: 'F1', tone: 'amber', disabled: !confirmAllowed, title: !confirmAllowed ? 'Нужно подтверждение признака по кадру или осмотру мастера' : undefined },
+    { key: recommendedRejectAction, label: 'Отклонить (Ложный сигнал AI / В пределах КД)', shortcut: 'F2', tone: withinKd ? 'green' : 'neutral', disabled: !rejectAllowed && !withinKd, recommended: withinKd, title: !rejectAllowed && !withinKd ? 'Нужно подтверждение отсутствия признака по кадру или осмотру мастера' : undefined },
+    { key: 'quarantine', label: 'Забраковать изделие · В карантин', shortcut: 'F3', tone: 'red', disabled: !confirmAllowed, title: !confirmAllowed ? 'Нужно подтверждение признака по кадру или осмотру мастера' : undefined },
   ];
   const settled = !scrapReady && (['FALSE_POSITIVE', 'ACCEPTED_WITHIN_SPEC', 'ACCEPTED_AFTER_REWORK'].includes(record.status) || (!hasMaster && source.decisions.length > 0 && record.status !== 'NEW_SIGNAL'));
-  const basisOptions = choice === 'accepted_within_spec' ? ['След был до операции; оценка длины в пределах учебной КД'] : choice === 'additional' ? [
-    'Недостаточно данных: нужен очный контроль изделия',
-    'Недостаточно данных: нужен инструментальный замер',
-    'Качество наблюдения ограничено: нужна повторная съёмка',
-  ] : choice === 'release' ? [controllerCheck?.data.inspection_result === 'no_signs_detected' ? 'Очный контроль после доработки: признак устранён' : 'Контроль после доработки: признак устранён']
-    : choice === 'scrap' ? ['Заключение технолога: доработка невозможна']
-      : choice === 'reject' ? [
-        ...(withinKd ? ['КД: параметр в пределах допуска; сигнал не является браком'] : []),
-        ...(controllerCheck?.data.inspection_result === 'no_signs_detected' ? ['Очная проверка контролёра: признак не обнаружен'] : []),
-        ...(visualAllowed ? ['Визуальный осмотр связанного кадра: признак не подтверждён'] : []),
-      ] : [
-        ...(controllerCheck?.data.inspection_result === 'signs_detected' || manualFinding ? ['Очная проверка контролёра: признак обнаружен'] : []),
-        ...(visualAllowed ? ['Визуальный осмотр связанного кадра: признак обнаружен'] : []),
-        ...(missingAfter && responsibilityAccepted ? ['Телеметрия и сопоставление с КД: личная ответственность контролёра'] : []),
-        ...(measuredOutsideLimit ? ['Инструментальный замер: выход за зарегистрированный допуск'] : []),
-      ];
+  const clearDecisionFields = () => {
+    setBasis(''); setDocumentId(''); setComment(''); setMeasurement(''); setInstrument(''); setCalibrated(false); setMessage('');
+  };
   const selectChoice = (next: WorkflowAction) => {
-    if (missingAfter && (next === 'confirm' || next === 'confirm_hold')) {
+    if (choice === next) {
+      setChoice(null); setResponsibilityAccepted(false); clearDecisionFields(); return;
+    }
+    clearDecisionFields();
+    if (missingAfter && (next === 'confirm' || next === 'confirm_hold' || next === 'quarantine')) {
       warningTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setResponsibilityAccepted(false); setChoice(null); setPendingChoice(next); return;
     }
     setResponsibilityAccepted(false);
-    setChoice(next); setBasis(''); setMessage('');
-    if (next === 'additional') {
-      setBasis('Недостаточно данных: нужен очный контроль изделия');
-      setComment(decisionReadiness(source, own, visualAllowed).request);
-    }
+    setChoice(next);
   };
   useEffect(() => { setChoice(null); setPendingChoice(null); setResponsibilityAccepted(false); setBasis(''); setDocumentId(''); setComment(''); setMessage(''); setMeasurement(''); setInstrument(''); setCalibrated(false); }, [record.id, record.iteration]);
   useEffect(() => {
@@ -338,16 +248,15 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
   }, [options, settled, pendingChoice]);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (missingAfter && (choice === 'confirm' || choice === 'confirm_hold') && !responsibilityAccepted) return;
-    if (!choice || !basis || (choice !== 'additional' && !documentId.trim()) || comment.trim().length < 5) return;
-    if (!basisOptions.includes(basis)) { setMessage('Основание больше не подтверждается доступными фактами. Выберите его заново.'); return; }
+    if (missingAfter && (choice === 'confirm' || choice === 'confirm_hold' || choice === 'quarantine') && !responsibilityAccepted) return;
+    if (!choice || basis.trim().length < 5 || (choice !== 'additional' && !documentId.trim()) || comment.trim().length < 5) return;
     if (options.find(option => option.key === choice)?.disabled) { setMessage('Основание изменилось. Выберите доступное решение заново.'); return; }
     try {
-      await securePerformAction(record.itemId, 'controller', choice, `${basis}. Источник: ${source.observations.at(-1)!.event_id}. ${documentId.trim() ? documentId.trim() + '. ' : ''}${comment.trim()}`, true, record.id,
+      await securePerformAction(record.itemId, 'controller', choice, `${basis.trim()}. Источник: ${source.observations.at(-1)!.event_id}. ${documentId.trim() ? documentId.trim() + '. ' : ''}${comment.trim()}`, true, record.id,
         requireMeasurement && choice === 'release' ? { value: Number(measurement), instrumentId: instrument, calibrationConfirmed: calibrated } : undefined,
         missingAfter && responsibilityAccepted ? { observationEventId: source.observations.at(-1)!.event_id, acknowledged: true } : undefined);
+      setChoice(null); setResponsibilityAccepted(false); clearDecisionFields();
       setMessage('Решение записано в историю. Очередь и задания обновлены.');
-      setChoice(null); setResponsibilityAccepted(false); setComment('');
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Не удалось записать решение'); }
   };
   return <section className="qc-decision" aria-label="Решение контролёра">
@@ -358,21 +267,21 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
       <p className="qc-fact-caution">Проверьте фактическое сопоставление с КД и укажите документ и основание решения. Принятие ответственности сохраняется в истории.</p>
       <div><button type="button" autoFocus onClick={() => { setPendingChoice(null); setResponsibilityAccepted(false); }}>Отмена</button><button type="button" className="qc-accept-responsibility" onClick={() => { setChoice(pendingChoice); setBasis(''); setMessage(''); setResponsibilityAccepted(true); setPendingChoice(null); }}>Принимаю ответственность</button></div>
     </dialog>
-    {record.status === 'SENT_TO_REWORK' ? <p className="qc-work-status" role="status"><Icon name="clock" size={20}/><span><strong>В работе у Мастера</strong>Решение F2 записано. После фиксации исправления заявка перейдёт в «Повторный контроль».</span></p> : settled && <p className="qc-decision-note">Решение уже принято. История доступна в досье; блок действий оставлен видимым для единого рабочего шаблона.</p>}
-      {!settled && !visualAllowed && <p className="qc-decision-note">{controllerCheck || manualFinding ? 'Очная проверка записана. Выберите решение, соответствующее её результату.' : missingAfter ? 'Рекомендуется очный осмотр. Подтверждение без фото требует принятия личной ответственности и документированного основания.' : 'Подтверждение и отклонение требуют осмотра. Доппроверку можно назначить сейчас — тип, зона и основание попадут в задание.'}</p>}
-      {!settled && withinKd && <p className="qc-kd-recommendation" role="status"><Icon name="check" size={17}/>Параметры в пределах допуска КД · рекомендуем F3</p>}
-      <div className={`qc-actions ${reworkCompleted ? 'qc-actions-four' : 'qc-actions-three'}`}>{options.map(option => <button key={option.key} type="button" className={[option.tone, option.recommended && 'recommended', choice === option.key && 'selected', missingAfter && option.key === 'additional' && 'qc-primary-action'].filter(Boolean).join(' ')} disabled={settled || option.disabled} title={option.title} onClick={() => selectChoice(option.key)}><kbd>{option.shortcut}</kbd><span>{option.label}</span>{option.recommended && <em>Рекомендуется</em>}</button>)}</div>
-      {choice && <div className="qc-decision-fields">
-        <label><span className="sr-only">Основание решения (по фактам)</span><select aria-label="Основание решения (по фактам)" required disabled={!choice} value={basis} onChange={event => setBasis(event.target.value)}><option value="">Выберите основание решения</option>{basisOptions.map(value => <option key={value} value={value}>{value}</option>)}</select></label>
-        <label>Что проверить / основание вывода<textarea aria-label="Комментарий" required minLength={5} value={comment} onChange={event => setComment(event.target.value)} placeholder="Комментарий к решению…"/></label>
-        {record.technologistFinding?.description && <button className="qc-recommendation" type="button" onClick={() => setComment(record.technologistFinding?.description ?? '')}>Вставить заключение технолога</button>}
-      </div>}
-      {choice && <form className="qc-decision-form" onSubmit={submit}>
+    {record.status === 'SENT_TO_REWORK' ? <p className="qc-work-status" role="status"><Icon name="clock" size={20}/><span><strong>В работе у Мастера</strong>Направление на доработку записано. После фиксации исправления заявка перейдёт в «Повторный контроль».</span></p> : settled && <p className="qc-decision-note">Решение уже принято. История доступна в досье; блок действий оставлен видимым для единого рабочего шаблона.</p>}
+      {!settled && !visualAllowed && <p className="qc-decision-note">{masterInspection || manualFinding ? 'Осмотр мастера записан. Выберите решение по его результату.' : 'Для решения требуется пригодный кадр или результат очного осмотра, записанный мастером.'}</p>}
+      {!settled && withinKd && !reworkCompleted && <p className="qc-kd-recommendation" role="status"><Icon name="check" size={17}/>Параметры в пределах допуска КД · рекомендуем F2</p>}
+      <div className="qc-actions qc-actions-three">{options.map(option => <button key={option.key} type="button" className={[option.tone, option.recommended && 'recommended', choice === option.key && 'selected'].filter(Boolean).join(' ')} aria-pressed={choice === option.key} disabled={settled || option.disabled} title={option.title} onClick={() => selectChoice(option.key)}><kbd>{option.shortcut}</kbd><span>{option.label}</span>{option.recommended && <em>Рекомендуется</em>}</button>)}</div>
+      {choice && <form key={choice} className="qc-decision-form" onSubmit={submit}>
         <strong>Запись решения: {options.find(option => option.key === choice)?.label}</strong>
+        <div className="qc-decision-fields">
+          <label>Основание решения<textarea required minLength={5} maxLength={2000} value={basis} onChange={event => setBasis(event.target.value)} placeholder="Опишите факты и почему выбрано это решение…"/></label>
+          <label>Комментарий к решению<textarea required minLength={5} maxLength={2000} value={comment} onChange={event => setComment(event.target.value)} placeholder="Укажите результат проверки и дальнейшие действия…"/></label>
+          {record.technologistFinding?.description && <button className="qc-recommendation" type="button" onClick={() => setComment(record.technologistFinding?.description ?? '')}>Вставить заключение технолога</button>}
+        </div>
         <label>{choice === 'additional' ? 'Документ / инструкция (если есть)' : 'Документ / акт осмотра и редакция'}<input required={choice !== 'additional'} value={documentId} onChange={event => setDocumentId(event.target.value)}/></label>
         {requireMeasurement && choice === 'release' && <div className="cockpit-measurement"><strong>Фактический ручной замер · обязательный</strong><span>Для учебного маршрута ITEM-013: толщина стенки ≥ 5,0 мм. Внесите результат измерения; кадр CV его не заменяет.</span><label>Измерено, мм<input type="number" step="0.01" min="5" required value={measurement} onChange={event => setMeasurement(event.target.value)}/></label><label>Идентификатор прибора<input required value={instrument} onChange={event => setInstrument(event.target.value)}/></label><label className="cockpit-inline-check"><input type="checkbox" checked={calibrated} onChange={event => setCalibrated(event.target.checked)}/>Поверка прибора подтверждена контролёром</label></div>}
         <label>Контролёр<input value={currentSecurityUser()?.id ?? ''} readOnly/></label>
-        <button className="qc-submit" type="submit" disabled={!basis || (choice !== 'additional' && !documentId.trim()) || comment.trim().length < 5 || (requireMeasurement && choice === 'release' && (!measurement || !instrument.trim() || !calibrated))}>Записать решение</button>
+        <button className="qc-submit" type="submit" disabled={basis.trim().length < 5 || (choice !== 'additional' && !documentId.trim()) || comment.trim().length < 5 || (requireMeasurement && choice === 'release' && (!measurement || !instrument.trim() || !calibrated))}>Записать решение</button>
       </form>}
     {message && <p className="qc-decision-message" role="status">{message}</p>}
   </section>;
@@ -425,8 +334,8 @@ function DossierDrawer({ record, source, observation, machine, missingFields, on
           <details><summary>Сырой JSON события {observation.event_id}</summary><pre>{JSON.stringify(observation, null, 2)}</pre></details>
         </section>
         <section><h3>История случая</h3>{[...source.observations, ...source.decisions, ...eventsFor(record.itemId).filter(event => event.event_type === 'controller_check' && event.data.case_id === source.id)].sort((a, b) => Date.parse(a.occurred_at) - Date.parse(b.occurred_at)).map(event => <p key={event.event_id}><span className="mono">{time(event.occurred_at)}</span> · {eventNames[event.event_type]}: {describeEvent(event)}</p>)}</section>
-        <button className="qc-passport-link" onClick={() => { onClose(); openPassport(record.itemId); }}>Открыть полный паспорт изделия <Icon name="arrow" size={16}/></button>
       </div>
+      <div className="qc-drawer-footer"><button className="qc-passport-link" onClick={() => { onClose(); openPassport(record.itemId); }}>Открыть полный паспорт изделия <Icon name="arrow" size={18}/></button></div>
     </aside>
   </div>;
 }
@@ -530,7 +439,7 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport, onExi
       {view && sourceCase && data ? <main key={view.id} className={['qc-workbench', !hasAnyPhotos && 'no-photos'].filter(Boolean).join(' ')}>
         <div className="qc-review-content">
           <details className="qc-photo-section" key={'photo-' + view.id} open><summary>Сравнение до и после операции<span>Свернуть / развернуть</span></summary><div className="qc-upper"><EvidenceViewer key={view.id} record={view} hashState={hashState}/></div></details>
-          <ControllerFacts key={'facts-' + view.id} record={view} source={sourceCase} history={own} caseData={data} openCase={openCase} hashState={hashState}/>
+          <ControllerFacts key={'facts-' + view.id} record={view} source={sourceCase} history={own} caseData={data} hashState={hashState}/>
         </div>
         <DecisionPanel key={view.id + '-' + view.iteration} record={view} source={sourceCase} hashState={hashState}/>
       </main> : <div className="qc-no-selection">Выберите заявку в очереди</div>}

@@ -374,8 +374,8 @@ export function machineStateLabel(state: unknown): string {
   return ({ running: 'Станок в работе', warning: 'Предупреждение оборудования', idle: 'Ожидание операции', paused: 'Работа приостановлена', stopped: 'Станок остановлен', fault: 'Авария оборудования', offline: 'Нет связи со станком', maintenance: 'Техническое обслуживание' } as Record<string, string>)[String(state)] ?? 'Состояние не определено';
 }
 
-export type WorkflowAction = 'confirm' | 'confirm_hold' | 'additional' | 'reject' | 'accepted_within_spec' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'master_scrap' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
-export interface MasterReworkDetails { method: string; operator: string; durationMinutes: number; actualSizeMm: number; paperInspection: boolean }
+export type WorkflowAction = 'confirm' | 'confirm_hold' | 'quarantine' | 'additional' | 'reject' | 'accepted_within_spec' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'master_scrap' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
+export interface MasterReworkDetails { method: string; operator: string; durationMinutes: number; actualSizeMm: number; paperInspection: boolean; inspectionResult?: 'signs_detected' | 'no_signs_detected' | 'unable_to_assess'; inspectionNote?: string }
 let seedingMasterShift = false;
 /** Record a role action as a new auditable event, then unlock only its next source stage. */
 export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string, measurement?: { value: number; instrumentId: string; calibrationConfirmed: boolean }, missingPhotoConfirmation?: { observationEventId: string; acknowledged: true }, masterDetails?: MasterReworkDetails, approval?: { actionId: string; actorId: string }): string {
@@ -389,14 +389,14 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
   const observation = selectedCase?.observations.at(-1);
   const masterPhoto = lastMaster && observation && Date.parse(lastMaster.occurred_at) > Date.parse(observation.occurred_at) && mediaIndex.some(asset => lastMaster.data.evidence_refs?.includes(asset.asset_id));
   const missingPhoto = observation?.data.media_evidence?.after_operation.status === 'MISSING' && !masterPhoto;
-  const confirming = action === 'confirm' || action === 'confirm_hold';
+  const confirming = action === 'confirm' || action === 'confirm_hold' || action === 'quarantine';
   const acknowledged = missingPhotoConfirmation?.acknowledged === true && missingPhotoConfirmation.observationEventId === observation?.event_id;
   if (confirming && missingPhoto && !acknowledged) throw new Error('Подтвердите личную ответственность за решение без фотоматериала');
   if (confirming && missingPhoto && !executor.trim()) throw new Error('Укажите контролёра, принимающего ответственность');
   const afterDecision = !!lastMaster && !!lastDecision && Date.parse(lastMaster.occurred_at) > Date.parse(lastDecision.occurred_at);
   if (['master_complete', 'master_scrap'].includes(action) && (!lastDecision || !['rework', 'hold', 'quarantine'].includes(lastDecision.data.disposition ?? '') || afterDecision)) throw new Error('Нет открытого задания мастеру');
   if (action === 'master_scrap' && lastDecision?.data.disposition !== 'rework') throw new Error('Списание доступно только для детали на доработке');
-  if (action === 'master_complete' && masterDetails && (!masterDetails.method.trim() || !masterDetails.operator.trim() || !Number.isFinite(masterDetails.durationMinutes) || masterDetails.durationMinutes <= 0 || !Number.isFinite(masterDetails.actualSizeMm) || masterDetails.actualSizeMm < 0 || !includePhoto && !masterDetails.paperInspection)) throw new Error('Заполните параметры исправления и подтвердите осмотр без фото');
+  if (action === 'master_complete' && masterDetails && (!masterDetails.method.trim() || !masterDetails.operator.trim() || !Number.isFinite(masterDetails.durationMinutes) || masterDetails.durationMinutes <= 0 || !Number.isFinite(masterDetails.actualSizeMm) || masterDetails.actualSizeMm < 0 || !includePhoto && !masterDetails.paperInspection || lastDecision?.data.disposition === 'hold' && (!masterDetails.inspectionResult || !masterDetails.inspectionNote?.trim()))) throw new Error('Заполните результат очного осмотра мастера');
   if (action === 'master_complete' && item === 'ITEM-013' && !own.some(e => e.event_type === 'technical_disposition' && e.data.disposition === 'rework_allowed')) throw new Error('Сначала нужно заключение технолога');
   if (action === 'tech_allow' && item === 'ITEM-013' && lastDecision?.data.disposition !== 'rework') throw new Error('Сначала контролёр должен направить изделие на доработку');
   if (action === 'tech_deny' && item === 'ITEM-015' && lastDecision?.data.disposition !== 'quarantine') throw new Error('Сначала подтвердите дефект и карантин');
@@ -435,14 +435,14 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
     const outcome = accept(row); if (outcome.kind === 'error') throw new Error(outcome.reason); events.sort(sortEvents);
     return event;
   };
-  if (action === 'confirm' || action === 'confirm_hold' || action === 'additional' || action === 'reject' || action === 'accepted_within_spec' || action === 'scrap') {
+  if (action === 'confirm' || action === 'confirm_hold' || action === 'quarantine' || action === 'additional' || action === 'reject' || action === 'accepted_within_spec' || action === 'scrap') {
     if (action === 'confirm' && item === 'ITEM-015' && own.some(e => e.event_type === 'master_action') && !first) {
       const check = make('inspection_result', { inspection_point_id: 'CP-POST-MILL', inspection_result: 'signs_detected', observation_quality: 'good', confidence: null, defects: [{ finding_id: 'F1', defect_type_id: 'DENT', component_id: itemById.get(item)!.components.find(c => c.component_type_id === 'BODY')!.id, region: 'outer_left_edge', severity: 'critical' }], method: 'manual_verification', evidence_refs: ['M015-MASTER-DENT'], triage_priority: 'critical', capture_context: { source: 'manual_verification' } });
       refs = [`${check.event_id}#F1`];
     }
     if (action === 'reject' && item === 'ITEM-016' && own.some(e => e.event_type === 'master_action')) make('inspection_result', { inspection_point_id: 'CP-POST-MILL', inspection_result: 'no_signs_detected', observation_quality: 'good', confidence: null, defects: [], method: 'manual_verification', evidence_refs: ['M016-MASTER-CLEAR'], triage_priority: 'routine', capture_context: { source: 'manual_verification' } });
-    const decision = action === 'confirm' || action === 'confirm_hold' ? 'confirmed' : action === 'additional' ? 'additional_check' : action === 'reject' ? 'rejected' : action === 'accepted_within_spec' ? 'accepted_within_spec' : 'scrap_approved';
-    const disposition = action === 'confirm_hold' ? 'hold' : action === 'confirm' ? item === 'ITEM-015' ? 'quarantine' : 'rework' : action === 'additional' ? 'hold' : action === 'reject' || action === 'accepted_within_spec' ? 'release' : 'scrap';
+    const decision = confirming ? 'confirmed' : action === 'additional' ? 'additional_check' : action === 'reject' ? 'rejected' : action === 'accepted_within_spec' ? 'accepted_within_spec' : 'scrap_approved';
+    const disposition = action === 'quarantine' ? 'quarantine' : action === 'confirm_hold' ? 'hold' : action === 'confirm' ? item === 'ITEM-015' ? 'quarantine' : 'rework' : action === 'additional' ? 'hold' : action === 'reject' || action === 'accepted_within_spec' ? 'release' : 'scrap';
     make('quality_decision', { decision, disposition, finding_refs: refs, reason, ...(confirming && acknowledged ? { missing_photo_acknowledgement: { acknowledged: true, observation_event_id: observation!.event_id, absence_reason: observation!.data.media_evidence?.after_operation.absence_reason ?? 'NOT_PROVIDED', actor_id: executor.trim(), basis: 'telemetry_and_kd', acknowledged_at: new Date().toISOString() } } : {}) });
   } else if (action === 'tech_allow' || action === 'tech_deny') make('technical_disposition', { disposition: action === 'tech_allow' ? 'rework_allowed' : 'rework_not_allowed', basis_event_ids: own.filter(e => e.event_type === 'quality_decision').map(e => e.event_id), reason });
   else if (action === 'hypothesis' || action === 'cause_confirm') make('cause_review', { status: action === 'cause_confirm' ? 'confirmed' : 'hypothesis', finding_refs: refs, reason });
@@ -450,7 +450,7 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
     const count = own.filter(e => e.event_type === 'master_action').length;
     const asset = action === 'master_complete' && includePhoto ? item === 'ITEM-013' ? 'M013-MASTER-CLEAR' : item === 'ITEM-014' ? count ? 'M014-MASTER-CLEAR' : 'M014-MASTER-STILL' : item === 'ITEM-015' ? 'M015-MASTER-DENT' : item === 'ITEM-016' ? 'M016-MASTER-CLEAR' : item === 'ITEM-025' ? 'M025-MASTER-CLEAR' : item === 'ITEM-028' ? 'M028-MASTER-CLEAR' : undefined : undefined;
     const photoUploadedAt = asset ? new Date(Math.max(...own.map(e => Date.parse(e.occurred_at))) + 60000).toISOString() : undefined;
-    make('master_action', { action_type: action === 'master_scrap' ? 'scrap_to_isolator' : own.some(e => e.data.disposition === 'rework') ? 'rework_completed' : 'inspection_support', workflow_status: action === 'master_scrap' ? 'SCRAP_ISOLATOR' : 'REVISION_READY', evidence_refs: asset ? [asset] : [], photo_uploaded_at: photoUploadedAt, observation_quality: asset ? 'good' : undefined, executor_id: masterDetails?.operator ?? executor, rework_method: masterDetails?.method, duration_minutes: masterDetails?.durationMinutes, actual_size_mm: masterDetails?.actualSizeMm, paper_inspection: masterDetails?.paperInspection ?? false, comment: reason, reason });
+    make('master_action', { action_type: action === 'master_scrap' ? 'scrap_to_isolator' : lastDecision?.data.disposition === 'rework' ? 'rework_completed' : 'inspection_support', workflow_status: action === 'master_scrap' ? 'SCRAP_ISOLATOR' : 'REVISION_READY', evidence_refs: asset ? [asset] : [], photo_uploaded_at: photoUploadedAt, observation_quality: asset ? 'good' : undefined, executor_id: masterDetails?.operator ?? executor, rework_method: masterDetails?.method, duration_minutes: masterDetails?.durationMinutes, actual_size_mm: masterDetails?.actualSizeMm, paper_inspection: masterDetails?.paperInspection ?? false, inspection_result: masterDetails?.inspectionResult, inspection_note: masterDetails?.inspectionNote, comment: reason, reason });
   } else if (action === 'recheck_fail' || action === 'release') {
     const run = own.filter(e => e.event_type === 'operation_started').at(-1)?.operation_run_id;
     if (action === 'release' && item === 'ITEM-013' && measurement) make('manual_measurement', { feature_id: 'WALL-NEAR-RIGHT-HOLE', measured_value: measurement.value, unit: 'mm', lower_limit: 5, instrument_id: measurement.instrumentId.trim(), calibration_status: measurement.calibrationConfirmed ? 'operator_confirmed' : 'unconfirmed', result: 'within_assumed_limit', is_camera_measurement: false, reason: `Ручной замер: ${measurement.value} мм при минимуме 5,0 мм. Прибор ${measurement.instrumentId.trim()}.` }, { operation_run_id: run });
@@ -471,10 +471,10 @@ export function prepareMasterShift(): void {
   seedingMasterShift = true;
   try {
   for (const item of ['ITEM-014', 'ITEM-025']) {
-    if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'confirm', 'Учебное направление подтверждённой детали на доработку по F2', 'QC-02');
+    if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'confirm', 'Учебное направление подтверждённой детали на доработку по F1', 'QC-02');
   }
   for (const item of ['ITEM-015', 'ITEM-016']) {
-    if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'additional', 'Учебный вызов мастера на очный досмотр по F4', 'QC-02');
+    if (!eventsFor(item).some(event => event.event_type === 'quality_decision')) performAction(item, 'controller', 'additional', 'Учебный вызов мастера на очный досмотр по запросу ОТК', 'QC-02');
   }
   } finally { seedingMasterShift = false; }
 }

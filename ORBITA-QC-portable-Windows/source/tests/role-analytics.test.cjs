@@ -1,0 +1,112 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const Module = require('node:module');
+const ts = require('typescript');
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const cache = new Map();
+function load(name) {
+  if (cache.has(name)) return cache.get(name);
+  const filename = path.join(__dirname, '../src', name + '.ts');
+  const code = ts.transpileModule(fs.readFileSync(filename,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
+  const instance = new Module(filename,module); instance.filename=filename; instance.paths=Module._nodeModulePaths(path.dirname(filename));
+  instance.require = request => request.startsWith('./') ? load(request.slice(2)) : require(request);
+  instance._compile(code,filename); cache.set(name,instance.exports); return instance.exports;
+}
+const {buildRoleAnalytics}=load('role-analytics');
+const {dashboardHtml,dashboardCsv,csvCell,technologistCsv}=load('analytics-export');
+const filter={from:'',to:'',line:'all',station:'all',scope:'all'};
+const event=(id,type,minute,data={},extra={})=>({event_id:id,event_type:type,schema_version:'2.0',occurred_at:`2026-02-17T10:${String(minute).padStart(2,'0')}:00+03:00`,source_id:'TEST',item_id:'I-1',item_type_id:'TYPE',line_id:'L-1',station_id:'S-1',shift_id:'SHIFT-A',data,...extra});
+const record=(id,observation,decisions=[])=>({id,item:observation.item_id,type:'BURR',observations:[observation],decisions,refs:[`${observation.event_id}#F`],region:'edge',component:'C',confirmed:true,status:'',tone:'red',severity:'high',priority:70,why:''});
+const input=(events,cases=[],tasks=[])=>({events,cases,tasks,defectNames:{BURR:'Заусенец'},stationNames:{'S-1':'Участок 1'}});
+const metric=(model,label)=>model.metrics.find(m=>m.label===label).value;
+const section=(model,id)=>model.sections.find(s=>s.id===id);
+
+test('Role analytics separates unique items, historical cases and duplicate deliveries',()=>{
+  const a=event('A','inspection_result',0,{observation_quality:'good',inspection_result:'signs_detected'});
+  const b=event('B','inspection_result',1,{observation_quality:'poor',inspection_result:'unable_to_assess'},{item_id:'I-2'});
+  const decision=event('D','quality_decision',5,{decision:'confirmed'});
+  const model=buildRoleAnalytics(input([a,a,b,decision],[record('C1',a,[decision]),record('C2',a,[decision]),record('C2',a,[decision])]),'leader',filter);
+  assert.equal(metric(model,'Оценено изделий'),1);
+  assert.equal(metric(model,'Изделия с дефектами'),1);
+  assert.equal(metric(model,'Доля с несоответствием'),'100%');
+  assert.equal(section(model,'defects').rows[0].cells[1],2);
+  assert.equal(model.eventCount,3);
+  const empty=buildRoleAnalytics(input([]),'leader',filter);
+  assert.equal(metric(empty,'Доля с несоответствием'),'Нет данных');
+});
+test('Own-date decisions differ from case cohorts; old open tasks remain in handover',()=>{
+  const signal=event('A','inspection_result',0,{observation_quality:'good',inspection_result:'signs_detected'});
+  const decision={...event('D','quality_decision',5,{decision:'confirmed'}),occurred_at:'2026-02-18T00:05:00+03:00'};
+  const task={id:'T',title:'Доработка',item:'I-1',role:'master',event:signal,done:false,description:'Открыто',priority:70,why:''};
+  const model=buildRoleAnalytics(input([signal,decision],[record('C',signal,[decision])],[task]),'controller',{...filter,from:'2026-02-18',to:'2026-02-18'});
+  assert.equal(section(model,'cases').rows.length,0);
+  assert.equal(section(model,'decisions').rows.length,1);
+  const master=buildRoleAnalytics(input([signal,decision],[],[task]),'master',{...filter,from:'2026-02-18'});
+  assert.equal(section(master,'queue').rows.length,1);
+  const otherLine=buildRoleAnalytics(input([signal,decision],[],[task]),'master',{...filter,line:'L-2'});
+  assert.equal(section(otherLine,'queue').rows.length,0);
+});
+test('Elapsed duration excludes unfinished and negative intervals',()=>{
+  const start=event('S','operation_started',0,{operation_id:'OP'},{operation_run_id:'RUN'});
+  const finish=event('F','operation_finished',20,{}, {operation_run_id:'RUN'});
+  const open=event('S2','operation_started',30,{operation_id:'OP'},{operation_run_id:'RUN2'});
+  const pause=event('P','operation_paused',35,{}, {operation_run_id:'RUN2'});
+  const model=buildRoleAnalytics(input([start,finish,open,pause]),'master',filter);
+  assert.equal(metric(model,'Незавершённые запуски'),1);
+  assert.equal(section(model,'durations').rows[0].cells[2],'20');
+  assert.equal(section(model,'runs').rows[1].cells[5],'Пауза');
+  const invalid=buildRoleAnalytics(input([{...start,occurred_at:finish.occurred_at},{...finish,occurred_at:start.occurred_at}]),'master',filter);
+  assert.equal(section(invalid,'durations').rows[0].cells[2],'Нет данных');
+});
+test('Rework outcomes stay within their own cycle and finding',()=>{
+  const action=event('M1','master_action',10,{action_type:'rework_completed',finding_refs:['F'],duration_minutes:8});
+  const unrelated=event('D0','quality_decision',11,{decision:'release_after_rework',finding_refs:['OTHER']});
+  const otherAction=event('M0','master_action',11,{action_type:'rework_completed',finding_refs:['OTHER']});
+  const failed=event('D1','quality_decision',12,{decision:'confirmed',finding_refs:['F']});
+  const action2=event('M2','master_action',20,{action_type:'rework_completed',finding_refs:['F'],duration_minutes:12});
+  const release=event('D2','quality_decision',25,{decision:'release_after_rework',finding_refs:['F']});
+  const model=buildRoleAnalytics(input([release,action2,failed,unrelated,action]),'master',filter);
+  assert.equal(metric(model,'Выпуск после доработки'),'50%');
+  assert.equal(metric(model,'Длительность доработки'),'10');
+  assert.match(section(model,'reworks').rows[0].cells[6],/D1/);
+  assert.match(section(model,'reworks').rows[1].cells[6],/D2/);
+  const parallel=buildRoleAnalytics(input([action,otherAction,failed]),'master',filter);
+  assert.match(section(parallel,'reworks').rows[0].cells[6],/D1/);
+});
+test('New evidence invalidates established cause, without deleting the previous review',()=>{
+  const signal=event('A','inspection_result',0,{inspection_result:'signs_detected',observation_quality:'good'});
+  const decision=event('D','quality_decision',1,{decision:'confirmed'});
+  const review=event('R','cause_review',3,{status:'confirmed',cause_type:'procedural_error',reviewed_event_ids:['A','D']});
+  const c={...record('C',signal,[decision]),review};
+  assert.equal(metric(buildRoleAnalytics(input([signal,decision,review],[c]),'leader',filter),'Причина установлена'),1);
+  const model=buildRoleAnalytics(input([signal,decision,review,event('LATE','machine_state',2,{state:'warning'})],[c]),'leader',filter);
+  assert.equal(metric(model,'Причина установлена'),0);
+  assert.equal(section(model,'cause-register').rows.length,0);
+  assert.equal(section(model,'causes').rows[0].cells[0],'Пересмотр: новые факты');
+});
+test('Reports escape HTML and spreadsheet formulas and include only selected sections',()=>{
+  const model=buildRoleAnalytics(input([]),'leader',filter);
+  const meta={id:'snapshot-1',createdAt:'2026-02-18',author:'<script>alert(1)</script>',title:'=HYPERLINK("evil")',revision:7};
+  const selected=[{id:'x',title:'Выбранный раздел',note:'Определение',headers:['Значение'],rows:[{id:'a',cells:['<img onerror=alert(1)>']},{id:'b',cells:['@SUM(1+1)']}]}];
+  const html=dashboardHtml(model,meta,selected);
+  assert.ok(!html.includes('<script>')&&!html.includes('<img onerror'));
+  assert.ok(html.includes('&lt;img')&&html.includes('snapshot-1'));
+  assert.ok(!html.includes('<h2>Причины и неопределённость</h2>'));
+  const csv=dashboardCsv(model,meta,selected);
+  assert.ok(csv.startsWith('\uFEFF'));
+  assert.ok(csv.includes("'@SUM"));
+  assert.equal(csvCell(' =1+1'),'"\' =1+1"');
+  assert.equal(csvCell('a;"b\nc'),'"a;""b\nc"');
+});
+test('Four roles keep distinct tabs; administrator has no analytics',()=>{
+  const nav=load('navigation');
+  assert.ok(nav.sectionsFor('controller','analytics').some(s=>s.id==='sources'));
+  assert.ok(!nav.sectionsFor('controller','analytics').some(s=>s.id==='causes'));
+  assert.ok(nav.sectionsFor('master','analytics').some(s=>s.id==='handover'));
+  assert.ok(nav.sectionsFor('leader','analytics').some(s=>s.id==='causes'));
+  assert.ok(nav.sectionsFor('technologist','analytics').some(s=>s.id==='equipment'));
+  assert.equal(nav.canAccess('administrator','analytics'),false);
+  const tech=load('technologist-analytics').buildTechnologistAnalytics({events:[],cases:[],operations:[],mediaIds:[],defectNames:{}},{...filter,equipment:'all',defect:'all'});
+  assert.match(technologistCsv(tech,{title:'Технолог',author:'TECH',defects:true,equipment:true,operations:true,cases:true},'2026-02-18'),/Открытые запросы/);
+});
