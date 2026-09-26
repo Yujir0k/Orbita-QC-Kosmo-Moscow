@@ -1,4 +1,5 @@
 import https from 'node:https';
+import { workOrderPayload } from '../../work-order.mjs';
 import { readFile } from 'node:fs/promises';
 import { createDatabase, transaction, lock } from './db.mjs';
 import { loadCrypto, equal, digest } from './crypto.mjs';
@@ -24,7 +25,7 @@ https.createServer({ key: await readFile(process.env.TLS_KEY_FILE), cert: await 
         const id = decodeURIComponent(url.pathname.split('/').at(-1));
         const items = dataset.items.filter(row => row.work_order_id === id);
         if (!items.length) throw new Error('Unknown order');
-        return { delivery_id: `ERP-IN-${id}`, deliver_at: '2026-02-17T07:45:00+03:00', message: { message_id: `MSG-${id}`, message_type: 'work_order', schema_version: '1.0', source_system: 'ERP-EMU', sent_at: '2026-02-17T07:45:00+03:00', payload: { work_order_id: id, item_type_id: items[0].item_type_id, assembly_revision: items[0].assembly_revision, item_ids: items.map(row => row.id), quantity: items.length } } };
+        return { delivery_id: `ERP-IN-${id}`, deliver_at: '2026-02-17T07:45:00+03:00', message: { message_id: `MSG-${id}`, message_type: 'work_order', schema_version: '1.0', source_system: 'ERP-EMU', sent_at: '2026-02-17T07:45:00+03:00', payload: workOrderPayload(id, items) } };
       }
       if (req.method === 'POST' && url.pathname === '/api/emulator/results') {
         const key = input.correlation_key;

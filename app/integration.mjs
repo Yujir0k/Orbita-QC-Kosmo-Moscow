@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { workOrderPayload, validWorkOrderItems } from './work-order.mjs'
 import { createErpAdapter } from './erp-adapters.mjs'
 import { readJsonObject } from './contract-validator.mjs'
 
@@ -44,10 +45,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
     if (sourceOrders.has(workOrderId)) continue
     sourceOrders.set(workOrderId, {
       delivery_id: `ERP-IN-${workOrderId}`, deliver_at: '2026-02-17T07:45:00+03:00',
-      message: { message_id: `MSG-${workOrderId}`, message_type: 'work_order', schema_version: '1.0', source_system: 'ERP-EMU', sent_at: '2026-02-17T07:45:00+03:00', payload: {
-        work_order_id: workOrderId, item_type_id: group[0].item_type_id, assembly_revision: group[0].assembly_revision,
-        item_ids: group.map(item => item.id), quantity: group.length,
-      } },
+      message: { message_id: `MSG-${workOrderId}`, message_type: 'work_order', schema_version: '1.0', source_system: 'ERP-EMU', sent_at: '2026-02-17T07:45:00+03:00', payload: workOrderPayload(workOrderId, group) },
     })
   }
   const fresh = () => ({ profile, orders: [], outbox: [], emulator: { accepted: [], attempts: {} }, assemblies: [] })
@@ -182,7 +180,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
         }
         contracts?.assert('integration', row.message, '#/$defs/workOrder', 'Задание ERP не соответствует контракту')
         const p = row.message?.payload
-        if (row.message?.message_type !== 'work_order' || row.message?.schema_version !== '1.0' || row.message?.source_system !== (external?.source ?? 'ERP-EMU') || !text(p?.work_order_id) || !Array.isArray(p.item_ids) || p.quantity !== p.item_ids.length || p.item_ids.some(id => !items.has(id) || items.get(id).work_order_id !== p.work_order_id || items.get(id).item_type_id !== p.item_type_id || items.get(id).assembly_revision !== p.assembly_revision)) throw fail(422, 'Получено задание с некорректными идентификаторами')
+        if (row.message?.message_type !== 'work_order' || row.message?.schema_version !== '1.0' || row.message?.source_system !== (external?.source ?? 'ERP-EMU') || !text(p?.work_order_id) || !validWorkOrderItems(p, items)) throw fail(422, 'Получено задание с некорректными идентификаторами')
         const existing = state.orders.find(order => order.message.payload.work_order_id === p.work_order_id)
         if (existing && canonical(existing.message) !== canonical(row.message)) throw fail(409, 'Конфликт версии задания')
         if (!existing) { state.orders.push({ ...row, received_at: new Date().toISOString() }); await persist() }
