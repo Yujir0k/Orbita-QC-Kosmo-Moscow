@@ -23,7 +23,7 @@ export default function App() {
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 4000); return () => clearTimeout(timer); }, [toast]);
   const go = useCallback((next: Route) => { const normalized = parseRoute(routeHash(next)); setRoute(normalized); window.location.hash = routeHash(normalized); setMobileMenu(false); setRoleMenu(false); }, []);
   const navigate: Navigate = (module, section, item) => { if (canAccess(route.role, module)) go({ role: route.role, module, section: section ?? sectionsFor(route.role, module)[0]?.id ?? '', item }); };
-  const openItem = (item: string) => go({ ...route, item });
+  const openItem = (item: string) => go({ ...route, item, caseId: undefined });
   const openCase = (item: string, caseId: string) => go({ ...route, item, caseId });
   const changeRole = (nextRole: RoleId, module: ModuleId = 'home') => { go({ role: nextRole, module, section: sectionsFor(nextRole, module)[0]?.id ?? '' }); setToast(`Рабочее место: ${roleById[nextRole].name}`); };
   const scopedView = ['home', 'quality', 'products', 'production', 'investigation', 'analytics', 'events', 'tasks'].includes(route.module) && !['comparison', 'shifts', 'structure', 'rules', 'replay', 'losses'].includes(route.section);
@@ -40,7 +40,7 @@ export default function App() {
     </div>
     {overlay === 'search' && <SearchDialog role={route.role} navigate={navigate} openItem={openItem} onClose={() => setOverlay(null)}/>}
     {overlay === 'notifications' && <Modal title="Уведомления рабочего места" className="notifications-dialog" onClose={() => setOverlay(null)}><div className="drawer-header"><div><span className="eyebrow">{role.name}</span><h2>Центр внимания</h2></div><button className="icon-button" aria-label="Закрыть уведомления" onClick={() => setOverlay(null)}><Icon name="close"/></button></div><div className="notification-list">{notifications.length ? notifications.map(task => <button key={task.id} onClick={() => { setOverlay(null); openItem(task.item); }}><span className="task-symbol amber"><Icon name="tasks"/></span><div><strong>{task.title}</strong><p>{task.item} · {task.event.event_id}</p></div><Icon name="arrow" size={16}/></button>) : <Empty title="Новых действий для роли нет" text="Уведомления о проверках, отклонениях и передаче работы будут собраны здесь."/>}</div><Note>Сейчас показаны основания для действий из учебного набора. Фоновая доставка уведомлений ещё не подключена.</Note></Modal>}
-    {route.item && <ProductDrawer key={`${route.item}-${route.role}-${route.caseId ?? ''}`} id={route.item} caseId={route.caseId} role={route.role} onRoleChange={nextRole => { go({ role: nextRole, module: 'home', section: '', item: route.item }); setToast(`Рабочее место: ${roleById[nextRole].name}`); }} onClose={() => go({ ...route, item: undefined, caseId: undefined })}/>}
+    {route.item && !(route.role === 'controller' && route.module === 'quality' && route.caseId) && <ProductDrawer key={`${route.item}-${route.role}-${route.caseId ?? ''}`} id={route.item} caseId={route.caseId} role={route.role} onRoleChange={nextRole => { go({ role: nextRole, module: 'home', section: '', item: route.item }); setToast(`Рабочее место: ${roleById[nextRole].name}`); }} onClose={() => go({ ...route, item: undefined, caseId: undefined })}/>}
     {toast && <div className="toast" role="status"><Icon name="check"/>{toast}<button aria-label="Закрыть сообщение" onClick={() => setToast('')}><Icon name="close" size={15}/></button></div>}
   </div>;
 }

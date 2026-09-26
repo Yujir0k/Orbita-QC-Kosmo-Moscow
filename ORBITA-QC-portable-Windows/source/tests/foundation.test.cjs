@@ -83,10 +83,20 @@ test('ITEM-013 moves across roles and release requires controller action', () =>
   domain.performAction('ITEM-013', 'master', 'master_complete', 'Доработку выполнил оператор OP-03', 'MASTER-01');
   assert.equal(domain.mediaFor('ITEM-013').length, 2);
   assert.notEqual(domain.productStatus('ITEM-013').tone, 'green');
-  domain.performAction('ITEM-013', 'controller', 'release', 'Ручной замер 5,12 мм; поверхность чистая', 'QC-01');
+  assert.throws(() => domain.performAction('ITEM-013', 'controller', 'release', 'Кадр после доработки проверен', 'QC-01'), /ручной замер/);
+  domain.performAction('ITEM-013', 'controller', 'release', 'Ручной замер 5,12 мм; поверхность чистая', 'QC-01', true, undefined, { value: 5.12, instrumentId: 'GAGE-01', calibrationConfirmed: true });
   assert.equal(domain.productStatus('ITEM-013').tone, 'green');
   assert.ok(domain.eventsFor('ITEM-013').some(e => e.event_type === 'manual_measurement'));
   assert.equal(domain.metrics('all').defects, 1);
+});
+
+test('Controller can confirm a defect while holding the item without scheduling rework', () => {
+  domain.resetDemo();
+  domain.performAction('ITEM-014', 'controller', 'confirm_hold', 'Заусенец подтверждён по кадру; требуется удержание', 'QC-01');
+  const decision = domain.eventsFor('ITEM-014').filter(event => event.event_type === 'quality_decision').at(-1);
+  assert.equal(decision.data.decision, 'confirmed');
+  assert.equal(decision.data.disposition, 'hold');
+  assert.ok(!domain.eventsFor('ITEM-014').some(event => event.data.operation_id === 'OP-REWORK'));
 });
 
 test('ITEM-014 retains one defect through unsuccessful and successful rework', () => {
@@ -109,12 +119,14 @@ test('ITEM-015 and ITEM-016 reveal photos only after checks; glare is not confir
   assert.equal(domain.mediaFor('ITEM-015').length, 0);
   domain.performAction('ITEM-015', 'master', 'master_complete', 'Критическая кромка осмотрена и снята', 'MASTER-01');
   assert.equal(domain.mediaFor('ITEM-015').length, 1);
+  assert.throws(() => domain.performAction('ITEM-015', 'controller', 'release', 'Осмотр завершён', 'QC-01'), /не является завершённой доработкой/);
   domain.performAction('ITEM-015', 'controller', 'confirm', 'Вмятина подтверждена по очному осмотру', 'QC-01');
   assert.equal(domain.cases.find(c => c.item === 'ITEM-015' && c.type === 'DENT').confirmed, true);
   domain.performAction('ITEM-015', 'technologist', 'tech_deny', 'Маршрут не допускает восстановление', 'TECH-01');
   domain.performAction('ITEM-015', 'controller', 'scrap', 'Списание после заключения технолога', 'QC-01');
   domain.performAction('ITEM-016', 'controller', 'additional', 'Блик требует проверки при другом свете', 'QC-01');
   domain.performAction('ITEM-016', 'master', 'master_complete', 'При рассеянном свете поверхность чистая', 'MASTER-01');
+  assert.throws(() => domain.performAction('ITEM-016', 'controller', 'release', 'Поверхность чистая', 'QC-01'), /не является завершённой доработкой/);
   domain.performAction('ITEM-016', 'controller', 'reject', 'Признак не подтвердился', 'QC-01');
   assert.ok(domain.eventsFor('ITEM-016').some(e => e.data.method === 'manual_verification' && e.data.inspection_result === 'no_signs_detected'));
   assert.equal(domain.cases.find(c => c.item === 'ITEM-016').confirmed, false);

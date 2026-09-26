@@ -15,7 +15,7 @@ export interface EventData {
 export interface QualityEvent { event_id: string; event_type: string; schema_version: string; occurred_at: string; source_id: string; item_id: string; item_type_id: string; line_id: string; station_id: string; shift_id: string; operation_run_id?: string; actor_id?: string; equipment_id?: string; analyzer_version?: string; data: EventData }
 export interface Delivery { delivery_id: string; deliver_at: string; message: QualityEvent }
 export interface Product { id: string; item_type_id: string; work_order_id: string; assembly_revision: string; components: { id: string; component_type_id: string }[] }
-export interface MediaAsset { asset_id: string; item_id: string; path_from_quality_dataset: string; capture_source: string; stage: string; description: string }
+export interface MediaAsset { asset_id: string; item_id: string; path_from_quality_dataset: string; capture_source: string; stage: string; description: string; sha256?: string }
 export type Scope = 'all' | 'SHIFT-A' | 'SHIFT-B';
 type OutcomeKind = 'accepted' | 'duplicate' | 'late' | 'error';
 export interface IngestOutcome { delivery_id: string; event_id: string; item_id: string; kind: OutcomeKind; reason: string }
@@ -150,15 +150,15 @@ try {
 /** Reset the built-in stream to open work before any human decisions. */
 export function resetDemo() { bootstrap(); }
 function hasDecision(item: string, decision: string) { return events.some(e => e.item_id === item && e.event_type === 'quality_decision' && e.data.decision === decision); }
-function countDecision(item: string, decision: string) { return events.filter(e => e.item_id === item && e.event_type === 'quality_decision' && e.data.decision === decision).length; }
+function countDisposition(item: string, disposition: string) { return events.filter(e => e.item_id === item && e.event_type === 'quality_decision' && e.data.disposition === disposition).length; }
 function allowed(row: Delivery): boolean {
   const e = row.message; const item = e.item_id;
   if (item === 'ITEM-018') return true;
-  if (item === 'ITEM-013') return e.data.operation_id === 'OP-REWORK' ? events.some(x => x.item_id === item && x.event_type === 'technical_disposition' && x.data.disposition === 'rework_allowed') : hasDecision(item, 'release_after_rework');
-  if (item === 'ITEM-014') { if (e.data.operation_id === 'OP-REWORK') return (e.operation_run_id?.endsWith('-2') ? countDecision(item, 'confirmed') >= 2 : countDecision(item, 'confirmed') >= 1); return hasDecision(item, 'release_after_rework'); }
+  if (item === 'ITEM-013') return e.data.operation_id === 'OP-REWORK' ? countDisposition(item, 'rework') > 0 && events.some(x => x.item_id === item && x.event_type === 'technical_disposition' && x.data.disposition === 'rework_allowed') : hasDecision(item, 'release_after_rework');
+  if (item === 'ITEM-014') { if (e.data.operation_id === 'OP-REWORK') return (e.operation_run_id?.endsWith('-2') ? countDisposition(item, 'rework') >= 2 : countDisposition(item, 'rework') >= 1); return hasDecision(item, 'release_after_rework'); }
   if (item === 'ITEM-015') return hasDecision(item, 'additional_check');
   if (item === 'ITEM-016') return hasDecision(item, 'rejected');
-  if (item === 'ITEM-017') return e.data.operation_id === 'OP-REWORK' ? hasDecision(item, 'confirmed') : hasDecision(item, 'release_after_rework');
+  if (item === 'ITEM-017') return e.data.operation_id === 'OP-REWORK' ? countDisposition(item, 'rework') > 0 : hasDecision(item, 'release_after_rework');
   return events.some(x => x.item_id === item && x.event_type === 'quality_decision');
 }
 /** Deliver one currently eligible external message. */
@@ -286,9 +286,9 @@ export function describeEvent(event: QualityEvent): string {
   return [event.operation_run_id, event.actor_id, event.equipment_id].filter(Boolean).join(' · ') || 'Событие производственного процесса';
 }
 
-export type WorkflowAction = 'confirm' | 'additional' | 'reject' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
+export type WorkflowAction = 'confirm' | 'confirm_hold' | 'additional' | 'reject' | 'recheck_fail' | 'release' | 'scrap' | 'master_complete' | 'tech_allow' | 'tech_deny' | 'hypothesis' | 'cause_confirm';
 /** Record a role action as a new auditable event, then unlock only its next source stage. */
-export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string): string {
+export function performAction(item: string, role: RoleId, action: WorkflowAction, reason: string, executor: string, includePhoto = true, caseId?: string, measurement?: { value: number; instrumentId: string; calibrationConfirmed: boolean }): string {
   const own = eventsFor(item); const latest = own.at(-1); if (!latest) throw new Error('Изделие ещё не поступило');
   if (!reason.trim()) throw new Error('Укажите основание');
   const allowedRole = action.startsWith('tech') || action === 'hypothesis' || action === 'cause_confirm' ? 'technologist' : action === 'master_complete' ? 'master' : 'controller';
@@ -298,11 +298,13 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
   const afterDecision = !!lastMaster && !!lastDecision && Date.parse(lastMaster.occurred_at) > Date.parse(lastDecision.occurred_at);
   if (action === 'master_complete' && (!lastDecision || !['rework', 'hold', 'quarantine'].includes(lastDecision.data.disposition ?? '') || afterDecision)) throw new Error('Нет открытого задания мастеру');
   if (action === 'master_complete' && item === 'ITEM-013' && !own.some(e => e.event_type === 'technical_disposition' && e.data.disposition === 'rework_allowed')) throw new Error('Сначала нужно заключение технолога');
-  if (action === 'tech_allow' && item === 'ITEM-013' && !lastDecision) throw new Error('Сначала нужно решение контролёра');
+  if (action === 'tech_allow' && item === 'ITEM-013' && lastDecision?.data.disposition !== 'rework') throw new Error('Сначала контролёр должен направить изделие на доработку');
   if (action === 'tech_deny' && item === 'ITEM-015' && lastDecision?.data.disposition !== 'quarantine') throw new Error('Сначала подтвердите дефект и карантин');
   if (action === 'confirm' && item === 'ITEM-015' && !lastMaster) throw new Error('Сначала нужна очная проверка с фото');
   if (action === 'scrap' && !own.some(e => e.event_type === 'technical_disposition' && e.data.disposition === 'rework_not_allowed')) throw new Error('Нужно заключение о невозможности доработки');
   if (['release', 'recheck_fail'].includes(action) && !afterDecision) throw new Error('Сначала мастер должен завершить работу и передать изделие');
+  if (['release', 'recheck_fail'].includes(action) && lastMaster?.data.action_type !== 'rework_completed') throw new Error('Очная проверка мастера не является завершённой доработкой');
+  if (action === 'release' && item === 'ITEM-013' && (!measurement || !Number.isFinite(measurement.value) || measurement.value < 5 || !measurement.instrumentId.trim() || !measurement.calibrationConfirmed)) throw new Error('Нужен фактический ручной замер: стенка не менее 5,0 мм, идентификатор поверенного прибора');
   if (action === 'release' && item === 'ITEM-014' && own.filter(e => e.event_type === 'master_action').length === 1) throw new Error('После первого прохода заусенец остаётся: требуется новый круг');
   if (action === 'reject' && item === 'ITEM-016' && !afterDecision) throw new Error('Сначала нужна доппроверка при другом освещении');
   const first = own.find(e => e.event_type === 'inspection_result' && e.data.inspection_result === 'signs_detected');
@@ -320,14 +322,14 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
     const outcome = accept(row); if (outcome.kind === 'error') throw new Error(outcome.reason); events.sort(sortEvents);
     return event;
   };
-  if (action === 'confirm' || action === 'additional' || action === 'reject' || action === 'scrap') {
+  if (action === 'confirm' || action === 'confirm_hold' || action === 'additional' || action === 'reject' || action === 'scrap') {
     if (action === 'confirm' && item === 'ITEM-015' && own.some(e => e.event_type === 'master_action') && !first) {
       const check = make('inspection_result', { inspection_point_id: 'CP-POST-MILL', inspection_result: 'signs_detected', observation_quality: 'good', confidence: null, defects: [{ finding_id: 'F1', defect_type_id: 'DENT', component_id: itemById.get(item)!.components.find(c => c.component_type_id === 'BODY')!.id, region: 'outer_left_edge', severity: 'critical' }], method: 'manual_verification', evidence_refs: ['M015-MASTER-DENT'], triage_priority: 'critical', capture_context: { source: 'manual_verification' } });
       refs = [`${check.event_id}#F1`];
     }
     if (action === 'reject' && item === 'ITEM-016' && own.some(e => e.event_type === 'master_action')) make('inspection_result', { inspection_point_id: 'CP-POST-MILL', inspection_result: 'no_signs_detected', observation_quality: 'good', confidence: null, defects: [], method: 'manual_verification', evidence_refs: ['M016-MASTER-CLEAR'], triage_priority: 'routine', capture_context: { source: 'manual_verification' } });
-    const decision = action === 'confirm' ? 'confirmed' : action === 'additional' ? 'additional_check' : action === 'reject' ? 'rejected' : 'scrap_approved';
-    const disposition = action === 'confirm' ? item === 'ITEM-015' ? 'quarantine' : 'rework' : action === 'additional' ? 'hold' : action === 'reject' ? 'release' : 'scrap';
+    const decision = action === 'confirm' || action === 'confirm_hold' ? 'confirmed' : action === 'additional' ? 'additional_check' : action === 'reject' ? 'rejected' : 'scrap_approved';
+    const disposition = action === 'confirm_hold' ? 'hold' : action === 'confirm' ? item === 'ITEM-015' ? 'quarantine' : 'rework' : action === 'additional' ? 'hold' : action === 'reject' ? 'release' : 'scrap';
     make('quality_decision', { decision, disposition, finding_refs: refs, reason });
   } else if (action === 'tech_allow' || action === 'tech_deny') make('technical_disposition', { disposition: action === 'tech_allow' ? 'rework_allowed' : 'rework_not_allowed', basis_event_ids: own.filter(e => e.event_type === 'quality_decision').map(e => e.event_id), reason });
   else if (action === 'hypothesis' || action === 'cause_confirm') make('cause_review', { status: action === 'cause_confirm' ? 'confirmed' : 'hypothesis', finding_refs: refs, reason });
@@ -337,7 +339,7 @@ export function performAction(item: string, role: RoleId, action: WorkflowAction
     make('master_action', { action_type: own.some(e => e.data.disposition === 'rework') ? 'rework_completed' : 'inspection_support', evidence_refs: asset ? [asset] : [], observation_quality: asset ? 'good' : undefined, executor_id: executor, comment: reason, reason });
   } else if (action === 'recheck_fail' || action === 'release') {
     const run = own.filter(e => e.event_type === 'operation_started').at(-1)?.operation_run_id;
-    if (action === 'release' && item === 'ITEM-013') make('manual_measurement', { feature_id: 'WALL-NEAR-RIGHT-HOLE', measured_value: 5.12, unit: 'mm', lower_limit: 5, instrument_id: 'GAGE-01', calibration_status: 'valid_in_demo', result: 'within_assumed_limit', is_camera_measurement: false, reason: 'Ручной замер прибором: 5,12 мм при минимуме 5,0 мм.' }, { operation_run_id: run });
+    if (action === 'release' && item === 'ITEM-013' && measurement) make('manual_measurement', { feature_id: 'WALL-NEAR-RIGHT-HOLE', measured_value: measurement.value, unit: 'mm', lower_limit: 5, instrument_id: measurement.instrumentId.trim(), calibration_status: measurement.calibrationConfirmed ? 'operator_confirmed' : 'unconfirmed', result: 'within_assumed_limit', is_camera_measurement: false, reason: `Ручной замер: ${measurement.value} мм при минимуме 5,0 мм. Прибор ${measurement.instrumentId.trim()}.` }, { operation_run_id: run });
     const asset = own.filter(e => e.event_type === 'master_action').at(-1)?.data.evidence_refs ?? [];
     make('inspection_result', { inspection_point_id: 'CP-POST-MILL', inspection_result: action === 'release' ? 'no_signs_detected' : 'signs_detected', observation_quality: 'good', confidence: null, defects: action === 'release' ? [] : first?.data.defects ?? [], method: 'manual_verification', evidence_refs: asset, triage_priority: action === 'release' ? 'routine' : 'high', capture_context: { source: 'manual_verification' } }, run ? { operation_run_id: run } : {});
     make('quality_decision', { decision: action === 'release' ? 'release_after_rework' : 'confirmed', disposition: action === 'release' ? 'release' : 'rework', finding_refs: refs, reason });

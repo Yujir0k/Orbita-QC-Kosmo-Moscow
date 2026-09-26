@@ -3,7 +3,7 @@ import { Badge, Button, Empty, Icon, Metric, Note, Panel, ProductDrawing } from 
 import { canAccess, moduleById, roles, roleById, sectionsFor, type ModuleId, type RoleId, type Route, type Section } from './navigation';
 import { cases, catalogs, decisionNames, defectNames, deliveryFor, describeEvent, events, eventNames, eventsFor, ingestState, inScope, inspectionPlan, items, mediaFor, mediaUrl, metrics, operations, productStatus, profiles, resultNames, stationNames, tasks, time, type Case, type Scope } from './domain';
 import { EventReplayView, IngestOutcomes, SmartQueue } from './live-views';
-import { ControllerWorkspace } from './controller-ui';
+import { ControllerCockpit } from './controller-cockpit';
 import planet from './assets/planet-orbita.webp';
 
 export type Navigate = (module: ModuleId, section?: string, item?: string) => void;
@@ -88,7 +88,7 @@ function TaskList({ data, openItem }: { data: typeof tasks; openItem: (id: strin
 }
 
 function QualityView({ route, scope, openItem, openCase }: ViewProps) {
-  if (route.role === 'controller') return <ControllerWorkspace scope={scope} openCase={openCase}/>;
+  if (route.role === 'controller') return <ControllerCockpit scope={scope} caseId={route.caseId} openCase={openCase} openPassport={openItem}/>;
   const [filter, setFilter] = useState('all');
   const source = cases.filter(c => c.observations.some(e => inScope(e, scope)));
   const data = source.filter(c => filter === 'all' || (filter === 'confirmed' && c.confirmed) || (filter === 'pending' && !c.decisions.length) || (filter === 'closed' && ['Отклонено', 'Выпуск после доработки'].includes(c.status)));
