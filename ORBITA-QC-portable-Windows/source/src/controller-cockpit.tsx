@@ -64,12 +64,10 @@ function Frame({ url, label, emptyText, contrast, zoom, grid, bbox }: { url?: st
 }
 
 function EvidenceViewer({ record, hashState }: { record: InspectionCase; hashState: HashState }) {
-  const [shown, setShown] = useState<'current' | 'previous'>('current');
   const [zoom, setZoom] = useState(false);
   const [contrast, setContrast] = useState(false);
   const [grid, setGrid] = useState(false);
   const evidence = record.visualEvidence;
-  const current = shown === 'current';
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() === 'z' && !isFormTarget(event.target)) { event.preventDefault(); setZoom(value => !value); }
@@ -79,30 +77,63 @@ function EvidenceViewer({ record, hashState }: { record: InspectionCase; hashSta
   }, []);
   const stage = record.masterReworkReport?.actionType === 'rework_completed' ? 'После доработки' : record.iteration > 1 ? 'Очная проверка' : record.itemId === 'ITEM-013' ? 'Зона фрезерования' : stationNames[record.machineContext.stationId] ?? 'Текущий этап';
   const camera = evidence.cameraMeta;
-  return <section className="qc-viewer" aria-label="Визуальная экспертиза">
-    <div className="qc-tabs" role="tablist" aria-label="Кадры детали">
-      <button role="tab" aria-selected={current} className={current ? 'active' : ''} onClick={() => setShown('current')}>Текущий кадр</button>
-      <button role="tab" aria-selected={!current} className={!current ? 'active' : ''} disabled={!evidence.beforeImageUrl} onClick={() => setShown('previous')}>Предыдущий этап {evidence.beforeImageUrl ? '' : '· нет данных'}</button>
-    </div>
+  return <section className="qc-viewer" aria-label="Визуальная база">
+    <h2 className="qc-tier-title">Визуальная база</h2>
     {hashState === 'invalid' && <p className="qc-image-warning" role="alert">Целостность кадра нарушена. Решение по изображению заблокировано.</p>}
     {evidence.quality !== 'OPTIMAL' && <p className="qc-image-warning" role="alert">{evidence.quality === 'NO_IMAGE' ? 'Кадр не поступил. Доступна очная проверка.' : 'Качество кадра ограничено. Нужна очная проверка.'}</p>}
-    <Frame
-      url={current ? evidence.currentImageUrl : evidence.beforeImageUrl}
-      label={current ? 'СЕЙЧАС · ' + stage : 'ДО · предыдущий этап'}
-      emptyText={current ? 'Кадр текущего этапа отсутствует' : 'Кадр предыдущего этапа отсутствует'}
-      contrast={contrast} zoom={zoom} grid={grid}
-      bbox={current ? evidence.defectBBox : undefined}
-    />
-    <div className="qc-toolbar">
+    <div className="qc-frame-pair">
+      <Frame url={evidence.beforeImageUrl} label={record.iteration > 1 ? 'ДО · До доработки' : 'ДО · Входной контроль / Заготовка'} emptyText={record.iteration > 1 ? 'Кадр до доработки не передан' : 'Снимок входного контроля не передан'} contrast={contrast} zoom={zoom} grid={grid}/>
+      <Frame url={evidence.currentImageUrl} label={'СЕЙЧАС · ' + stage} emptyText="Кадр текущего этапа отсутствует" contrast={contrast} zoom={zoom} grid={grid} bbox={evidence.defectBBox}/>
+    </div>
+    <div className="qc-toolbar-row"><div className="qc-toolbar">
       <button aria-pressed={zoom} onClick={() => setZoom(value => !value)}><Icon name="search" size={17}/>Зум <kbd>Z</kbd></button>
-      <button aria-pressed={contrast} onClick={() => setContrast(value => !value)}><Icon name="control" size={17}/>Контраст</button>
       <button aria-pressed={grid} onClick={() => setGrid(value => !value)}><Icon name="layer" size={17}/>Сетка</button>
+      <button aria-pressed={contrast} onClick={() => setContrast(value => !value)}><Icon name="control" size={17}/>Контраст</button>
     </div>
     <div className="qc-meta">
       <span>Камера <strong>{camera.cameraId ?? '—'}</strong></span>
       <span>Свет <strong>{camera.lightingProfile ?? '—'}</strong></span>
       <span>Калибровка <strong>{camera.calibrationStatus === 'VALID' ? 'активна' : camera.calibrationProfile ?? 'нет данных'}</strong></span>
       <span className={hashState === 'valid' ? 'valid' : ''}><Icon name={hashState === 'valid' ? 'check' : 'help'} size={15}/>{hashState === 'valid' ? 'SHA-256 подтверждён' : hashState === 'checking' ? 'Проверка SHA-256' : hashState === 'invalid' ? 'Хеш не совпал' : 'Хеш не передан'}</span>
+    </div></div>
+  </section>;
+}
+
+/** Show only dimensions, machine readings and conclusions received for this item. */
+function InspectionInstruments({ record, history }: { record: InspectionCase; history: QualityEvent[] }) {
+  const measurement = record.masterReworkReport?.manualMeasurement;
+  const machine = history.filter(event => event.event_type === 'machine_state').at(-1);
+  const operation = history.filter(event => event.event_type === 'operation_started' && event.operation_run_id === machine?.operation_run_id).at(-1);
+  const received = history.find(event => event.event_type === 'item_received');
+  const finding = record.technologistFinding;
+  const peak = typeof machine?.data.spindle_load_peak_pct === 'number' ? machine.data.spindle_load_peak_pct : undefined;
+  const life = typeof machine?.data.tool_life_used_min === 'number' ? machine.data.tool_life_used_min : undefined;
+  const nominal = measurement?.nominalValue;
+  const deviation = measurement && nominal != null ? measurement.measuredValue - nominal : undefined;
+  const outOfTolerance = measurement && (measurement.toleranceMin != null && measurement.measuredValue < measurement.toleranceMin || measurement.toleranceMax != null && measurement.measuredValue > measurement.toleranceMax);
+  const traveler = typeof received?.data.traveler_id === 'string' ? received.data.traveler_id : record.routeSheet;
+  return <section className="qc-instruments" aria-label="Приборы, метрология и телеметрия">
+    <h2 className="qc-tier-title">Приборы, метрология и телеметрия</h2>
+    <div className="qc-instrument-grid">
+      <article className="qc-instrument-card"><h3>Метрология и чертёж (КД)</h3>
+        <p className="qc-card-lead">Контролируемый размер: <strong>{measurement?.parameterName ?? 'замер не поступил'}</strong></p>
+        <dl className="qc-measure-grid"><div><dt>Номинал</dt><dd>{nominal == null ? '—' : `${nominal.toFixed(2)} мм`}</dd></div><div><dt>Допуск по КД</dt><dd>{measurement?.toleranceMin == null && measurement?.toleranceMax == null ? '—' : `${measurement.toleranceMin ?? '—'}…${measurement.toleranceMax ?? '—'} мм`}</dd></div><div><dt>Факт замера</dt><dd>{measurement ? `${measurement.measuredValue.toFixed(2)} мм` : '—'}</dd></div><div><dt>Отклонение</dt><dd>{deviation == null ? '—' : `${deviation > 0 ? '+' : ''}${deviation.toFixed(2)} мм`}</dd></div></dl>
+        <p className={['qc-card-status', outOfTolerance ? 'danger' : ''].join(' ')}>{!measurement ? 'Инструментальный замер ещё не передан' : outOfTolerance ? 'Вне допуска по зарегистрированным пределам' : measurement.toleranceMin == null && measurement.toleranceMax == null ? 'Пределы допуска не переданы' : 'В пределах зарегистрированного допуска'}</p>
+        {measurement?.toolName && <small>Прибор: {measurement.toolName}</small>}
+      </article>
+      <article className="qc-instrument-card"><h3>Телеметрия станка и логи ЧПУ</h3>
+        <p className="qc-card-lead"><strong>{machine?.equipment_id ?? record.machineContext.machineId ?? 'Станок не указан'}</strong> · {machine?.operation_run_id ?? 'Запуск не указан'} · {operation?.actor_id ?? record.machineContext.operatorId ?? 'Оператор не указан'}</p>
+        <div className="qc-telemetry-value"><span>Износ инструмента</span><strong>{record.machineContext.toolWearPercent == null ? 'Нет показания' : `${record.machineContext.toolWearPercent}%`}</strong></div>
+        {record.machineContext.toolWearPercent != null && <progress max="100" value={record.machineContext.toolWearPercent}/>}
+        {life != null && <p className="qc-card-detail">Наработка инструмента: {life} мин</p>}
+        <p className="qc-machine-log">{machine ? <><time>{time(machine.occurred_at).split(', ').at(-1)}</time> · Состояние: {machine.data.state === 'running' ? 'работает' : machine.data.state ?? 'не указано'}{peak == null ? '' : ` · Пиковая нагрузка шпинделя ${peak}%`}{machine.data.alarm_code ? ` · Сигнал ${machine.data.alarm_code}` : ''}</> : 'События телеметрии для этого изделия не поступили'}</p>
+      </article>
+      <article className="qc-instrument-card"><h3>Заключение технолога и маршрут</h3>
+        <p className={['qc-card-status', finding?.investigationStatus === 'COMPLETED' ? 'resolved' : ''].join(' ')}>{finding?.investigationStatus === 'COMPLETED' ? 'Заключение записано' : finding ? 'Расследование ведётся' : 'Расследование не открыто'}</p>
+        <p className="qc-card-lead">{finding?.description ?? 'Предписание технолога ещё не поступило'}</p>
+        {finding?.reworkPermitted != null && <p className="qc-card-detail">Доработка {finding.reworkPermitted ? 'разрешена' : 'запрещена'}</p>}
+        <p className="qc-route">Партия <strong>{record.supplierLotId ?? 'не указана'}</strong> · Маршрутный лист <strong>{traveler ?? 'не передан'}</strong></p>
+      </article>
     </div>
   </section>;
 }
@@ -141,9 +172,9 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
     { key: 'additional', label: 'Назначить доппроверку', shortcut: 'F3', tone: 'blue' },
   ] : [
     { key: 'confirm_hold', label: 'Подтвердить брак', shortcut: 'F1', tone: 'red', disabled: !visualAllowed },
-    { key: 'confirm', label: 'На доработку', shortcut: 'F2', tone: 'amber', disabled: !visualAllowed },
-    { key: 'reject', label: 'Ложный сигнал', shortcut: 'F3', tone: 'neutral', disabled: !visualAllowed || record.itemId === 'ITEM-016' },
-    { key: 'additional', label: 'Назначить ручной замер', shortcut: 'F4', tone: 'blue' },
+    { key: 'confirm', label: 'Направить на доработку мастеру', shortcut: 'F2', tone: 'amber', disabled: !visualAllowed },
+    { key: 'reject', label: 'Отклонить (ложный сигнал AI)', shortcut: 'F3', tone: 'neutral', disabled: !visualAllowed || record.itemId === 'ITEM-016' },
+    { key: 'additional', label: 'Назначить инструментальный замер', shortcut: 'F4', tone: 'blue' },
   ];
   const settled = !scrapReady && (['FALSE_POSITIVE', 'ACCEPTED_AFTER_REWORK'].includes(record.status) || (!hasMaster && source.decisions.length > 0 && record.status !== 'NEW_SIGNAL'));
   const basisGroup = choice === 'reject' ? 'reject' : choice === 'additional' ? 'additional' : choice === 'release' ? 'release' : 'defect';
@@ -173,6 +204,7 @@ function DecisionPanel({ record, source, hashState }: { record: InspectionCase; 
       <div className="qc-decision-fields">
         <label><span className="sr-only">Основание решения (по классификатору)</span><select aria-label="Основание решения (по классификатору)" required disabled={!choice} value={basis} onChange={event => setBasis(event.target.value)}><option value="">{choice ? 'Выберите основание решения' : 'Сначала выберите действие F1–F4'}</option>{decisionBases[basisGroup].map(value => <option key={value} value={value}>{value}</option>)}</select></label>
         <label><span className="sr-only">Комментарий</span><input aria-label="Комментарий" required minLength={5} value={comment} onChange={event => setComment(event.target.value)} placeholder="Комментарий к решению…"/></label>
+        {record.technologistFinding?.description && <button className="qc-recommendation" type="button" onClick={() => setComment(record.technologistFinding?.description ?? '')}>Вставить заключение технолога</button>}
       </div>
       <div className="qc-actions">{options.map(option => <button key={option.key} type="button" className={[option.tone, choice === option.key && 'selected'].filter(Boolean).join(' ')} disabled={option.disabled} title={option.title} onClick={() => selectChoice(option.key)}><kbd>{option.shortcut}</kbd><span>{option.label}</span></button>)}</div>
       {choice && <form className="qc-decision-form" onSubmit={submit}>
@@ -199,6 +231,8 @@ function DossierDrawer({ record, source, observation, machine, missingFields, on
   const meta = record.visualEvidence.cameraMeta;
   const report = record.masterReworkReport;
   const finding = record.technologistFinding;
+  const received = eventsFor(record.itemId).find(event => event.event_type === 'item_received');
+  const traveler = typeof received?.data.traveler_id === 'string' ? received.data.traveler_id : record.routeSheet;
   return <div className="qc-drawer-layer">
     <button className="qc-drawer-backdrop" aria-label="Закрыть досье" onClick={onClose}/>
     <aside className="qc-drawer" role="dialog" aria-modal="true" aria-label="Досье и телеметрия">
@@ -207,7 +241,8 @@ function DossierDrawer({ record, source, observation, machine, missingFields, on
         <section><h3>Идентификация</h3><dl>
           <div><dt>Изделие</dt><dd className="mono">{record.itemId}</dd></div>
           <div><dt>Заказ</dt><dd className="mono">{record.workOrder}</dd></div>
-          <div><dt>Партия</dt><dd>{record.batchId ?? 'Нет данных'}</dd></div>
+          <div><dt>Партия</dt><dd>{record.supplierLotId ?? record.batchId ?? 'Нет данных'}</dd></div>
+          <div><dt>Маршрутный лист</dt><dd>{traveler ?? 'Нет данных'}</dd></div>
           <div><dt>Оператор</dt><dd>{record.machineContext.operatorId ?? 'Нет данных'}</dd></div>
           <div><dt>Станок</dt><dd>{record.machineContext.machineId ?? 'Нет данных'}</dd></div>
           <div><dt>Операция</dt><dd>{stationNames[record.machineContext.stationId] ?? record.machineContext.stationId}</dd></div>
@@ -325,8 +360,8 @@ export function ControllerCockpit({ scope, caseId, openCase, openPassport }: { s
         </button>) : <p className="qc-empty-queue">В этом фильтре нет открытых заявок.</p>}</div>
       </aside>
       {view && sourceCase && data ? <main className="qc-workbench">
-        <EvidenceViewer key={view.id} record={view} hashState={hashState}/>
-        <DecisionPanel key={view.id + '-' + view.iteration} record={view} source={sourceCase} hashState={hashState}/>
+        <div className="qc-upper"><EvidenceViewer key={view.id} record={view} hashState={hashState}/></div>
+        <div className="qc-lower"><InspectionInstruments record={view} history={own}/><DecisionPanel key={view.id + '-' + view.iteration} record={view} source={sourceCase} hashState={hashState}/></div>
       </main> : <div className="qc-no-selection">Выберите заявку в очереди</div>}
     </div>
     {drawerOpen && view && sourceCase && observation && <DossierDrawer record={view} source={sourceCase} observation={observation} machine={machine} missingFields={data?.missing ?? []} onClose={closeDrawer} openPassport={openPassport} closeRef={drawerClose}/>}
