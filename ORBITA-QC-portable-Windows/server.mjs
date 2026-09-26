@@ -7,6 +7,7 @@ import { createIntegration } from './integration.mjs'
 import { createPlantIntegrations } from './plant-integrations.mjs'
 import { createSecurity } from './security.mjs'
 import { createMobileOps } from './mobileops.mjs'
+import { createContractRegistry } from './contract-validator.mjs'
 
 const host = '127.0.0.1'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'site')
@@ -34,10 +35,11 @@ const mimeTypes = {
 }
 
 let port = requestedPort
-const security = await createSecurity({ directory })
-const integration = await createIntegration({ directory, getBaseUrl: () => `http://${host}:${port}`, storage: security.store, internalToken: security.internalToken })
-const plant = await createPlantIntegrations({ directory, importAssembly: integration.importAssembly, storage: security.store, authorizeDecision: security.validateMesDecision })
-const mobile = await createMobileOps({ directory, storage: security.store, audit: security.audit })
+const contracts = await createContractRegistry(directory)
+const security = await createSecurity({ directory, contracts })
+const integration = await createIntegration({ directory, getBaseUrl: () => `http://${host}:${port}`, storage: security.store, internalToken: security.internalToken, contracts })
+const plant = await createPlantIntegrations({ directory, importAssembly: integration.importAssembly, storage: security.store, authorizeDecision: security.validateMesDecision, contracts })
+const mobile = await createMobileOps({ directory, storage: security.store, audit: security.audit, contracts })
 const server = http.createServer(async (request, response) => {
   response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
   response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')

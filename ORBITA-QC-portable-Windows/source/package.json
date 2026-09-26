@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "contracts:check": "node scripts/check-contracts.mjs",
     "build:portable": "pnpm build && node scripts/portable.mjs",
     "data:sync": "node scripts/sync-dataset.mjs"
   },

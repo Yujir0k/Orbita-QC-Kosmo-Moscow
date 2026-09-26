@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orbita.local/contracts/mobileops.schema.json",
+  "title": "ОРБИТА.QC MobileOps mission and observation",
+  "oneOf": [
+    { "$ref": "#/$defs/createMissionRequest" },
+    { "$ref": "#/$defs/observationRequest" },
+    { "$ref": "#/$defs/linkRequest" },
+    { "$ref": "#/$defs/mission" },
+    { "$ref": "#/$defs/mobileObservation" }
+  ],
+  "$defs": {
+    "identifier": { "$ref": "production-event.schema.json#/$defs/identifier" },
+    "checkpoint": { "enum": ["CP-IN", "CP-POST-MILL", "CP-FINAL"] },
+    "createMissionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["itemId", "robotId", "checkpoint"],
+      "properties": {
+        "itemId": { "$ref": "#/$defs/identifier" },
+        "robotId": { "$ref": "#/$defs/identifier" },
+        "checkpoint": { "$ref": "#/$defs/checkpoint" }
+      }
+    },
+    "observationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result"],
+      "properties": { "result": { "enum": ["unable_to_assess", "no_signs_detected"] } }
+    },
+    "linkRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["online"],
+      "properties": { "online": { "type": "boolean" } }
+    },
+    "mission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "itemId", "itemTypeId", "lineId", "robotId", "checkpoint", "status", "createdAt", "createdBy", "observationId", "observationResult", "capturedAt", "deliveredAt"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "itemId": { "$ref": "#/$defs/identifier" },
+        "itemTypeId": { "$ref": "#/$defs/identifier" },
+        "lineId": { "$ref": "#/$defs/identifier" },
+        "robotId": { "$ref": "#/$defs/identifier" },
+        "checkpoint": { "$ref": "#/$defs/checkpoint" },
+        "status": { "enum": ["issued", "buffered", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time", "maxLength": 64 },
+        "createdBy": { "$ref": "#/$defs/identifier" },
+        "observationId": { "type": ["string", "null"], "maxLength": 128 },
+        "observationResult": { "type": ["string", "null"], "maxLength": 64 },
+        "capturedAt": { "type": ["string", "null"], "format": "date-time", "maxLength": 64 },
+        "deliveredAt": { "type": ["string", "null"], "format": "date-time", "maxLength": 64 }
+      }
+    },
+    "mobileObservation": {
+      "allOf": [
+        { "$ref": "production-event.schema.json" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "inspection_result" },
+            "schema_version": { "const": "2.0" },
+            "source_id": { "const": "MOBILE-EMU" },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["inspection_point_id", "inspection_result", "observation_quality", "confidence", "defects", "method", "evidence_refs", "triage_priority", "capture_context"],
+              "properties": {
+                "inspection_point_id": { "$ref": "#/$defs/checkpoint" },
+                "inspection_result": { "enum": ["unable_to_assess", "no_signs_detected"] },
+                "observation_quality": { "enum": ["poor", "good"] },
+                "confidence": { "type": "null" },
+                "defects": { "type": "array", "maxItems": 0 },
+                "method": { "const": "mobile_visual_check" },
+                "evidence_refs": { "type": "array", "maxItems": 0 },
+                "triage_priority": { "enum": ["high", "routine"] },
+                "capture_context": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["source", "robot_id", "mission_id", "synthetic"],
+                  "properties": {
+                    "source": { "const": "mobile_robot_simulator" },
+                    "robot_id": { "$ref": "#/$defs/identifier" },
+                    "mission_id": { "$ref": "#/$defs/identifier" },
+                    "synthetic": { "const": true }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

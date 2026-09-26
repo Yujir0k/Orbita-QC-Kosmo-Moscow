@@ -4,8 +4,9 @@ import { eventsFor, items, time } from './domain';
 import { secureFetch, synchronizeMobileHistory } from './security-client';
 
 type Robot = { id: string; lineId: string; online: boolean; sensors: string[]; simulator: boolean };
-type Mission = { id: string; itemId: string; lineId: string; robotId: string; checkpoint: string; status: 'issued' | 'buffered' | 'delivered'; createdAt: string; createdBy: string; observationId: string | null };
-type MobileState = { robots: Robot[]; missions: Mission[]; buffered: number; delivered: number };
+type Mission = { id: string; itemId: string; lineId: string; robotId: string; checkpoint: string; status: 'issued' | 'buffered' | 'delivered'; createdAt: string; createdBy: string; observationId: string | null; capturedAt: string | null; deliveredAt: string | null };
+type DeliverySummary = { eventId: string; missionId: string; itemId: string; robotId: string; occurredAt: string; deliveredAt: string | null };
+type MobileState = { robots: Robot[]; missions: Mission[]; buffered: number; delivered: number; bufferedEvents: DeliverySummary[]; recentDeliveries: DeliverySummary[] };
 const checkpoints = [['CP-IN', 'Входной контроль'], ['CP-POST-MILL', 'После обработки'], ['CP-FINAL', 'После сборки']];
 const statusLabel = { issued: 'Задание выдано', buffered: 'В локальном буфере', delivered: 'Наблюдение доставлено' };
 
@@ -55,7 +56,7 @@ export function MobileOpsView({ section, openItem }: { section: string; openItem
         {missions.length ? <div className="table-wrap"><table><thead><tr><th>Задание</th><th>Комплекс / точка</th><th>Состояние</th><th>Действие</th></tr></thead><tbody>{missions.map(mission => <tr key={mission.id}>
           <td><button className="cell-link mono" onClick={() => openItem(mission.itemId)}>{mission.itemId}</button><small>{time(mission.createdAt)} · {mission.createdBy}</small></td>
           <td>{mission.robotId}<small>{mission.checkpoint}</small></td>
-          <td><Badge tone={mission.status === 'delivered' ? 'green' : mission.status === 'buffered' ? 'amber' : 'blue'}>{statusLabel[mission.status]}</Badge>{mission.observationId && <small className="mono">{mission.observationId}</small>}</td>
+          <td><Badge tone={mission.status === 'delivered' ? 'green' : mission.status === 'buffered' ? 'amber' : 'blue'}>{statusLabel[mission.status]}</Badge>{mission.observationId && <small className="mono">{mission.observationId}</small>}{mission.deliveredAt && <small>Принято {time(mission.deliveredAt)}</small>}</td>
           <td>{mission.status === 'issued' ? <Button onClick={() => simulate(mission.id)} disabled={busy}>Сымитировать осмотр</Button> : <span className="text-sub">{mission.status === 'buffered' ? 'Ожидает связь' : 'В истории изделия'}</span>}</td>
         </tr>)}</tbody></table></div> : <Empty title="Заданий пока нет" text="Выдайте первое задание и проверьте путь наблюдения до контролёра."/>}
       </Panel>
@@ -66,6 +67,8 @@ export function MobileOpsView({ section, openItem }: { section: string; openItem
     </Panel>}
     {section === 'connectivity' && <Panel title="Буфер и синхронизация" eyebrow="ПРОВЕРКА ПОТЕРИ СВЯЗИ">
       <div className="mobileops-summary"><div><strong>{state?.buffered ?? 0}</strong><span>ждут связи</span></div><div><strong>{state?.delivered ?? 0}</strong><span>доставлены в историю</span></div></div>
+      {!!state?.bufferedEvents.length && <div className="mobileops-sync-list"><h3>Ожидают доставки</h3>{state.bufferedEvents.map(entry => <div key={entry.eventId}><span><strong>{entry.itemId}</strong><small>{entry.robotId} · {time(entry.occurredAt)}</small></span><Badge tone="amber">В буфере</Badge></div>)}</div>}
+      {!!state?.recentDeliveries.length && <div className="mobileops-sync-list"><h3>Последние квитанции</h3>{state.recentDeliveries.map(entry => <div key={entry.eventId}><span><button className="cell-link mono" onClick={() => openItem(entry.itemId)}>{entry.itemId}</button><small>{entry.robotId} · {entry.eventId}</small></span><span className="mobileops-receipt"><Badge tone="green">Принято</Badge><small>{entry.deliveredAt ? time(entry.deliveredAt) : '—'}</small></span></div>)}</div>}
       <ol className="text-steps"><li>Выдайте задание, пока комплекс на связи.</li><li>В разделе «Комплексы» отключите связь и сымитируйте осмотр.</li><li>Наблюдение останется в зашифрованном серверном буфере.</li><li>Восстановите связь: сервер подтвердит доставку и добавит исходное событие в историю изделия.</li></ol>
       <Note>В будущем вместо локального эмулятора можно подключить шлюз робота с теми же идентификаторами задания и события. Транспорт и удостоверение устройства потребуется настроить отдельно.</Note>
     </Panel>}

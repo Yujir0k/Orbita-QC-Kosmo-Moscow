@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orbita.local/contracts/production-event.schema.json",
+  "title": "ОРБИТА.QC production event",
+  "description": "Canonical event accepted by the product-history core. Event-specific data remains extensible, while the envelope is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "event_type", "schema_version", "occurred_at", "source_id", "item_id", "item_type_id", "line_id", "station_id", "shift_id", "data"],
+  "properties": {
+    "event_id": { "$ref": "#/$defs/identifier" },
+    "event_type": {
+      "enum": ["item_received", "inspection_result", "operation_started", "operation_finished", "operation_paused", "quality_decision", "cause_review", "technical_disposition", "master_action", "manual_measurement", "machine_state", "operator_action"]
+    },
+    "schema_version": { "enum": ["1.0", "2.0"] },
+    "occurred_at": { "type": "string", "format": "date-time", "maxLength": 64 },
+    "source_id": { "$ref": "#/$defs/identifier" },
+    "item_id": { "$ref": "#/$defs/identifier" },
+    "item_type_id": { "$ref": "#/$defs/identifier" },
+    "line_id": { "$ref": "#/$defs/identifier" },
+    "station_id": { "$ref": "#/$defs/identifier" },
+    "shift_id": { "$ref": "#/$defs/identifier" },
+    "operation_run_id": { "$ref": "#/$defs/identifier" },
+    "actor_id": { "$ref": "#/$defs/identifier" },
+    "equipment_id": { "$ref": "#/$defs/identifier" },
+    "analyzer_version": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "data": { "type": "object", "maxProperties": 64 }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    }
+  }
+}

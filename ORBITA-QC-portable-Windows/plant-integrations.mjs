@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { readJsonObject } from './contract-validator.mjs'
 
 const text = value => typeof value === 'string' && value.trim().length > 0
 const fail = (status, message, retryable = false) => Object.assign(new Error(message), { status, retryable })
@@ -8,15 +9,6 @@ const json = (response, status, body) => {
   response.end(JSON.stringify(body))
 }
 const canonical = value => JSON.stringify(value, (_key, part) => part && typeof part === 'object' && !Array.isArray(part) ? Object.fromEntries(Object.entries(part).sort(([a], [b]) => a.localeCompare(b))) : part)
-
-async function bodyOf(request) {
-  let raw = ''
-  for await (const part of request) {
-    raw += part
-    if (raw.length > 1_000_000) throw fail(413, 'Сообщение превышает 1 МБ')
-  }
-  try { return JSON.parse(raw || '{}') } catch { throw fail(400, 'Некорректный JSON') }
-}
 
 function gateway(baseUrl, token, fetchImpl) {
   if (!baseUrl) return null
@@ -52,7 +44,8 @@ function mappings(value, sections) {
 
 const mesTypes = new Set(['operation_started', 'operation_finished', 'operation_paused', 'operator_action', 'machine_state'])
 
-export async function createPlantIntegrations({ directory, importAssembly, stateFile, storage, authorizeDecision, mesOptions = {}, cadOptions = {}, fetchImpl = fetch }) {
+export async function createPlantIntegrations({ directory, importAssembly, stateFile, storage, authorizeDecision, contracts, mesOptions = {}, cadOptions = {}, fetchImpl = fetch }) {
+  const bodyOf = request => readJsonObject(request, { maxBytes: 1_000_000 })
   async function loadMapping(options, envName) {
     if (options.mapping) return options.mapping
     const file = options.mappingFile ?? process.env[envName]
@@ -120,8 +113,10 @@ export async function createPlantIntegrations({ directory, importAssembly, state
     syncing = (async () => {
       try {
         const batch = await mesRequest(`/events?after=${encodeURIComponent(state.mes.cursor)}`)
+        contracts?.assert('integration', batch, '#/$defs/mesBatch', 'Пакет MES не соответствует контракту')
         if (!batch || !text(batch.cursor) || !Array.isArray(batch.events)) throw fail(502, 'MES вернула пакет вне контракта', true)
         const normalized = batch.events.map(normalizeMes)
+        for (const row of normalized) contracts?.assert('delivery', row, '', 'Событие MES не прошло нормализацию')
         const staged = []
         for (let i = 0; i < normalized.length; i++) {
           const row = normalized[i]
@@ -153,6 +148,7 @@ export async function createPlantIntegrations({ directory, importAssembly, state
       const receipt = await mesRequest('/quality-status', { method: 'POST', body: JSON.stringify({ eventId: e.event_id,
         itemKey: mesMap.items.forward[e.item_id], decision: e.data.decision, disposition: e.data.disposition,
         occurredAt: e.occurred_at, actorId: e.actor_id, findingRefs: e.data.finding_refs ?? [] }) })
+      contracts?.assert('integration', receipt, '#/$defs/mesReceipt', 'Квитанция MES не соответствует контракту')
       if (!receipt || receipt.eventId !== e.event_id || !text(receipt.receiptId) || !['accepted', 'retry', 'rejected'].includes(receipt.status)) throw fail(502, 'MES вернула неверную квитанцию', true)
       entry.receipts.push(receipt)
       entry.status = receipt.status === 'accepted' ? 'accepted' : receipt.status === 'retry' ? 'retry_wait' : 'failed'
@@ -172,6 +168,7 @@ export async function createPlantIntegrations({ directory, importAssembly, state
 
   async function queueDecision(event) {
     if (!mesConfigured) throw fail(503, 'Шлюз MES и сопоставления не настроены')
+    contracts?.assert('decision', event, '', 'Решение для MES не соответствует контракту')
     if (!event || !text(event.event_id) || event.source_id !== 'ORBITA-UI' || event.event_type !== 'quality_decision'
       || !text(event.item_id) || !text(event.actor_id) || !text(event.occurred_at) || !text(event.data?.decision)
       || !text(mesMap.items.forward[event.item_id])) throw fail(422, 'Некорректное решение для MES')

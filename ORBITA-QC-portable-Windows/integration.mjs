@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createErpAdapter } from './erp-adapters.mjs'
+import { readJsonObject } from './contract-validator.mjs'
 
 const text = value => typeof value === 'string' && value.trim().length > 0
 const fail = (status, message) => Object.assign(new Error(message), { status })
@@ -11,16 +12,8 @@ const json = (response, status, body) => {
   response.end(JSON.stringify(body))
 }
 
-async function bodyOf(request) {
-  let raw = ''
-  for await (const part of request) {
-    raw += part
-    if (raw.length > 1_000_000) throw fail(413, 'Сообщение превышает 1 МБ')
-  }
-  try { return JSON.parse(raw || '{}') } catch { throw fail(400, 'Некорректный JSON') }
-}
-
-export async function createIntegration({ directory, getBaseUrl, stateFile, storage, internalToken, profile = process.env.ORBITA_ERP_PROFILE || 'emulator', adapterOptions }) {
+export async function createIntegration({ directory, getBaseUrl, stateFile, storage, internalToken, contracts, profile = process.env.ORBITA_ERP_PROFILE || 'emulator', adapterOptions }) {
+  const bodyOf = request => readJsonObject(request, { maxBytes: 1_000_000 })
   if (!['emulator', '1c', 'galaktika'].includes(profile)) throw new Error(`Неизвестный профиль ERP: ${profile}`)
   let external = null
   let externalMapping = null
@@ -99,6 +92,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
     entry.status = 'sending'
     entry.attempts += 1
     entry.updated_at = new Date().toISOString()
+    contracts?.assert('integration', entry.message, '#/$defs/qualityResult', 'Исходящее сообщение ERP не прошло проверку')
     await persist()
     try {
       const order = state.orders.find(row => row.message.payload.work_order_id === entry.message.payload.work_order_id)
@@ -112,6 +106,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
         responseOk = response.ok
         receipt = await response.json()
       }
+      contracts?.assert('integration', receipt, '#/$defs/qualityResultAck', 'Квитанция ERP не соответствует контракту')
       if (receipt.correlation_key !== entry.message.correlation_key || receipt.attempt !== entry.attempts || receipt.message_type !== 'quality_result_ack') throw new Error('Неверная квитанция ERP')
       entry.receipts.push(receipt)
       if (responseOk && receipt.status === 'accepted') {
@@ -156,6 +151,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
       }
       if (profile === 'emulator' && pathname === '/api/emulator/results' && request.method === 'POST') {
         const message = await bodyOf(request)
+        contracts?.assert('integration', message, '#/$defs/qualityResult', 'Результат ERP не соответствует контракту')
         if (message.message_type !== 'quality_result' || message.schema_version !== '1.0' || !text(message.correlation_key) || !resultStatuses.has(message.payload?.quality_status) || !text(message.payload?.item_id) || !text(message.payload?.work_order_id) || !Array.isArray(message.payload?.basis_event_ids) || !message.payload.basis_event_ids.length) throw fail(422, 'Некорректный результат контроля')
         const key = message.correlation_key
         state.emulator.attempts[key] = (state.emulator.attempts[key] || 0) + 1
@@ -173,6 +169,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
       }
       if (pathname === '/api/integrations/pull' && request.method === 'POST') {
         const input = await bodyOf(request)
+        contracts?.assert('integration', input, '#/$defs/pullRequest', 'Запрос ERP не соответствует контракту')
         if (!text(input.work_order_id)) throw fail(422, 'Укажите ID заказа')
         let row
         if (external) row = await external.fetchOrder(input.work_order_id)
@@ -182,6 +179,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
           if (!upstream.ok) throw fail(502, 'Не удалось получить задание от ERP')
           row = await upstream.json()
         }
+        contracts?.assert('integration', row.message, '#/$defs/workOrder', 'Задание ERP не соответствует контракту')
         const p = row.message?.payload
         if (row.message?.message_type !== 'work_order' || row.message?.schema_version !== '1.0' || row.message?.source_system !== (external?.source ?? 'ERP-EMU') || !text(p?.work_order_id) || !Array.isArray(p.item_ids) || p.quantity !== p.item_ids.length || p.item_ids.some(id => !items.has(id) || items.get(id).work_order_id !== p.work_order_id || items.get(id).item_type_id !== p.item_type_id || items.get(id).assembly_revision !== p.assembly_revision)) throw fail(422, 'Получено задание с некорректными идентификаторами')
         const existing = state.orders.find(order => order.message.payload.work_order_id === p.work_order_id)
@@ -191,6 +189,7 @@ export async function createIntegration({ directory, getBaseUrl, stateFile, stor
       }
       if (pathname === '/api/integrations/results' && request.method === 'POST') {
         const input = await bodyOf(request)
+        contracts?.assert('integration', input, '#/$defs/qualityResultRequest', 'Исходящий результат не соответствует контракту')
         if (!text(input.item_id) || !resultStatuses.has(input.quality_status) || !Array.isArray(input.basis_event_ids) || !input.basis_event_ids.length || input.basis_event_ids.some(id => !text(id))) throw fail(422, 'Укажите изделие, статус и события-основания')
         const order = state.orders.find(row => row.message.payload.item_ids.includes(input.item_id))
         if (!order) throw fail(409, 'Сначала получите задание на это изделие из ERP')

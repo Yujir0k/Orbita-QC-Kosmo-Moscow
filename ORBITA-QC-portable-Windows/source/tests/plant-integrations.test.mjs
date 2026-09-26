@@ -7,8 +7,10 @@ import { mkdtemp, readFile, rm, rmdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { createIntegration } from '../../integration.mjs'
 import { createPlantIntegrations } from '../../plant-integrations.mjs'
+import { createContractRegistry } from '../../contract-validator.mjs'
 
 const directory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
+const contracts = await createContractRegistry(directory)
 const mesMapping = {
   items: { 'ITEM-007': 'MES-UNIT-007' }, itemTypes: { 'TYPE-BRACKET-01': 'MES-TYPE-01' },
   lines: { 'LINE-01': 'MES-LINE-01' }, stations: { 'ST-MILL': 'MES-ST-MILL' },
@@ -59,8 +61,9 @@ test('MES facts sync once, quality decisions travel without re-entry, and CAD st
     reply(404, { error: 'not found' })
   })
   let baseUrl = ''
-  const integration = await createIntegration({ directory, stateFile: erpFile, getBaseUrl: () => baseUrl })
+  const integration = await createIntegration({ directory, stateFile: erpFile, getBaseUrl: () => baseUrl, contracts })
   const plant = await createPlantIntegrations({ directory, stateFile: plantFile, importAssembly: integration.importAssembly,
+    contracts,
     mesOptions: { baseUrl: gateway.url, mapping: mesMapping, token: 'mes-test-token' },
     cadOptions: { baseUrl: gateway.url, mapping: cadMapping, token: 'cad-test-token' } })
   const app = await listen((request, response) => {
@@ -88,8 +91,10 @@ test('MES facts sync once, quality decisions travel without re-entry, and CAD st
   assert.equal((await (await fetch(`${baseUrl}/api/plant/state`)).json()).mes.cursor, 'CURSOR-1')
   wrongMesId = false
 
-  const decision = { event_id: 'UI-QC-1', event_type: 'quality_decision', source_id: 'ORBITA-UI', item_id: 'ITEM-007',
-    actor_id: 'CTRL-1', occurred_at: '2026-02-17T16:10:00+03:00', data: { decision: 'confirmed', disposition: 'quarantine', finding_refs: ['F-1'] } }
+  const decision = { event_id: 'UI-QC-1', event_type: 'quality_decision', schema_version: '2.0', source_id: 'ORBITA-UI', item_id: 'ITEM-007',
+    item_type_id: 'TYPE-BRACKET-01', line_id: 'LINE-01', station_id: 'ST-MILL', shift_id: 'SHIFT-B',
+    actor_id: 'CTRL-1', occurred_at: '2026-02-17T16:10:00+03:00', data: { security_action_id: 'ACTION-1', decision: 'confirmed',
+      disposition: 'quarantine', finding_refs: ['F-1'], reason: 'Дефект подтверждён контролёром' } }
   const queued = await post(baseUrl, '/api/plant/mes/decisions', decision)
   assert.equal(queued.body.status, 'retry_wait')
   await post(baseUrl, '/api/plant/mes/decisions', decision)

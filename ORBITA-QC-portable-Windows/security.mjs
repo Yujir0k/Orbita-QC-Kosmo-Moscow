@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createAuditLog, createCrypto, createEncryptedStore, loadRootKey } from './security-crypto.mjs'
+import { readJsonObject } from './contract-validator.mjs'
 
 const roleForAction = {
   confirm: 'controller', additional: 'controller', reject: 'controller', recheck_fail: 'controller', release: 'controller', scrap: 'controller',
@@ -57,17 +58,6 @@ const send = (response, status, body, headers = {}) => {
   response.end(JSON.stringify(body))
 }
 const fail = (status, message) => Object.assign(new Error(message), { status })
-async function bodyOf(request) {
-  if (!String(request.headers['content-type'] ?? '').startsWith('application/json')) throw fail(415, 'Требуется application/json')
-  const chunks = []
-  let size = 0
-  for await (const part of request) { size += part.length; if (size > 1_000_000) throw fail(413, 'Запрос превышает 1 МБ'); chunks.push(part) }
-  try {
-    const value = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
-    if (!object(value)) throw fail(400, 'Ожидается объект JSON')
-    return value
-  } catch (error) { throw error.status ? error : fail(400, 'Некорректный JSON') }
-}
 function permission(pathname, method) {
   if (method === 'GET' && pathname === '/api/integrations/state') return ['administrator']
   if (method === 'POST' && /^\/api\/integrations\/(pull|results|cad|retry\/[^/]+)$/.test(pathname)) return ['administrator']
@@ -85,7 +75,8 @@ function permission(pathname, method) {
   return []
 }
 
-export async function createSecurity({ directory, rootKey, auditFile, users, items, itemLineMap, now = () => Date.now() }) {
+export async function createSecurity({ directory, rootKey, auditFile, users, items, itemLineMap, contracts, now = () => Date.now() }) {
+  const bodyOf = request => readJsonObject(request, { maxBytes: 1_000_000 })
   const crypto = createCrypto(await loadRootKey(directory, rootKey))
   const store = createEncryptedStore(crypto)
   const audit = await createAuditLog(auditFile ?? path.join(directory, 'data', 'security', 'audit.jsonl'), crypto)
@@ -151,6 +142,7 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         if (!sameOrigin(request)) throw fail(403, 'Недоверенный источник запроса')
         await audit.verify()
         const body = await bodyOf(request)
+        if (!onlyKeys(body, ['id', 'password'])) throw fail(422, 'Запрос входа содержит неожиданные поля')
         const id = typeof body.id === 'string' ? body.id : ''
         const password = typeof body.password === 'string' ? body.password : ''
         const attempts = loginFailures.get(id) ?? { count: 0, until: 0 }
@@ -182,6 +174,7 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         if (!session) return true
         await audit.verify()
         const body = await bodyOf(request)
+        if (!onlyKeys(body, ['itemId', 'action', 'reason', 'caseId'])) throw fail(422, 'Действие содержит неожиданные поля')
         const item = allItems.find(row => row.id === body.itemId)
         if (!item || !Object.hasOwn(roleForAction, body.action) || typeof body.reason !== 'string' || body.reason.trim().length < 5 || body.reason.length > 4000) throw fail(422, 'Некорректное действие или основание')
         if (roleForAction[body.action] !== session.user.role || !session.user.lineIds.includes(itemLines.get(item.id))) {
@@ -199,12 +192,14 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
         if (!session) return true
         await audit.verify()
         const body = await bodyOf(request)
+        if (!onlyKeys(body, ['actionId', 'deliveries'])) throw fail(422, 'Подтверждение действия содержит неожиданные поля')
         const approved = actions.get(body.actionId)
         const sequence = approved && sequenceForAction(approved.action, approved.itemId)
         if (!approved || approved.actor !== session.user.id || completed.has(body.actionId) || !Array.isArray(body.deliveries) || body.deliveries.length !== sequence.length) throw fail(409, 'Нет ожидающего подтверждения действия')
         const ids = new Set()
         const deliveryIds = new Set()
         for (const [index, row] of body.deliveries.entries()) {
+          contracts?.assert('delivery', row, '', 'Запись действия не соответствует контракту')
           const e = row?.message
           const item = allItems.find(value => value.id === approved.itemId)
           if (typeof row?.delivery_id !== 'string' || !row.delivery_id.startsWith('UI-DLV-') || deliveryIds.has(row.delivery_id) || Number.isNaN(Date.parse(row.deliver_at)) || !object(e)
@@ -213,6 +208,7 @@ export async function createSecurity({ directory, rootKey, auditFile, users, ite
             || Number.isNaN(Date.parse(e.occurred_at)) || e.schema_version !== '2.0' || e.actor_id !== approved.actor || e.source_id !== 'ORBITA-UI'
             || !onlyKeys(e, ['event_id', 'event_type', 'schema_version', 'occurred_at', 'source_id', 'item_id', 'item_type_id', 'line_id', 'station_id', 'shift_id', 'actor_id', 'operation_run_id', 'data'])
             || !validActionData(e, approved)) throw fail(422, 'Событие не соответствует разрешённому действию')
+          if (e.event_type === 'quality_decision') contracts?.assert('decision', e, '', 'Решение контролёра не соответствует контракту')
           ids.add(e.event_id)
           deliveryIds.add(row.delivery_id)
         }

@@ -6,13 +6,15 @@ import path from 'node:path'
 import { mkdtemp, readFile, rm, rmdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { createIntegration } from '../../integration.mjs'
+import { createContractRegistry } from '../../contract-validator.mjs'
 
 test('ERP exchange persists work orders, retries a temporary error, and imports a CAD assembly', async t => {
   const directory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
+  const contracts = await createContractRegistry(directory)
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'orbita-integration-'))
   const stateFile = path.join(temporary, 'state.json')
   let baseUrl = ''
-  const integration = await createIntegration({ directory, stateFile, getBaseUrl: () => baseUrl })
+  const integration = await createIntegration({ directory, stateFile, getBaseUrl: () => baseUrl, contracts })
   const server = http.createServer((request, response) => integration.handle(request, response, new URL(request.url, 'http://localhost').pathname))
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
   baseUrl = `http://127.0.0.1:${server.address().port}`
@@ -47,7 +49,7 @@ test('ERP exchange persists work orders, retries a temporary error, and imports 
   assert.equal(cad.body.status, 'accepted')
   assert.equal((await send('/api/integrations/cad', current.sample_assembly)).body.status, 'duplicate')
   assert.equal(JSON.parse(await readFile(stateFile, 'utf8')).assemblies.length, 1)
-  const reloaded = await createIntegration({ directory, stateFile, getBaseUrl: () => baseUrl })
+  const reloaded = await createIntegration({ directory, stateFile, getBaseUrl: () => baseUrl, contracts })
   const replayResponse = { writeHead(status) { this.status = status; return this }, end(body) { this.body = JSON.parse(body) } }
   await reloaded.handle({ method: 'GET' }, replayResponse, '/api/integrations/state')
   assert.equal(replayResponse.status, 200)

@@ -1,26 +1,16 @@
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+import { readJsonObject } from './contract-validator.mjs'
 
 const fail = (status, message) => Object.assign(new Error(message), { status })
 const send = (response, status, body) => {
   response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' })
   response.end(JSON.stringify(body))
 }
-async function bodyOf(request) {
-  if (!String(request.headers['content-type'] ?? '').startsWith('application/json')) throw fail(415, 'Требуется application/json')
-  const chunks = []
-  let size = 0
-  for await (const part of request) { size += part.length; if (size > 65_536) throw fail(413, 'Запрос превышает 64 КБ'); chunks.push(part) }
-  try {
-    const value = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
-    if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail(400, 'Ожидается объект JSON')
-    return value
-  } catch (error) { throw error.status ? error : fail(400, 'Некорректный JSON') }
-}
 
 /** The simulator is one replaceable device adapter; missions and observations keep the same contract. */
-export async function createMobileOps({ directory, storage, audit, items, itemLineMap, stateFile, now = () => new Date() }) {
+export async function createMobileOps({ directory, storage, audit, contracts, items, itemLineMap, stateFile, now = () => new Date() }) {
   const demo = items ? null : JSON.parse(await readFile(path.join(directory, 'source', 'src', 'demo-data.json'), 'utf8'))
   const knownItems = items ?? demo.items
   const lines = new Map(Object.entries(itemLineMap ?? {}))
@@ -54,10 +44,31 @@ export async function createMobileOps({ directory, storage, audit, items, itemLi
     if (!scope(principal, robot.lineId)) throw fail(403, 'Комплекс находится вне доступной линии')
     return robot
   }
+  const deliverySummary = row => ({
+    eventId: row.message.event_id,
+    missionId: row.message.data.capture_context.mission_id,
+    itemId: row.message.item_id,
+    robotId: row.message.actor_id,
+    occurredAt: row.message.occurred_at,
+    deliveredAt: row.receipt?.accepted_at ?? null,
+  })
   const view = principal => ({ robots: state.robots.filter(row => scope(principal, row.lineId)),
     missions: state.missions.filter(row => scope(principal, row.lineId)),
     buffered: state.outbox.filter(row => scope(principal, row.message.line_id)).length,
-    delivered: state.deliveries.filter(row => scope(principal, row.message.line_id)).length })
+    delivered: state.deliveries.filter(row => scope(principal, row.message.line_id)).length,
+    bufferedEvents: state.outbox.filter(row => scope(principal, row.message.line_id)).map(deliverySummary),
+    recentDeliveries: state.deliveries.filter(row => scope(principal, row.message.line_id))
+      .slice().sort((a, b) => String(b.deliver_at).localeCompare(String(a.deliver_at))).slice(0, 10).map(deliverySummary) })
+  const acceptDelivery = (draft, delivery, acceptedAt) => {
+    const existing = draft.deliveries.find(saved => saved.message.event_id === delivery.message.event_id)
+    if (existing) return { delivery: existing, accepted: false }
+    const accepted = { ...delivery, deliver_at: acceptedAt, receipt: {
+      status: 'accepted', accepted_at: acceptedAt, event_id: delivery.message.event_id,
+      mission_id: delivery.message.data.capture_context.mission_id,
+    } }
+    draft.deliveries.push(accepted)
+    return { delivery: accepted, accepted: true }
+  }
   async function createMission(input, principal) {
     requireOperator(principal)
     const item = knownItems.find(row => row.id === input?.itemId)
@@ -69,7 +80,9 @@ export async function createMobileOps({ directory, storage, audit, items, itemLi
       if (robot.lineId !== lineId) throw fail(422, 'Комплекс и изделие находятся на разных линиях')
       if (!robot.online) throw fail(409, 'Сначала восстановите связь с комплексом')
       const mission = { id: randomUUID(), itemId: item.id, itemTypeId: item.item_type_id, lineId, robotId: robot.id,
-        checkpoint: input.checkpoint, status: 'issued', createdAt: now().toISOString(), createdBy: principal.user.id, observationId: null, observationResult: null }
+        checkpoint: input.checkpoint, status: 'issued', createdAt: now().toISOString(), createdBy: principal.user.id,
+        observationId: null, observationResult: null, capturedAt: null, deliveredAt: null }
+      contracts?.assert('mobileops', mission, '#/$defs/mission', 'Созданное задание MobileOps не прошло проверку')
       await audit.append({ type: 'mobile.mission.issued', at: mission.createdAt, actor: principal.user.id, role: principal.user.role,
         missionId: mission.id, itemId: item.id, lineId, robotId: robot.id, checkpoint: mission.checkpoint })
       draft.missions.push(mission)
@@ -101,12 +114,19 @@ export async function createMobileOps({ directory, storage, audit, items, itemLi
           data: { inspection_point_id: mission.checkpoint, inspection_result: input.result, observation_quality: unable ? 'poor' : 'good',
             confidence: null, defects: [], method: 'mobile_visual_check', evidence_refs: [], triage_priority: unable ? 'high' : 'routine',
             capture_context: { source: 'mobile_robot_simulator', robot_id: robot.id, mission_id: mission.id, synthetic: true } } } }
+      contracts?.assert('mobileops', delivery.message, '#/$defs/mobileObservation', 'Наблюдение MobileOps не прошло проверку')
+      contracts?.assert('delivery', delivery, '', 'Доставка MobileOps не прошла проверку')
       await audit.append({ type: 'mobile.observation.captured', at: occurredAt, actor: robot.id, requestedBy: principal.user.id,
         missionId: mission.id, eventId, result: input.result, buffered: !robot.online })
       mission.observationId = eventId
       mission.observationResult = input.result
-      if (robot.online) { mission.status = 'delivered'; draft.deliveries.push(delivery) }
-      else { mission.status = 'buffered'; draft.outbox.push(delivery) }
+      mission.capturedAt = occurredAt
+      if (robot.online) {
+        const accepted = acceptDelivery(draft, delivery, occurredAt)
+        mission.status = 'delivered'; mission.deliveredAt = accepted.delivery.receipt.accepted_at
+        if (accepted.accepted) await audit.append({ type: 'mobile.observation.delivered', at: occurredAt, actor: robot.id,
+          requestedBy: principal.user.id, missionId: mission.id, eventId, receiptStatus: 'accepted' })
+      } else { mission.status = 'buffered'; draft.outbox.push(delivery) }
       return { mission, deliveryStatus: mission.status }
     })
   }
@@ -122,11 +142,16 @@ export async function createMobileOps({ directory, storage, audit, items, itemLi
       if (online) {
         const waiting = draft.outbox.filter(row => row.message.actor_id === robot.id)
         for (const row of waiting) {
-          if (!draft.deliveries.some(saved => saved.message.event_id === row.message.event_id)) {
-            draft.deliveries.push({ ...row, deliver_at: now().toISOString() }); flushed += 1
+          const acceptedAt = now().toISOString()
+          const accepted = acceptDelivery(draft, row, acceptedAt)
+          if (accepted.accepted) {
+            flushed += 1
+            await audit.append({ type: 'mobile.observation.delivered', at: acceptedAt, actor: robot.id,
+              requestedBy: principal.user.id, missionId: accepted.delivery.receipt.mission_id,
+              eventId: accepted.delivery.receipt.event_id, receiptStatus: accepted.delivery.receipt.status })
           }
           const mission = draft.missions.find(entry => entry.observationId === row.message.event_id)
-          if (mission) mission.status = 'delivered'
+          if (mission) { mission.status = 'delivered'; mission.deliveredAt = accepted.delivery.receipt?.accepted_at ?? accepted.delivery.deliver_at }
         }
         draft.outbox = draft.outbox.filter(row => row.message.actor_id !== robot.id)
       }
@@ -138,11 +163,23 @@ export async function createMobileOps({ directory, storage, audit, items, itemLi
     try {
       if (pathname === '/api/mobile/state' && request.method === 'GET') return send(response, 200, view(principal))
       if (pathname === '/api/mobile/events' && request.method === 'GET') return send(response, 200, { deliveries: deliveredEvents(principal) })
-      if (pathname === '/api/mobile/missions' && request.method === 'POST') return send(response, 200, { mission: await createMission(await bodyOf(request), principal) })
+      if (pathname === '/api/mobile/missions' && request.method === 'POST') {
+        const body = await readJsonObject(request)
+        contracts?.assert('mobileops', body, '#/$defs/createMissionRequest', 'Задание MobileOps не соответствует контракту')
+        return send(response, 200, { mission: await createMission(body, principal) })
+      }
       const capture = /^\/api\/mobile\/missions\/([^/]+)\/simulate$/.exec(pathname)
-      if (capture && request.method === 'POST') return send(response, 200, await simulateObservation(capture[1], await bodyOf(request), principal))
+      if (capture && request.method === 'POST') {
+        const body = await readJsonObject(request)
+        contracts?.assert('mobileops', body, '#/$defs/observationRequest', 'Результат MobileOps не соответствует контракту')
+        return send(response, 200, await simulateObservation(capture[1], body, principal))
+      }
       const link = /^\/api\/mobile\/robots\/([^/]+)\/link$/.exec(pathname)
-      if (link && request.method === 'POST') return send(response, 200, await setLink(link[1], (await bodyOf(request)).online, principal))
+      if (link && request.method === 'POST') {
+        const body = await readJsonObject(request)
+        contracts?.assert('mobileops', body, '#/$defs/linkRequest', 'Состояние связи не соответствует контракту')
+        return send(response, 200, await setLink(link[1], body.online, principal))
+      }
       send(response, 404, { error: 'Маршрут MobileOps не найден' })
     } catch (error) { send(response, error.status ?? 503, { error: error.status ? error.message : 'Операция MobileOps не выполнена' }) }
   }

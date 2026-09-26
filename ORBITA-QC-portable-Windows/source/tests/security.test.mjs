@@ -5,12 +5,16 @@ import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { after, test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import { createSecurity } from '../../security.mjs'
+import { createContractRegistry } from '../../contract-validator.mjs'
 
 const temp = await mkdtemp(path.join(tmpdir(), 'orbita-security-'))
 after(() => rm(temp, { recursive: true, force: true }))
 const rootKey = randomBytes(32)
+const contracts = await createContractRegistry(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..'))
 const security = await createSecurity({ directory: temp, rootKey, items: [{ id: 'ITEM-1', item_type_id: 'TYPE-1' }], itemLineMap: { 'ITEM-1': 'LINE-1' },
+  contracts,
   users: [{ id: 'qc', role: 'controller', lineIds: ['LINE-1'], password: 'correct-controller-password' },
     { id: 'master', role: 'master', lineIds: ['LINE-2'], password: 'correct-master-password' },
     { id: 'admin', role: 'administrator', lineIds: ['LINE-1'], password: 'correct-admin-password' }] })
@@ -34,6 +38,7 @@ const login = async (id, password) => {
 
 test('security bus authenticates, checks CSRF, role and item scope before mutations', async () => {
   assert.equal((await request('/api/integrations/state')).status, 401)
+  assert.equal((await request('/api/security/login', { method: 'POST', body: { id: 'qc', password: 'correct-controller-password', role: 'administrator' } })).status, 422)
   assert.equal((await login('qc', 'wrong')).status, 401)
   const qc = await login('qc', 'correct-controller-password')
   assert.equal(qc.status, 200)

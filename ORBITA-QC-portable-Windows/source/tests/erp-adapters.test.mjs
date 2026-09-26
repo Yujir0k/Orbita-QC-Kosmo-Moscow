@@ -7,8 +7,10 @@ import { mkdtemp, readFile, rm, rmdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { createIntegration } from '../../integration.mjs'
 import { createErpAdapter } from '../../erp-adapters.mjs'
+import { createContractRegistry } from '../../contract-validator.mjs'
 
 const directory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
+const contracts = await createContractRegistry(directory)
 const mapping = {
   orders: { 'WO-B': 'EXT-WO-B' },
   items: { 'ITEM-007': 'EXT-ITEM-007' },
@@ -55,7 +57,7 @@ for (const profile of ['1c', 'galaktika']) {
     t.after(async () => new Promise(resolve => external.server.close(resolve)))
     let baseUrl = ''
     const auth = profile === '1c' ? { type: 'basic', username: 'exchange', password: 'local-test' } : { type: 'bearer', token: 'local-test-token' }
-    const integration = await createIntegration({ directory, stateFile, profile, getBaseUrl: () => baseUrl,
+    const integration = await createIntegration({ directory, stateFile, profile, getBaseUrl: () => baseUrl, contracts,
       adapterOptions: { baseUrl: external.url, mapping, auth } })
     t.after(() => integration.close())
     const app = await listen((request, response) => integration.handle(request, response, new URL(request.url, 'http://localhost').pathname))
@@ -109,7 +111,7 @@ for (const profile of ['1c', 'galaktika']) {
 
 test('an unconfigured ERP profile stays visibly inactive and remote plain HTTP is rejected', async t => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'orbita-unconfigured-'))
-  const integration = await createIntegration({ directory, stateFile: path.join(temporary, 'state.json'), profile: '1c', adapterOptions: {} })
+  const integration = await createIntegration({ directory, stateFile: path.join(temporary, 'state.json'), profile: '1c', adapterOptions: {}, contracts })
   const app = await listen((request, response) => integration.handle(request, response, new URL(request.url, 'http://localhost').pathname))
   t.after(async () => { integration.close(); await new Promise(resolve => app.server.close(resolve)); await rmdir(temporary) })
   const state = await (await fetch(`${app.url}/api/integrations/state`)).json()

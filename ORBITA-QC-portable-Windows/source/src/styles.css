@@ -322,6 +322,12 @@ table .badge { font-size: 10px; }
 .mobileops-summary>div { display: grid; gap: 3px; min-width: 140px; padding: 18px; border: 1px solid #354b5b; border-radius: 7px; }
 .mobileops-summary strong { font-size: 29px; }
 .mobileops-summary span { color: #a8c1d2; font-size: 10px; }
+.mobileops-sync-list { margin: 0 0 22px; border: 1px solid #354b5b; border-radius: 7px; overflow: hidden; }
+.mobileops-sync-list h3 { margin: 0; padding: 12px 15px; color: #a8c1d2; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; background: #182630; }
+.mobileops-sync-list>div { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 12px 15px; border-top: 1px solid #304350; }
+.mobileops-sync-list>div>span { display: grid; gap: 4px; min-width: 0; }
+.mobileops-sync-list small { color: #98b1bf; font-size: 9px; overflow-wrap: anywhere; }
+.mobileops-receipt { justify-items: end; flex-shrink: 0; }
 @media(max-width:760px) { .mobileops-robot { flex-wrap: wrap; }.mobileops-robot .button { width: 100%; justify-content: center; } }
 .security-login-card .button { justify-content: center; }
 .security-error { color: #ffb6a7 !important; }
