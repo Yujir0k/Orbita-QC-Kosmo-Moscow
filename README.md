@@ -1,3 +1,11 @@
+## 🏅 КосмоХакатон 2026 · финал в Москве
+
+Команда **R² negative** заняла **4-е место** в московском финале КосмоХакатона с проектом **ОРБИТА.QC** — рабочей средой контроля качества и прослеживаемости истории изделия.
+
+[Презентация PDF](docs/hackathon/presentation.pdf)
+
+---
+
 # ОРБИТА.QC
 
 **От признака дефекта — к обоснованному решению.**
@@ -617,7 +625,7 @@ node app/source/scripts/smoke-production.mjs
 Клонируйте репозиторий на диск A в каталог с латинским именем: это исключает проблемы Docker Desktop с кириллицей в пути сборки.
 
 ```powershell
-git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git A:\orbita-qc
+git clone https://github.com/Yujir0k/Orbita-QC-Kosmo-Moscow.git A:\orbita-qc
 cd A:\orbita-qc
 pwsh -File deployment/start.ps1 -Replicas 2
 ```
@@ -631,7 +639,7 @@ pwsh -File deployment/start.ps1 -OpenSsl 'C:\Program Files\OpenSSL-Win64\bin\ope
 ### Linux
 
 ```sh
-git clone git@gitverse.ru:hackrus.experts/kosmo-moskva_r2_negative_9.git orbita-qc
+git clone https://github.com/Yujir0k/Orbita-QC-Kosmo-Moscow.git orbita-qc
 cd orbita-qc
 sh deployment/start.sh
 ```
@@ -676,3 +684,27 @@ compose.production.yaml   настройки режима эксплуатаци
 ```
 
 Архивы релизов, встроенный `node.exe`, собранный сайт, логи, базы, пароли и ключи не нужны в исходном дереве. Сборочные артефакты воспроизводятся из lockfile. Перед вводом в эксплуатацию согласуются реальные допуски и полномочия, интеграционные ID, хранение фото, часы источников, нагрузочный профиль и процедуры восстановления; синтетический набор заменяется проверенными данными площадки.
+
+
+## Презентация
+
+[Открыть презентацию в PDF](docs/hackathon/presentation.pdf)
+
+<details>
+<summary>Листать презентацию прямо в README</summary>
+
+<p align="center">
+  <img src="docs/hackathon/slide-01.jpg" alt="ОРБИТА.QC, слайд 1" width="90%" />
+  <img src="docs/hackathon/slide-02.jpg" alt="ОРБИТА.QC, слайд 2" width="90%" />
+  <img src="docs/hackathon/slide-03.jpg" alt="ОРБИТА.QC, слайд 3" width="90%" />
+  <img src="docs/hackathon/slide-04.jpg" alt="ОРБИТА.QC, слайд 4" width="90%" />
+  <img src="docs/hackathon/slide-05.jpg" alt="ОРБИТА.QC, слайд 5" width="90%" />
+  <img src="docs/hackathon/slide-06.jpg" alt="ОРБИТА.QC, слайд 6" width="90%" />
+  <img src="docs/hackathon/slide-07.jpg" alt="ОРБИТА.QC, слайд 7" width="90%" />
+  <img src="docs/hackathon/slide-08.jpg" alt="ОРБИТА.QC, слайд 8" width="90%" />
+  <img src="docs/hackathon/slide-09.jpg" alt="ОРБИТА.QC, слайд 9" width="90%" />
+  <img src="docs/hackathon/slide-10.jpg" alt="ОРБИТА.QC, слайд 10" width="90%" />
+  <img src="docs/hackathon/slide-11.jpg" alt="ОРБИТА.QC, слайд 11" width="90%" />
+</p>
+
+</details>
