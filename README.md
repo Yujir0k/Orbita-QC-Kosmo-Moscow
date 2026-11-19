@@ -706,3 +706,13 @@ compose.production.yaml   настройки режима эксплуатаци
 </p>
 
 </details>
+
+
+## Сертификат участника финала КосмоХакатона
+
+<p align="center"><img src="docs/certificates/14_Kosmo_Moscow_certificate.png" width="75%" alt="Сертификат участника финала КосмоХакатона" /></p>
+
+
+### Рейтинг команды в финале
+
+<p align="center"><img src="docs/certificates/17_Kosmo_Moscow_team_ranking.png" width="85%" alt="4-е место команды в рейтинге финала" /></p>
